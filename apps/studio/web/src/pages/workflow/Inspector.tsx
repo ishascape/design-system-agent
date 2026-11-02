@@ -273,7 +273,7 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
     () => (step ? api.artifacts(project.id, { stepId: step.id }) : Promise.resolve([])),
     [project.id, step?.id, version],
   );
-  const [open, setOpen] = useState<{ id: string; text: string } | null>(null);
+  const [open, setOpen] = useState<{ id: string; text: string; image: boolean } | null>(null);
   if (!step) return <p className="muted">No artifacts yet.</p>;
   if (list.error) return <ErrorNote>{list.error}</ErrorNote>;
   if (!list.data?.length) return <p className="muted">This stage saved no files.</p>;
@@ -286,7 +286,13 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
               type="button"
               className={`artifact${open?.id === a.id ? ' is-on' : ''}`}
               onClick={async () =>
-                setOpen(open?.id === a.id ? null : { id: a.id, text: await api.artifactText(project.id, a.id) })
+                setOpen(
+                  open?.id === a.id
+                    ? null
+                    : a.mediaType === 'image/png'
+                      ? { id: a.id, text: '', image: true }
+                      : { id: a.id, text: await api.artifactText(project.id, a.id), image: false },
+                )
               }
             >
               <Icon name="file" size={14} />
@@ -305,7 +311,10 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
           </li>
         ))}
       </ul>
-      {open && (
+      {open?.image && (
+        <img className="shot" src={api.artifactUrl(project.id, open.id)} alt="Screenshot of the rendered page" />
+      )}
+      {open && !open.image && (
         <pre className="json json--file">
           {open.text.length > 200_000
             ? open.text.slice(0, 200_000) + '\n… (truncated; download for the full file)'

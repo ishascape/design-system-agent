@@ -12,6 +12,8 @@ export function OverviewPage({ project, version, workflow }: PageProps) {
   );
   const foundations = useLoad(() => api.foundations(project.id), [project.id, version]);
   const components = useLoad(() => api.components(project.id), [project.id, version]);
+  const shots = useLoad(() => api.artifacts(project.id), [project.id, version]);
+  const shot = shots.data?.find((a) => a.kind === 'screenshot');
   const waiting = run.data?.steps.find((s) => s.status === 'awaiting-approval');
   const failed = run.data?.steps.find((s) => s.status === 'failed' || s.status === 'interrupted');
 
@@ -117,6 +119,9 @@ export function OverviewPage({ project, version, workflow }: PageProps) {
         </section>
         <section className="card">
           <h2 className="card__title">Sources</h2>
+          {shot && (
+            <img className="shot" src={api.artifactUrl(project.id, shot.id)} alt="Screenshot of the source website" />
+          )}
           {project.sources.length === 0 ? (
             <p className="muted">
               No source yet. <a href={href({ page: 'settings', projectId: project.id })}>Add one in Settings.</a>

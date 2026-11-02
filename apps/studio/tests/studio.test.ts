@@ -300,3 +300,53 @@ describe('proposeName', () => {
     expect(proposeName({ id: 'tap', type: 'dimension' })).toBe('size.tap');
   });
 });
+
+describe('website import with a sandboxed browser render', () => {
+  let server: import('node:http').Server;
+  let base = '';
+  let secretHits = 0;
+  beforeAll(async () => {
+    const { createServer } = await import('node:http');
+    server = createServer((req, res) => {
+      if (req.url === '/secret') {
+        secretHits++;
+        res.end('secret');
+        return;
+      }
+      res.setHeader('content-type', 'text/html');
+      // No stylesheet in the HTML: the styles only exist once the script runs.
+      res.end(`<!doctype html><title>JS site</title><p class="x">Hello</p><script>
+        const s = document.createElement('style');
+        s.textContent = ':root{--brand:#ff0055;--gap:16px} .x{color:var(--brand);margin:var(--gap)}';
+        document.head.append(s);
+        fetch('http://localhost:${(server.address() as import('node:net').AddressInfo).port}/secret').catch(() => {});
+      </script>`);
+    });
+    await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+    base = `http://127.0.0.1:${(server.address() as import('node:net').AddressInfo).port}/`;
+  });
+  afterAll(() => server.close());
+
+  it('captures styles built by JavaScript, saves a screenshot, and blocks calls to this computer', async () => {
+    const p = (await call('POST', '/api/projects', { name: 'JS site', source: { kind: 'website', url: base } })).data;
+    const sourceId = (p.sources as unknown as { id: string }[])[0]!.id;
+    const r = (await call('POST', `/api/projects/${p.id}/runs`, { sourceId })).data;
+    await engine.idle(r.id as string);
+    const view = (await call('GET', `/api/projects/${p.id}/runs/${r.id}`)).data as unknown as RunView;
+    expect(statuses(view)).toMatchObject({ 'import-source': 'succeeded', 'extract-tokens': 'succeeded' });
+    const tokens = (view.steps.find((s) => s.key === 'extract-tokens')!.output as { proposals: { cssVar: string }[] })
+      .proposals;
+    expect(tokens.map((t) => t.cssVar).sort()).toEqual(['--brand', '--gap']);
+    expect(secretHits).toBe(0);
+
+    const arts = (await call('GET', `/api/projects/${p.id}/artifacts`)).data as unknown as {
+      id: string;
+      kind: string;
+    }[];
+    const shot = arts.find((a) => a.kind === 'screenshot')!;
+    const res = await app.request(`/api/projects/${p.id}/artifacts/${shot.id}/raw`, { headers: { host: 'localhost' } });
+    expect(res.headers.get('content-type')).toBe('image/png');
+    expect(res.headers.get('content-disposition')).toBeNull();
+    expect([...new Uint8Array(await res.arrayBuffer()).slice(1, 4)]).toEqual([0x50, 0x4e, 0x47]); // "PNG"
+  }, 60_000);
+});

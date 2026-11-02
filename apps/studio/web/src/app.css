@@ -1453,3 +1453,12 @@ textarea.input {
 .token-group__toggle svg.is-open {
   transform: rotate(90deg);
 }
+
+.shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-md);
+  background: var(--ds-color-surface-sunken);
+}

@@ -224,11 +224,13 @@ export function createApp({ store, engine, workflows, projectDir, allowedHosts }
     const file = resolve(base, a.path);
     if (!file.startsWith(base + '/') || !existsSync(file)) throw new WorkflowError(404, 'Artifact file is missing');
     const isText = TEXT_TYPES.has(a.mediaType);
+    const isImage = a.mediaType === 'image/png';
     // Artifacts come from untrusted sources: never render them as HTML in the Studio's origin.
-    c.header('content-type', isText ? 'text/plain; charset=utf-8' : 'application/octet-stream');
+    // PNG screenshots are the Studio's own captures and are shown inline as images.
+    c.header('content-type', isText ? 'text/plain; charset=utf-8' : isImage ? 'image/png' : 'application/octet-stream');
     c.header('x-content-type-options', 'nosniff');
     c.header('content-security-policy', "default-src 'none'; sandbox");
-    if (c.req.query('download') || !isText)
+    if (c.req.query('download') || (!isText && !isImage))
       c.header('content-disposition', `attachment; filename="${a.path.split('/').pop()}"`);
     return c.body(readFileSync(file));
   });

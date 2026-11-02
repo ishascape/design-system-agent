@@ -17,6 +17,9 @@ const exec = promisify(execFile);
 /** Set only by tests, to clone local fixture repos. */
 const allowFile = () => process.env.STUDIO_ALLOW_FILE_SOURCES === '1';
 
+/** Tests serve fixture sites from this computer; real runs never render local addresses. */
+export const allowLocalSites = allowFile;
+
 export function validateSourceUrl(kind: SourceKind, url: string): string | null {
   let u: URL;
   try {
@@ -46,6 +49,8 @@ export interface FetchedSource {
   commit: string;
   ref: string;
   files: number;
+  /** Websites only: stylesheets and style blocks found in the downloaded HTML. */
+  styles?: number;
 }
 
 const gitEnv = { ...process.env, GIT_TERMINAL_PROMPT: '0', GIT_ASKPASS: 'echo' };
@@ -106,7 +111,7 @@ export async function fetchWebsite(
   signal: AbortSignal,
   log: (m: string) => void,
 ): Promise<FetchedSource> {
-  log(`Downloading ${url} (HTML and stylesheets only; scripts are not run)`);
+  log(`Downloading ${url} (HTML and stylesheets; nothing is run by this download)`);
   const page = await download(url, signal);
   if (!page.type.includes('html')) throw new Error(`${url} is not an HTML page (${page.type || 'unknown type'})`);
   const base = new URL(url);
@@ -142,8 +147,7 @@ export async function fetchWebsite(
     hash.update(css);
   });
   if (hrefs.length > MAX_STYLESHEETS) log(`Only the first ${MAX_STYLESHEETS} stylesheets were downloaded`);
-  if (n + inline.length === 0) throw new Error('The page has no same-origin stylesheets to analyse');
   const commit = hash.digest('hex');
   log(`Snapshot ${commit.slice(0, 7)}: ${n} stylesheets, ${inline.length} inline style blocks`);
-  return { dir, commit, ref: 'snapshot', files: n + inline.length + 1 };
+  return { dir, commit, ref: 'snapshot', files: n + inline.length + 1, styles: n + inline.length };
 }

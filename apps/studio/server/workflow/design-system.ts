@@ -2,13 +2,15 @@
  * The design-system workflow (v1): a fixed sequence of ten stages. Each stage calls the same
  * pipeline packages the command line uses, so the Studio and the CLI can never disagree.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
 import type { AuditInventory, TokenCandidate } from '@dsa/registry';
 import { renderComponentsReport, renderDriftReport, runAudit, toDtcgCandidates } from '@dsa/discovery';
 import { TokenMap, buildTokens, promoteTokens, toDtcgToken } from '@dsa/tokens';
-import { fetchRepo, fetchWebsite, type FetchedSource } from '../sources.ts';
+import { allowLocalSites, fetchRepo, fetchWebsite, type FetchedSource } from '../sources.ts';
+import { renderWebsite } from '../render.ts';
 import { StepBlocked, type StepContext, type StepDefinition, type WorkflowDefinition } from './types.ts';
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T;
@@ -58,19 +60,50 @@ export interface TokenProposal {
   reason?: string;
 }
 
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
 const importSource: StepDefinition = {
   key: 'import-source',
   title: 'Import source',
   description: 'Connects to the source and makes a pinned, read-only copy.',
   action: 'Fetching the source',
-  params: z.object({ ref: z.string().min(1).default('HEAD') }),
+  params: z.object({
+    /** Repositories: the branch, tag or commit to import. */
+    ref: z.string().min(1).default('HEAD'),
+    /** Websites: render in a sandboxed browser. auto uses rendered styles only if the HTML had none. */
+    render: z.enum(['auto', 'always', 'off']).default('auto'),
+  }),
   async run(ctx) {
     const dir = join(ctx.workspace, 'sources', ctx.source.id);
     let got: FetchedSource;
+    const warnings: string[] = [];
     if (ctx.source.kind === 'github') {
       got = await fetchRepo(ctx.source.url, String(ctx.params.ref), join(dir, 'repo'), ctx.signal, ctx.log);
     } else if (ctx.source.kind === 'website') {
       got = await fetchWebsite(ctx.source.url, join(dir, 'site'), ctx.signal, ctx.log);
+      const mode = String(ctx.params.render);
+      if (mode !== 'off') {
+        const r = await renderWebsite(ctx.source.url, ctx.signal, ctx.log, { allowPrivateHosts: allowLocalSites() });
+        if ('unavailable' in r) {
+          warnings.push(r.unavailable);
+          ctx.log(r.unavailable, 'warn');
+        } else {
+          ctx.saveArtifact('screenshot', 'screenshot.png', r.screenshot, 'image/png');
+          if (mode === 'always' || !got.styles) {
+            const styles = join(got.dir, 'styles');
+            if (mode === 'always') rmSync(styles, { recursive: true, force: true });
+            mkdirSync(styles, { recursive: true });
+            writeFileSync(join(styles, 'rendered.css'), r.css);
+            got = {
+              ...got,
+              commit: createHash('sha1').update(got.commit).update(r.css).digest('hex'),
+              styles: 1,
+            };
+            ctx.log('Using the styles captured from the rendered page');
+          }
+        }
+      }
+      if (!got.styles) throw new Error('The page has no same-origin styles to analyse, even after rendering');
     } else {
       throw new StepBlocked(
         ctx.source.kind === 'figma'
@@ -87,7 +120,7 @@ const importSource: StepDefinition = {
           { label: ctx.source.kind === 'github' ? 'Commit' : 'Snapshot hash', value: got.commit },
           { label: 'Files', value: String(got.files) },
         ],
-        warnings: [],
+        warnings,
       },
       output: { dir: rel, commit: got.commit, ref: got.ref, kind: ctx.source.kind },
     };
@@ -109,7 +142,7 @@ const discover: StepDefinition = {
       warnings.push('No CSS files found. Projects that style only with Tailwind or CSS-in-JS are not supported yet.');
     return {
       summary: {
-        headline: `${inv.scanned.cssFiles} stylesheets and ${inv.scanned.componentFiles} component files read`,
+        headline: `${plural(inv.scanned.cssFiles, 'stylesheet')} and ${plural(inv.scanned.componentFiles, 'component file')} read`,
         facts: [
           { label: 'Custom properties', value: String(inv.tokens.length) },
           { label: 'Hard-coded values', value: String(inv.hardCoded.length) },
