@@ -1,0 +1,6 @@
+/* Stories sit on the same paper as the source site. */
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-family-sans);
+}

@@ -1,5 +1,6 @@
 node_modules/
 dist/
+!packages/tokens/dist/
 storybook-static/
 .env
 .env.*
@@ -9,3 +10,4 @@ storybook-static/
 coverage/
 playwright-report/
 test-results/
+.cache/

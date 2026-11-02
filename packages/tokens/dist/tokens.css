@@ -1,0 +1,62 @@
+/* Generated from the canonical registry. Do not edit by hand. */
+:root {
+  --color-graphite: #615e58;
+  --color-ink: #1c1b19;
+  --color-marker: #2f5fb3;
+  --color-paper: #f5f2ea;
+  --color-paper-deep: #dcd9d2;
+  --color-paper-shade: #ece7da;
+  --color-rule: #d8d2c4;
+  --color-sheet-lift: #ffffff;
+  --font-family-hand: Caveat, 'Bradley Hand', 'Segoe Print', cursive;
+  --font-family-sans: Poppins, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-size-body: clamp(16px, 1.4vw, 18px);
+  --font-size-display: clamp(32px, 4vw, 48px);
+  --font-size-heading: clamp(22px, 2.4vw, 28px);
+  --font-size-label: 14px;
+  --font-size-metric: clamp(40px, 4.4vw, 56px);
+  --layout-content-max: 1280px;
+  --layout-gutter: 24px;
+  --layout-margin: 16px;
+  --line-building: 1px;
+  --line-cut: 3px;
+  --line-hair: 0.5px;
+  --line-thin: 1px;
+  --motion-duration-micro: 150ms;
+  --motion-duration-signature: 700ms;
+  --motion-duration-state: 280ms;
+  --motion-easing-pen: cubic-bezier(0.2, 0, 0, 1);
+  --radius-default: 16px;
+  --size-tap: 44px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 28px;
+  --space-5: 48px;
+  --space-6: 80px;
+  --space-7: 128px;
+}
+
+@media (min-width: 600px) {
+  :root {
+    --layout-margin: 32px;
+    --space-4: 32px;
+    --space-5: 56px;
+    --space-6: 96px;
+    --space-7: 160px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --layout-margin: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-micro: 0ms;
+    --motion-duration-signature: 0ms;
+    --motion-duration-state: 0ms;
+  }
+}

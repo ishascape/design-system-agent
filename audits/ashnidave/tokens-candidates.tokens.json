@@ -1,0 +1,549 @@
+{
+  "dimension": {
+    "radius": {
+      "$type": "dimension",
+      "$value": "16px",
+      "$description": "corner radius for buttons, cards and frames; Field notes polaroids stay square",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:4",
+          "confidence": "observed",
+          "usageCount": 15,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "text-display": {
+      "$type": "dimension",
+      "$value": "clamp(32px, 4vw, 48px)",
+      "$description": "halved 15 Oct 2026: Ashni found the H1 too big",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:20",
+          "confidence": "observed",
+          "usageCount": 2,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "text-heading": {
+      "$type": "dimension",
+      "$value": "clamp(22px, 2.4vw, 28px)",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:21",
+          "confidence": "observed",
+          "usageCount": 2,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "text-body": {
+      "$type": "dimension",
+      "$value": "clamp(16px, 1.4vw, 18px)",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:22",
+          "confidence": "observed",
+          "usageCount": 1,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "text-metric": {
+      "$type": "dimension",
+      "$value": "clamp(40px, 4.4vw, 56px)",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:23",
+          "confidence": "observed",
+          "usageCount": 2,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "text-label": {
+      "$type": "dimension",
+      "$value": "14px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:24",
+          "confidence": "observed",
+          "usageCount": 2,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "measure": {
+      "$type": "dimension",
+      "$value": "64ch",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:25",
+          "confidence": "observed",
+          "usageCount": 7,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "space-1": {
+      "$type": "dimension",
+      "$value": "4px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:28",
+          "confidence": "observed",
+          "usageCount": 23,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "space-2": {
+      "$type": "dimension",
+      "$value": "8px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:29",
+          "confidence": "observed",
+          "usageCount": 76,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "space-3": {
+      "$type": "dimension",
+      "$value": "16px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:30",
+          "confidence": "observed",
+          "usageCount": 79,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "space-4": {
+      "$type": "dimension",
+      "$value": "28px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:31",
+          "confidence": "observed",
+          "usageCount": 61,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        },
+        "dev.dsa.responsive": [
+          {
+            "media": "(min-width: 600px)",
+            "value": "32px",
+            "source": "src/styles/tokens.css:59"
+          }
+        ]
+      }
+    },
+    "space-5": {
+      "$type": "dimension",
+      "$value": "48px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:32",
+          "confidence": "observed",
+          "usageCount": 14,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        },
+        "dev.dsa.responsive": [
+          {
+            "media": "(min-width: 600px)",
+            "value": "56px",
+            "source": "src/styles/tokens.css:60"
+          }
+        ]
+      }
+    },
+    "space-6": {
+      "$type": "dimension",
+      "$value": "80px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:33",
+          "confidence": "observed",
+          "usageCount": 13,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        },
+        "dev.dsa.responsive": [
+          {
+            "media": "(min-width: 600px)",
+            "value": "96px",
+            "source": "src/styles/tokens.css:61"
+          }
+        ]
+      }
+    },
+    "space-7": {
+      "$type": "dimension",
+      "$value": "128px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:34",
+          "confidence": "observed",
+          "usageCount": 1,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        },
+        "dev.dsa.responsive": [
+          {
+            "media": "(min-width: 600px)",
+            "value": "160px",
+            "source": "src/styles/tokens.css:62"
+          }
+        ]
+      }
+    },
+    "content-max": {
+      "$type": "dimension",
+      "$value": "1280px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:37",
+          "confidence": "observed",
+          "usageCount": 2,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "gutter": {
+      "$type": "dimension",
+      "$value": "24px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:38",
+          "confidence": "observed",
+          "usageCount": 7,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "margin": {
+      "$type": "dimension",
+      "$value": "16px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:39",
+          "confidence": "observed",
+          "usageCount": 9,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        },
+        "dev.dsa.responsive": [
+          {
+            "media": "(min-width: 600px)",
+            "value": "32px",
+            "source": "src/styles/tokens.css:58"
+          },
+          {
+            "media": "(min-width: 1024px)",
+            "value": "48px",
+            "source": "src/styles/tokens.css:68"
+          }
+        ]
+      }
+    },
+    "line-hair": {
+      "$type": "dimension",
+      "$value": "0.5px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:42",
+          "confidence": "observed",
+          "usageCount": 13,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "line-thin": {
+      "$type": "dimension",
+      "$value": "1px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:43",
+          "confidence": "observed",
+          "usageCount": 80,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "line-building": {
+      "$type": "dimension",
+      "$value": "1.5px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:44",
+          "confidence": "observed",
+          "usageCount": 13,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "line-cut": {
+      "$type": "dimension",
+      "$value": "3px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:45",
+          "confidence": "observed",
+          "usageCount": 1,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "tap": {
+      "$type": "dimension",
+      "$value": "44px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:53",
+          "confidence": "observed",
+          "usageCount": 6,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    }
+  },
+  "color": {
+    "paper": {
+      "$type": "color",
+      "$value": "#f5f2ea",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:5",
+          "confidence": "observed",
+          "usageCount": 67,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "paper-shade": {
+      "$type": "color",
+      "$value": "#ece7da",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:6",
+          "confidence": "observed",
+          "usageCount": 8,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "ink": {
+      "$type": "color",
+      "$value": "#1c1b19",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:7",
+          "confidence": "observed",
+          "usageCount": 134,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "graphite": {
+      "$type": "color",
+      "$value": "#615e58",
+      "$description": "darkened from #6B6862 so small text passes AA on paper",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:8",
+          "confidence": "observed",
+          "usageCount": 72,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "rule": {
+      "$type": "color",
+      "$value": "#d8d2c4",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:9",
+          "confidence": "observed",
+          "usageCount": 20,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "marker": {
+      "$type": "color",
+      "$value": "#2f5fb3",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:10",
+          "confidence": "observed",
+          "usageCount": 75,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "paper-deep": {
+      "$type": "color",
+      "$value": "#dcd9d2",
+      "$description": "paper, 10% darker: the Selected work sheet",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:11",
+          "confidence": "observed",
+          "usageCount": 1,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "marker-wash": {
+      "$type": "color",
+      "$value": "rgb(47 95 179 / 0.12)",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:12",
+          "confidence": "observed",
+          "usageCount": 8,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "sheet-lift": {
+      "$type": "color",
+      "$value": "#fff",
+      "$description": "mixed 45% into paper for the raised cards",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:15",
+          "confidence": "observed",
+          "usageCount": 7,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    }
+  },
+  "other": {
+    "grid-line": {
+      "$value": "216 210 196",
+      "$description": "graph-paper lines, as rgb channels",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:13",
+          "confidence": "observed",
+          "usageCount": 4,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "shadow-ink": {
+      "$value": "28 27 25",
+      "$description": "shadow colour, as rgb channels",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:14",
+          "confidence": "observed",
+          "usageCount": 33,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    }
+  },
+  "fontFamily": {
+    "font-sans": {
+      "$type": "fontFamily",
+      "$value": "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:18",
+          "confidence": "observed",
+          "usageCount": 12,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    },
+    "font-hand": {
+      "$type": "fontFamily",
+      "$value": "'Caveat', 'Bradley Hand', 'Segoe Print', cursive",
+      "$description": "marker lettering for labels and drawings",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:19",
+          "confidence": "observed",
+          "usageCount": 8,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    }
+  },
+  "cubicBezier": {
+    "ease-pen": {
+      "$type": "cubicBezier",
+      "$value": "cubic-bezier(0.2, 0, 0, 1)",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:48",
+          "confidence": "observed",
+          "usageCount": 60,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        }
+      }
+    }
+  },
+  "duration": {
+    "dur-micro": {
+      "$type": "duration",
+      "$value": "150ms",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:49",
+          "confidence": "observed",
+          "usageCount": 29,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        },
+        "dev.dsa.responsive": [
+          {
+            "media": "(prefers-reduced-motion: reduce)",
+            "value": "0ms",
+            "source": "src/styles/tokens.css:75"
+          }
+        ]
+      }
+    },
+    "dur-state": {
+      "$type": "duration",
+      "$value": "280ms",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:50",
+          "confidence": "observed",
+          "usageCount": 6,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        },
+        "dev.dsa.responsive": [
+          {
+            "media": "(prefers-reduced-motion: reduce)",
+            "value": "0ms",
+            "source": "src/styles/tokens.css:76"
+          }
+        ]
+      }
+    },
+    "dur-signature": {
+      "$type": "duration",
+      "$value": "700ms",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:51",
+          "confidence": "observed",
+          "usageCount": 2,
+          "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+        },
+        "dev.dsa.responsive": [
+          {
+            "media": "(prefers-reduced-motion: reduce)",
+            "value": "0ms",
+            "source": "src/styles/tokens.css:77"
+          }
+        ]
+      }
+    }
+  }
+}

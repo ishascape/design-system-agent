@@ -1,0 +1,13 @@
+{
+  "name": "@dsa/registry",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Schemas and types for the canonical registry and audit outputs. Every AI or tool output is validated here before it is written.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  }
+}

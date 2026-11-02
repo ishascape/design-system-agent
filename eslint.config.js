@@ -1,0 +1,30 @@
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+  {
+    ignores: [
+      'node_modules/**',
+      '.cache/**',
+      'audits/**',
+      'tests/fixtures/**',
+      'storybook-static/**',
+      'packages/tokens/dist/**',
+    ],
+  },
+  js.configs.recommended,
+  ...tseslint.configs.strict,
+  {
+    rules: {
+      'no-console': ['error', { allow: ['error', 'warn'] }],
+      // With noUncheckedIndexedAccess, regex capture groups are typed as possibly undefined even
+      // after a successful match. `m[1]!` there is correct and clearer than extra branches.
+      '@typescript-eslint/no-non-null-assertion': 'off',
+    },
+  },
+  {
+    // Command-line tools and browser checks report progress on stdout.
+    files: ['packages/*/src/cli/**/*.ts', 'tests/docs/**/*.ts', 'tests/parity/**/*.ts'],
+    rules: { 'no-console': 'off' },
+  },
+);

@@ -1,0 +1,23 @@
+# ashnidave.com design system
+
+> Tokens and React components extracted from ashnidave.com, with provenance. Use these instead of
+> writing raw colours, sizes or new button styles.
+
+Rules for agents:
+- Use the components in `@dsa/ui` before writing new UI. Import `@dsa/ui/styles.css` once.
+- Style only with the CSS variables listed in the token catalog; never hard-code colours or spacing.
+- Specs marked pending-approval or states marked proposed are not final design decisions.
+
+## Components
+
+- [Button](docs/agents/components/button.md): An action or navigation link with an ink outline or fill that turns marker blue on hover, with registration corner marks on hover and focus.
+
+## Tokens
+
+- [Token manifest](packages/tokens/dist/tokens.manifest.json): every token with CSS variable, value and source line
+- [Token CSS](packages/tokens/dist/tokens.css)
+
+## Machine-readable
+
+- [catalog.json](docs/agents/catalog.json): tokens, component specs and extracted props in one file
+- [Component spec schema](packages/registry/src/component.ts)

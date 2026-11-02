@@ -1,0 +1,10 @@
+.cache/
+audits/
+tests/golden/
+tests/fixtures/
+package-lock.json
+docs/agents/
+llms.txt
+packages/tokens/dist/
+registry/tokens/*.tokens.json
+storybook-static/

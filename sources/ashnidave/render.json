@@ -1,0 +1,10 @@
+{
+  "distDir": "dist",
+  "widths": [375, 768, 1280],
+  "targets": {
+    "button": {
+      "primary": "#main .hero .button.button--primary, .button.button--primary",
+      "outline": "a.button:not(.button--primary)"
+    }
+  }
+}

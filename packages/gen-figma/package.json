@@ -1,0 +1,14 @@
+{
+  "name": "@dsa/gen-figma",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Generates Figma Plugin API scripts from the registry (variables and components) and checks Figma read-backs against the registry. Scripts run through the official Figma MCP use_figma tool.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@dsa/registry": "0.1.0",
+    "zod": "4.6.7"
+  }
+}

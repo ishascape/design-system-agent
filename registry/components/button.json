@@ -1,0 +1,232 @@
+{
+  "id": "button",
+  "name": "Button",
+  "version": "0.2.0",
+  "status": "pending-approval",
+  "summary": "An action or navigation link with an ink outline or fill that turns marker blue on hover, with registration corner marks on hover and focus.",
+  "whenToUse": [
+    "To trigger an action on the page, such as copying an email address.",
+    "To link to a key destination styled as an action, such as the resume or the work section."
+  ],
+  "whenNotToUse": [
+    "Inside another link or button. Make the outer element the only interactive one.",
+    "For inline links within body text. Use a plain text link.",
+    "More than one primary button in the same view."
+  ],
+  "source": {
+    "id": "ashnidave",
+    "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976",
+    "styles": ["src/styles/global.css:148-202", "src/styles/global.css:56"],
+    "usages": [
+      "src/components/Hero.tsx:100",
+      "src/components/Contact.tsx:38",
+      "src/components/Contact.tsx:45",
+      "src/components/Contact.tsx:49",
+      "src/components/Contact.tsx:54",
+      "src/components/Work.tsx:70",
+      "src/components/Lightbox.tsx:33"
+    ],
+    "rendered": "audits/ashnidave/rendered/button.json"
+  },
+  "variants": [
+    {
+      "name": "outline",
+      "description": "Default. Transparent fill, ink outline and ink label.",
+      "confidence": "observed"
+    },
+    {
+      "name": "primary",
+      "description": "Ink fill with a paper label. For the single most important action in a view.",
+      "confidence": "observed"
+    }
+  ],
+  "states": [
+    {
+      "name": "default",
+      "trigger": "At rest.",
+      "visual": "As the variant describes.",
+      "confidence": "observed"
+    },
+    {
+      "name": "hover",
+      "trigger": "Pointer over the button.",
+      "visual": "Marker fill and outline, paper label, corner marks appear.",
+      "confidence": "observed"
+    },
+    {
+      "name": "focus-visible",
+      "trigger": "Keyboard focus.",
+      "visual": "2px marker outline offset 3px, corner marks appear. Fill unchanged.",
+      "confidence": "observed"
+    },
+    {
+      "name": "disabled",
+      "trigger": "disabled attribute on a button (links cannot be disabled).",
+      "visual": "45% opacity, no hover change, not-allowed cursor. Not in the source; decided by Ashni on 2026-11-02.",
+      "confidence": "decided"
+    }
+  ],
+  "anatomy": [
+    {
+      "part": "container",
+      "description": "The outlined or filled shape; the hit area is at least 44px tall.",
+      "optional": false
+    },
+    {
+      "part": "label",
+      "description": "The visible text, which is also the accessible name.",
+      "optional": false
+    },
+    {
+      "part": "icon",
+      "description": "Optional decorative icon after the label, such as an arrow.",
+      "optional": true
+    },
+    {
+      "part": "corner marks",
+      "description": "Two registration marks at opposite corners, shown on hover and focus.",
+      "optional": false
+    }
+  ],
+  "tokens": [
+    {
+      "name": "color.ink",
+      "usedFor": "outline, label (outline variant), fill (primary variant)"
+    },
+    {
+      "name": "color.paper",
+      "usedFor": "label on primary and on hover"
+    },
+    {
+      "name": "color.marker",
+      "usedFor": "hover fill and outline, focus ring"
+    },
+    {
+      "name": "color.graphite",
+      "usedFor": "corner marks at 45%"
+    },
+    {
+      "name": "font.family.sans",
+      "usedFor": "label"
+    },
+    {
+      "name": "font.size.body",
+      "usedFor": "label"
+    },
+    {
+      "name": "space.2",
+      "usedFor": "gap between label and icon"
+    },
+    {
+      "name": "space.4",
+      "usedFor": "horizontal padding"
+    },
+    {
+      "name": "size.tap",
+      "usedFor": "minimum height"
+    },
+    {
+      "name": "radius.default",
+      "usedFor": "corner radius"
+    },
+    {
+      "name": "line.building",
+      "usedFor": "outline and corner mark weight"
+    },
+    {
+      "name": "motion.duration.micro",
+      "usedFor": "hover transition"
+    },
+    {
+      "name": "motion.easing.pen",
+      "usedFor": "hover transition"
+    }
+  ],
+  "constants": [
+    {
+      "name": "line-height",
+      "value": "1.65",
+      "reason": "Inherited from body in the source; no line-height token exists yet."
+    },
+    {
+      "name": "focus ring",
+      "value": "2px solid, offset 3px",
+      "reason": "Global :focus-visible rule in the source; candidate for a focus token later."
+    },
+    {
+      "name": "corner mark size",
+      "value": "10px, offset -6px",
+      "reason": "Decorative geometry from the source."
+    },
+    {
+      "name": "corner mark opacity",
+      "value": "45%",
+      "reason": "From the source (rgb(97 94 88 / 0.45))."
+    }
+  ],
+  "accessibility": {
+    "elements": ["button (type=\"button\" by default)", "a (when href is set)"],
+    "keyboard": ["Tab and Shift+Tab move focus", "Enter activates buttons and links", "Space activates buttons"],
+    "notes": [
+      "The label is the accessible name; the icon is hidden from assistive technology.",
+      "Minimum height 44px meets the touch target guideline.",
+      "Source issue: Work.tsx:70 draws a button as a <span> inside a card link. The component does not support that; make the card the link instead.",
+      "Colour contrast is not checked in unit tests (jsdom cannot render). It is checked in the Storybook accessibility panel."
+    ]
+  },
+  "guidelines": {
+    "do": [
+      "Start the label with a verb: \"Explore my work\", \"Copy email\".",
+      "Use one primary button per view and outline for the rest.",
+      "Use href for navigation so it is a real link."
+    ],
+    "dont": [
+      "Don't nest a button in a link or another button.",
+      "Don't use an icon without a label.",
+      "Don't disable a button without telling people why nearby."
+    ]
+  },
+  "responsive": [
+    "Horizontal padding follows space.4: 28px below 600px, 32px from 600px.",
+    "Label size follows font.size.body: fluid from 16px to 18px.",
+    "Source note: the hero overrides the primary button to 14px text and 8px padding below 600px (src/components/Hero.css:856). That is a page-level override, not a variant."
+  ],
+  "code": {
+    "package": "@dsa/ui",
+    "export": "Button",
+    "file": "packages/ui/src/button/Button.tsx",
+    "propsTypes": ["ButtonAsButtonProps", "ButtonAsLinkProps"],
+    "css": "packages/ui/src/button/button.css",
+    "className": "ds-button",
+    "examples": [
+      "import { Button } from '@dsa/ui';\nimport '@dsa/ui/styles.css';",
+      "<Button href=\"#work\" variant=\"primary\" icon=\"↓\">Explore my work</Button>",
+      "<Button onClick={copyEmail}>Copy email</Button>"
+    ]
+  },
+  "figma": {
+    "file": "gate0-test",
+    "node": "3:19",
+    "status": "generated"
+  },
+  "docs": {
+    "storybook": "components-button--docs"
+  },
+  "openQuestions": [],
+  "parity": {
+    "selector": ".ds-button",
+    "states": ["default", "hover", "focus"],
+    "stories": {
+      "primary": "components-button--primary",
+      "outline": "components-button--outline"
+    },
+    "exceptions": [
+      {
+        "variants": ["primary"],
+        "widths": [375],
+        "props": ["font-size", "line-height", "padding-left", "padding-right"],
+        "reason": "Hero page-level override of the primary button below 600px (src/components/Hero.css:856), not a variant."
+      }
+    ]
+  }
+}

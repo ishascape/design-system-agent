@@ -1,0 +1,6873 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "id": "ashnidave",
+    "repo": "https://github.com/ishascape/October-Portfolio",
+    "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976"
+  },
+  "scanned": {
+    "cssFiles": 26,
+    "componentFiles": 37
+  },
+  "tokens": [
+    {
+      "id": "radius",
+      "type": "dimension",
+      "value": "16px",
+      "overrides": [],
+      "usageCount": 15,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 4
+      },
+      "comment": "corner radius for buttons, cards and frames; Field notes polaroids stay square"
+    },
+    {
+      "id": "paper",
+      "type": "color",
+      "value": "#f5f2ea",
+      "overrides": [],
+      "usageCount": 67,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 5
+      }
+    },
+    {
+      "id": "paper-shade",
+      "type": "color",
+      "value": "#ece7da",
+      "overrides": [],
+      "usageCount": 8,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 6
+      }
+    },
+    {
+      "id": "ink",
+      "type": "color",
+      "value": "#1c1b19",
+      "overrides": [],
+      "usageCount": 134,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 7
+      }
+    },
+    {
+      "id": "graphite",
+      "type": "color",
+      "value": "#615e58",
+      "overrides": [],
+      "usageCount": 72,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 8
+      },
+      "comment": "darkened from #6B6862 so small text passes AA on paper"
+    },
+    {
+      "id": "rule",
+      "type": "color",
+      "value": "#d8d2c4",
+      "overrides": [],
+      "usageCount": 20,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 9
+      }
+    },
+    {
+      "id": "marker",
+      "type": "color",
+      "value": "#2f5fb3",
+      "overrides": [],
+      "usageCount": 75,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 10
+      }
+    },
+    {
+      "id": "paper-deep",
+      "type": "color",
+      "value": "#dcd9d2",
+      "overrides": [],
+      "usageCount": 1,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 11
+      },
+      "comment": "paper, 10% darker: the Selected work sheet"
+    },
+    {
+      "id": "marker-wash",
+      "type": "color",
+      "value": "rgb(47 95 179 / 0.12)",
+      "overrides": [],
+      "usageCount": 8,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 12
+      }
+    },
+    {
+      "id": "grid-line",
+      "type": "other",
+      "value": "216 210 196",
+      "overrides": [],
+      "usageCount": 4,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 13
+      },
+      "comment": "graph-paper lines, as rgb channels"
+    },
+    {
+      "id": "shadow-ink",
+      "type": "other",
+      "value": "28 27 25",
+      "overrides": [],
+      "usageCount": 33,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 14
+      },
+      "comment": "shadow colour, as rgb channels"
+    },
+    {
+      "id": "sheet-lift",
+      "type": "color",
+      "value": "#fff",
+      "overrides": [],
+      "usageCount": 7,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 15
+      },
+      "comment": "mixed 45% into paper for the raised cards"
+    },
+    {
+      "id": "font-sans",
+      "type": "fontFamily",
+      "value": "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif",
+      "overrides": [],
+      "usageCount": 12,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 18
+      }
+    },
+    {
+      "id": "font-hand",
+      "type": "fontFamily",
+      "value": "'Caveat', 'Bradley Hand', 'Segoe Print', cursive",
+      "overrides": [],
+      "usageCount": 8,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 19
+      },
+      "comment": "marker lettering for labels and drawings"
+    },
+    {
+      "id": "text-display",
+      "type": "dimension",
+      "value": "clamp(32px, 4vw, 48px)",
+      "overrides": [],
+      "usageCount": 2,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 20
+      },
+      "comment": "halved 15 Oct 2026: Ashni found the H1 too big"
+    },
+    {
+      "id": "text-heading",
+      "type": "dimension",
+      "value": "clamp(22px, 2.4vw, 28px)",
+      "overrides": [],
+      "usageCount": 2,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 21
+      }
+    },
+    {
+      "id": "text-body",
+      "type": "dimension",
+      "value": "clamp(16px, 1.4vw, 18px)",
+      "overrides": [],
+      "usageCount": 1,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 22
+      }
+    },
+    {
+      "id": "text-metric",
+      "type": "dimension",
+      "value": "clamp(40px, 4.4vw, 56px)",
+      "overrides": [],
+      "usageCount": 2,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 23
+      }
+    },
+    {
+      "id": "text-label",
+      "type": "dimension",
+      "value": "14px",
+      "overrides": [],
+      "usageCount": 2,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 24
+      }
+    },
+    {
+      "id": "measure",
+      "type": "dimension",
+      "value": "64ch",
+      "overrides": [],
+      "usageCount": 7,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 25
+      }
+    },
+    {
+      "id": "space-1",
+      "type": "dimension",
+      "value": "4px",
+      "overrides": [],
+      "usageCount": 23,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 28
+      }
+    },
+    {
+      "id": "space-2",
+      "type": "dimension",
+      "value": "8px",
+      "overrides": [],
+      "usageCount": 76,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 29
+      }
+    },
+    {
+      "id": "space-3",
+      "type": "dimension",
+      "value": "16px",
+      "overrides": [],
+      "usageCount": 79,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 30
+      }
+    },
+    {
+      "id": "space-4",
+      "type": "dimension",
+      "value": "28px",
+      "overrides": [
+        {
+          "media": "(min-width: 600px)",
+          "value": "32px",
+          "source": {
+            "file": "src/styles/tokens.css",
+            "line": 59
+          }
+        }
+      ],
+      "usageCount": 61,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 31
+      }
+    },
+    {
+      "id": "space-5",
+      "type": "dimension",
+      "value": "48px",
+      "overrides": [
+        {
+          "media": "(min-width: 600px)",
+          "value": "56px",
+          "source": {
+            "file": "src/styles/tokens.css",
+            "line": 60
+          }
+        }
+      ],
+      "usageCount": 14,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 32
+      }
+    },
+    {
+      "id": "space-6",
+      "type": "dimension",
+      "value": "80px",
+      "overrides": [
+        {
+          "media": "(min-width: 600px)",
+          "value": "96px",
+          "source": {
+            "file": "src/styles/tokens.css",
+            "line": 61
+          }
+        }
+      ],
+      "usageCount": 13,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 33
+      }
+    },
+    {
+      "id": "space-7",
+      "type": "dimension",
+      "value": "128px",
+      "overrides": [
+        {
+          "media": "(min-width: 600px)",
+          "value": "160px",
+          "source": {
+            "file": "src/styles/tokens.css",
+            "line": 62
+          }
+        }
+      ],
+      "usageCount": 1,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 34
+      }
+    },
+    {
+      "id": "content-max",
+      "type": "dimension",
+      "value": "1280px",
+      "overrides": [],
+      "usageCount": 2,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 37
+      }
+    },
+    {
+      "id": "gutter",
+      "type": "dimension",
+      "value": "24px",
+      "overrides": [],
+      "usageCount": 7,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 38
+      }
+    },
+    {
+      "id": "margin",
+      "type": "dimension",
+      "value": "16px",
+      "overrides": [
+        {
+          "media": "(min-width: 600px)",
+          "value": "32px",
+          "source": {
+            "file": "src/styles/tokens.css",
+            "line": 58
+          }
+        },
+        {
+          "media": "(min-width: 1024px)",
+          "value": "48px",
+          "source": {
+            "file": "src/styles/tokens.css",
+            "line": 68
+          }
+        }
+      ],
+      "usageCount": 9,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 39
+      }
+    },
+    {
+      "id": "line-hair",
+      "type": "dimension",
+      "value": "0.5px",
+      "overrides": [],
+      "usageCount": 13,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 42
+      }
+    },
+    {
+      "id": "line-thin",
+      "type": "dimension",
+      "value": "1px",
+      "overrides": [],
+      "usageCount": 80,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 43
+      }
+    },
+    {
+      "id": "line-building",
+      "type": "dimension",
+      "value": "1.5px",
+      "overrides": [],
+      "usageCount": 13,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 44
+      }
+    },
+    {
+      "id": "line-cut",
+      "type": "dimension",
+      "value": "3px",
+      "overrides": [],
+      "usageCount": 1,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 45
+      }
+    },
+    {
+      "id": "ease-pen",
+      "type": "cubicBezier",
+      "value": "cubic-bezier(0.2, 0, 0, 1)",
+      "overrides": [],
+      "usageCount": 60,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 48
+      }
+    },
+    {
+      "id": "dur-micro",
+      "type": "duration",
+      "value": "150ms",
+      "overrides": [
+        {
+          "media": "(prefers-reduced-motion: reduce)",
+          "value": "0ms",
+          "source": {
+            "file": "src/styles/tokens.css",
+            "line": 75
+          }
+        }
+      ],
+      "usageCount": 29,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 49
+      }
+    },
+    {
+      "id": "dur-state",
+      "type": "duration",
+      "value": "280ms",
+      "overrides": [
+        {
+          "media": "(prefers-reduced-motion: reduce)",
+          "value": "0ms",
+          "source": {
+            "file": "src/styles/tokens.css",
+            "line": 76
+          }
+        }
+      ],
+      "usageCount": 6,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 50
+      }
+    },
+    {
+      "id": "dur-signature",
+      "type": "duration",
+      "value": "700ms",
+      "overrides": [
+        {
+          "media": "(prefers-reduced-motion: reduce)",
+          "value": "0ms",
+          "source": {
+            "file": "src/styles/tokens.css",
+            "line": 77
+          }
+        }
+      ],
+      "usageCount": 2,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 51
+      }
+    },
+    {
+      "id": "tap",
+      "type": "dimension",
+      "value": "44px",
+      "overrides": [],
+      "usageCount": 6,
+      "confidence": "observed",
+      "source": {
+        "file": "src/styles/tokens.css",
+        "line": 53
+      }
+    }
+  ],
+  "hardCoded": [
+    {
+      "kind": "color",
+      "normalized": "#ffffff",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 10
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 84
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 507
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 643
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 11
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 19
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 115
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 204
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 329
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "sheet-lift",
+        "value": "#fff",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#615e58 / 45%",
+      "occurrences": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 590
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 179
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 180
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 185
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 186
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "graphite",
+        "value": "#615e58",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#b3231c",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 105
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 53
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 54
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 64
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#000000",
+      "occurrences": [
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 71
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 119
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 124
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#1f4a99",
+      "occurrences": [
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 191
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 200
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 221
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#c98a12",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 164
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 192
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 207
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#000000 / 25%",
+      "occurrences": [
+        {
+          "file": "src/components/Cursor.css",
+          "line": 29
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 126
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#2f5fb3 / 55%",
+      "occurrences": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 1240
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 247
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "marker",
+        "value": "#2f5fb3",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#c98a12 / 14%",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 165
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 193
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#000000 / 70%",
+      "occurrences": [
+        {
+          "file": "src/components/Lightbox.css",
+          "line": 14
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#1b1b1b",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 11
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "ink",
+        "value": "#1c1b19",
+        "distance": 2.2
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#1c1b19",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 94
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "ink",
+        "value": "#1c1b19",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#2f5fb3 / 0%",
+      "occurrences": [
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 251
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "marker",
+        "value": "#2f5fb3",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#2f5fb3 / 10%",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 63
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "marker",
+        "value": "#2f5fb3",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#2f5fb3 / 45%",
+      "occurrences": [
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 257
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "marker",
+        "value": "#2f5fb3",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#444444",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 33
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#50a0cd / 25%",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 134
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#666666",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 112
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#8a5a00",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 213
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#b3231c / 10%",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 107
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#c8211b",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 24
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#c9c9c9",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 39
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#dbeef7",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 71
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#dcdcdc",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 8
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "paper-deep",
+        "value": "#dcd9d2",
+        "distance": 10.4
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#e9eef8",
+      "occurrences": [
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 100
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#ece9e4",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 219
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "paper-shade",
+        "value": "#ece7da",
+        "distance": 10.2
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#efefef",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 66
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "paper",
+        "value": "#f5f2ea",
+        "distance": 8.4
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#f2f6fb / 7%",
+      "occurrences": [
+        {
+          "file": "src/components/Footer.css",
+          "line": 37
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#f6f4f0",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 219
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "paper",
+        "value": "#f5f2ea",
+        "distance": 6.4
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "color",
+      "normalized": "#ffffff / 62%",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 100
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "sheet-lift",
+        "value": "#fff",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "14px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 291
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 292
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 356
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 376
+        },
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 51
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 37
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 38
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 46
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 83
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 89
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 107
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 93
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 138
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 151
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 158
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 621
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 207
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 149
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 250
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 521
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 563
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 671
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 700
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 720
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 721
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 859
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1090
+        },
+        {
+          "file": "src/components/MvpScopeFlow.css",
+          "line": 81
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 256
+        },
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 20
+        },
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 32
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 58
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 129
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 155
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 189
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 66
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 176
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 182
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 14
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 34
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 48
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 112
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 122
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 142
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 196
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 224
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 308
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 334
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "text-label",
+        "value": "14px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "16px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 353
+        },
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 44
+        },
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 91
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 7
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 16
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 26
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 40
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 56
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 68
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 103
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 108
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 95
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 122
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 309
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 349
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 536
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 647
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 40
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 311
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 312
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 20
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 164
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 223
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 230
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 275
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 502
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 573
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 649
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 917
+        },
+        {
+          "file": "src/components/HostDayFlow.css",
+          "line": 3
+        },
+        {
+          "file": "src/components/ModeSwitch.css",
+          "line": 20
+        },
+        {
+          "file": "src/components/ModeSwitch.css",
+          "line": 27
+        },
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 24
+        },
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 38
+        },
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 44
+        },
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 181
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 32
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 83
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 117
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 17
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 182
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 188
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 210
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 228
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 314
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 317
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 320
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 117
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "radius",
+        "value": "16px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "24px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 356
+        },
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 72
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 53
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 54
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 63
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 64
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 106
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 4
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 5
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 138
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 6
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 14
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 78
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 262
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 271
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 3
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 168
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 224
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 234
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 249
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 561
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 607
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 608
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 643
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 652
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 671
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 684
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 752
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 762
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 770
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 801
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1083
+        },
+        {
+          "file": "src/components/MvpScopeFlow.css",
+          "line": 13
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 39
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 6
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 58
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 129
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 167
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 27
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 103
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 212
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "gutter",
+        "value": "24px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "2px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 366
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 65
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 47
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 48
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 240
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 29
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 71
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 64
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 267
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 273
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 220
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 510
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 568
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 589
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 629
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 910
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 954
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 963
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 983
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 984
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1036
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1142
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1198
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1201
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1204
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1248
+        },
+        {
+          "file": "src/components/ModeSwitch.css",
+          "line": 25
+        },
+        {
+          "file": "src/components/ModeSwitch.css",
+          "line": 26
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 61
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 67
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 126
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 139
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 87
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 188
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 203
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 95
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 175
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 220
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 242
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 57
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "line-building",
+        "value": "1.5px",
+        "distance": 0.5
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "4px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 367
+        },
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 30
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 83
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 107
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 92
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 153
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 160
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 346
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 44
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 46
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 295
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 483
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 511
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 603
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 909
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 955
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 985
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1037
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1081
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1106
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1112
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1209
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 120
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 124
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 48
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 74
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 219
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 55
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 68
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 176
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 218
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 152
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 179
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 186
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 255
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 333
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "space-1",
+        "value": "4px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "8px",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 9
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 23
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 99
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 129
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 34
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 67
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 92
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 119
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 133
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 134
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 156
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 242
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 243
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 630
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 120
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 146
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 191
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 219
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 220
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 589
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 618
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 619
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 655
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 788
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 858
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 926
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 962
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 963
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1085
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1087
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 192
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 193
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 149
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 150
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 222
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 223
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "space-2",
+        "value": "8px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "6px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 297
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 298
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 303
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 304
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 214
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 242
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 146
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 153
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 380
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 502
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 583
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 726
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 727
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 732
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 733
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1079
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1140
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1166
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1171
+        },
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 78
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 155
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 205
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 105
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 128
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 160
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 172
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 184
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 186
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 202
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 284
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 146
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 177
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 178
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 183
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 184
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-1",
+        "value": "4px",
+        "distance": 2
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "12px",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 99
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 117
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 50
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 52
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 79
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 165
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 238
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 138
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 530
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 562
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 592
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 668
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 708
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 850
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 912
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1038
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1085
+        },
+        {
+          "file": "src/components/HostDayFlow.css",
+          "line": 18
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 251
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 30
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 95
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 108
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 148
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 156
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 174
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 197
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 211
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 217
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 296
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 17
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 54
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 55
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 212
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "text-label",
+        "value": "14px",
+        "distance": 2
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "1px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 356
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 370
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 376
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 8
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 23
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 24
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 39
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 98
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 99
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 138
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 642
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 29
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 106
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 37
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 45
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 671
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 700
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 923
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1204
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1212
+        },
+        {
+          "file": "src/components/MvpScopeFlow.css",
+          "line": 10
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 193
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 58
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 129
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 155
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 24
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 62
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 274
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 275
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 69
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 70
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 71
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 212
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "line-thin",
+        "value": "1px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "3px",
+      "occurrences": [
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 55
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 45
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 46
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 51
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 52
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 103
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 147
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 226
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1198
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1201
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1248
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 45
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 257
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 106
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 32
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 110
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 160
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 161
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 295
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 96
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 58
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "line-cut",
+        "value": "3px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "10px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 153
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 55
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 46
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 65
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 74
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 138
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 436
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 502
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 562
+        },
+        {
+          "file": "src/components/ModeSwitch.css",
+          "line": 28
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 41
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 126
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 40
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 45
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 30
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 108
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 170
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 171
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-2",
+        "value": "8px",
+        "distance": 2
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "18px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 370
+        },
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 38
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 19
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 47
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 65
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 38
+        },
+        {
+          "file": "src/components/Footer.css",
+          "line": 220
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 514
+        },
+        {
+          "file": "src/components/ModeSwitch.css",
+          "line": 33
+        },
+        {
+          "file": "src/components/MvpScopeFlow.css",
+          "line": 76
+        },
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 28
+        },
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 41
+        },
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 47
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 26
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 75
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 105
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 209
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 113
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "radius",
+        "value": "16px",
+        "distance": 2
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "28px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 11
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 370
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 22
+        },
+        {
+          "file": "src/components/Cursor.css",
+          "line": 24
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 514
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 744
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 755
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 773
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1017
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1018
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 155
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 292
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 293
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "space-4",
+        "value": "28px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "32px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 177
+        },
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 8
+        },
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 28
+        },
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 29
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 90
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 91
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 145
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 146
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 227
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 646
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 238
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 91
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "space-4",
+        "value": "32px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "20px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 376
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 7
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 177
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 700
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 76
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 161
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 155
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 196
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 45
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 60
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 22
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "22px",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 31
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 32
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 38
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 483
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 900
+        },
+        {
+          "file": "src/components/HostDayFlow.css",
+          "line": 7
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 40
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 70
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 119
+        },
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 240
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 110
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "gutter",
+        "value": "24px",
+        "distance": 2
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "40px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 370
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 217
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 3
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 119
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 124
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 514
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 634
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 767
+        },
+        {
+          "file": "src/components/ModeSwitch.css",
+          "line": 19
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 44
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 145
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "36px",
+      "occurrences": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 1047
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1052
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1057
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1062
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1067
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1072
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1261
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1268
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1285
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "26px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 217
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 484
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 21
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 931
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 962
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 963
+        },
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 187
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-4",
+        "value": "28px",
+        "distance": 2
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "30px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 376
+        },
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 6
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 700
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 38
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 134
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 11
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 20
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-4",
+        "value": "28px",
+        "distance": 2
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "999px",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 25
+        },
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 85
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 37
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 137
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 591
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 178
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 176
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "7px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 49
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1251
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 60
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 61
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 66
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 67
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-2",
+        "value": "8px",
+        "distance": 1
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "1.5px",
+      "occurrences": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 79
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 499
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 556
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 621
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 105
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "line-building",
+        "value": "1.5px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "80px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 330
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 334
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 179
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 104
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 189
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "space-6",
+        "value": "80px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "56px",
+      "occurrences": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 24
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 229
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 254
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 257
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "space-5",
+        "value": "56px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "640px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 44
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 73
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 598
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 15
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "72px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 144
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 200
+        },
+        {
+          "file": "src/components/Skills.css",
+          "line": 17
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 9
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "0.2px",
+      "occurrences": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 67
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 73
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 77
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "line-hair",
+        "value": "0.5px",
+        "distance": 0.3
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "1.25px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 244
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 151
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 224
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "line-thin",
+        "value": "1px",
+        "distance": 0.25
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "18.7px",
+      "occurrences": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 67
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 73
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 77
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "200px",
+      "occurrences": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 1083
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 104
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 189
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "34px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 49
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 21
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 113
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-4",
+        "value": "32px",
+        "distance": 2
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "44px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 11
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1006
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1007
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "tap",
+        "value": "44px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "48px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 22
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 55
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 140
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "space-5",
+        "value": "48px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "5px",
+      "occurrences": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 134
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1209
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1240
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-1",
+        "value": "4px",
+        "distance": 1
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "0.5px",
+      "occurrences": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 108
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 74
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "line-hair",
+        "value": "0.5px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "10.4px",
+      "occurrences": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 86
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 89
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "14.8px",
+      "occurrences": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 80
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 83
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "text-label",
+        "value": "14px",
+        "distance": 0.8000000000000007
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "2.7px",
+      "occurrences": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 80
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 83
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "line-cut",
+        "value": "3px",
+        "distance": 0.2999999999999998
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "220px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 73
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 99
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "300px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 73
+        },
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 99
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "360px",
+      "occurrences": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 7
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 6
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "480px",
+      "occurrences": [
+        {
+          "file": "src/components/About.css",
+          "line": 344
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 390
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "5.3px",
+      "occurrences": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 94
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 99
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-1",
+        "value": "4px",
+        "distance": 1.2999999999999998
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "5.5px",
+      "occurrences": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 86
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 89
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-1",
+        "value": "4px",
+        "distance": 1.5
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "520px",
+      "occurrences": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 424
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 428
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "52px",
+      "occurrences": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 962
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 963
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "8.8px",
+      "occurrences": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 94
+        },
+        {
+          "file": "src/components/Nav.css",
+          "line": 99
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-2",
+        "value": "8px",
+        "distance": 0.8000000000000007
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "1.2px",
+      "occurrences": [
+        {
+          "file": "src/components/Cursor.css",
+          "line": 29
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "line-thin",
+        "value": "1px",
+        "distance": 0.19999999999999996
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "100px",
+      "occurrences": [
+        {
+          "file": "src/styles/global.css",
+          "line": 82
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "120px",
+      "occurrences": [
+        {
+          "file": "src/components/Skills.css",
+          "line": 166
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "124px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 108
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "13px",
+      "occurrences": [
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 255
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "text-label",
+        "value": "14px",
+        "distance": 1
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "150px",
+      "occurrences": [
+        {
+          "file": "src/components/Skills.css",
+          "line": 66
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "180px",
+      "occurrences": [
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 249
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "240px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 105
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "25px",
+      "occurrences": [
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 129
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "gutter",
+        "value": "24px",
+        "distance": 1
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "280px",
+      "occurrences": [
+        {
+          "file": "src/components/DecisionFork.css",
+          "line": 3
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "340px",
+      "occurrences": [
+        {
+          "file": "src/components/MvpScopeFlow.css",
+          "line": 30
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "350px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 626
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "420px",
+      "occurrences": [
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 37
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "57px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 55
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-5",
+        "value": "56px",
+        "distance": 1
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "600px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 420
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "720px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 590
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "760px",
+      "occurrences": [
+        {
+          "file": "src/components/CaseStudy.css",
+          "line": 214
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "96px",
+      "occurrences": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 1276
+        }
+      ],
+      "classification": "matches-token",
+      "nearestToken": {
+        "id": "space-6",
+        "value": "96px",
+        "distance": 0
+      },
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "99px",
+      "occurrences": [
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 5
+        }
+      ],
+      "classification": "one-off",
+      "confidence": "inferred"
+    },
+    {
+      "kind": "length",
+      "normalized": "9px",
+      "occurrences": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 1251
+        }
+      ],
+      "classification": "near-token",
+      "nearestToken": {
+        "id": "space-2",
+        "value": "8px",
+        "distance": 1
+      },
+      "confidence": "inferred"
+    }
+  ],
+  "components": [
+    {
+      "id": "label",
+      "kind": "component",
+      "usedIn": [
+        "src/components/About.tsx",
+        "src/components/CardCarousel.tsx",
+        "src/components/CaseStudy.tsx",
+        "src/components/Contact.tsx",
+        "src/components/FieldStrip.tsx",
+        "src/components/Footer.tsx",
+        "src/components/ModeSwitch.tsx",
+        "src/components/Nav.tsx",
+        "src/components/Skills.tsx",
+        "src/components/Work.tsx"
+      ],
+      "usageCount": 62,
+      "elements": [
+        "button",
+        "dl",
+        "dt",
+        "h2",
+        "h3",
+        "p",
+        "span",
+        "td",
+        "thead",
+        "ul"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/styles/global.css",
+          "line": 101
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/About.tsx",
+          "line": 70
+        },
+        {
+          "file": "src/components/About.tsx",
+          "line": 73
+        },
+        {
+          "file": "src/components/About.tsx",
+          "line": 84
+        },
+        {
+          "file": "src/components/About.tsx",
+          "line": 85
+        },
+        {
+          "file": "src/components/About.tsx",
+          "line": 93
+        },
+        {
+          "file": "src/components/About.tsx",
+          "line": 96
+        },
+        {
+          "file": "src/components/About.tsx",
+          "line": 106
+        },
+        {
+          "file": "src/components/CardCarousel.tsx",
+          "line": 69
+        },
+        {
+          "file": "src/components/CardCarousel.tsx",
+          "line": 73
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 86
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 96
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 104
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 135
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 160
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 164
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 172
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 177
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 188
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 228
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 242
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 246
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 250
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 254
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 283
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 287
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 291
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 295
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 299
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 303
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 326
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 329
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 333
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 337
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 386
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 394
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 517
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 521
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 39
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 40
+        },
+        {
+          "file": "src/components/FieldStrip.tsx",
+          "line": 13
+        },
+        {
+          "file": "src/components/FieldStrip.tsx",
+          "line": 16
+        },
+        {
+          "file": "src/components/FieldStrip.tsx",
+          "line": 96
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 29
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 32
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 33
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 75
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 81
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 85
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 89
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 96
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 105
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 139
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 155
+        },
+        {
+          "file": "src/components/ModeSwitch.tsx",
+          "line": 17
+        },
+        {
+          "file": "src/components/Nav.tsx",
+          "line": 91
+        },
+        {
+          "file": "src/components/Nav.tsx",
+          "line": 106
+        },
+        {
+          "file": "src/components/Nav.tsx",
+          "line": 107
+        },
+        {
+          "file": "src/components/Nav.tsx",
+          "line": 120
+        },
+        {
+          "file": "src/components/Skills.tsx",
+          "line": 18
+        },
+        {
+          "file": "src/components/Work.tsx",
+          "line": 42
+        },
+        {
+          "file": "src/components/Work.tsx",
+          "line": 55
+        },
+        {
+          "file": "src/components/Work.tsx",
+          "line": 63
+        }
+      ],
+      "reusable": true,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "container",
+      "kind": "component",
+      "usedIn": [
+        "src/components/About.tsx",
+        "src/components/CaseStudy.tsx",
+        "src/components/Contact.tsx",
+        "src/components/Footer.tsx",
+        "src/components/Hero.tsx",
+        "src/components/Nav.tsx",
+        "src/components/Work.tsx"
+      ],
+      "usageCount": 13,
+      "elements": [
+        "div"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/styles/global.css",
+          "line": 93
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/About.tsx",
+          "line": 42
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 95
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 157
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 187
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 408
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 511
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 25
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 26
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 180
+        },
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 81
+        },
+        {
+          "file": "src/components/Nav.tsx",
+          "line": 49
+        },
+        {
+          "file": "src/components/Nav.tsx",
+          "line": 104
+        },
+        {
+          "file": "src/components/Work.tsx",
+          "line": 28
+        }
+      ],
+      "reusable": true,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "annotation",
+      "kind": "component",
+      "usedIn": [
+        "src/components/CaseStudy.tsx",
+        "src/components/FieldStrip.tsx",
+        "src/components/Hero.tsx",
+        "src/components/HostDayFlow.tsx",
+        "src/components/Parti.tsx",
+        "src/components/VenueFlows.tsx"
+      ],
+      "usageCount": 16,
+      "elements": [
+        "div",
+        "figcaption",
+        "p",
+        "span"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/styles/global.css",
+          "line": 108
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 191
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 263
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 378
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 388
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 396
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 443
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 460
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 501
+        },
+        {
+          "file": "src/components/FieldStrip.tsx",
+          "line": 17
+        },
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 124
+        },
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 140
+        },
+        {
+          "file": "src/components/HostDayFlow.tsx",
+          "line": 190
+        },
+        {
+          "file": "src/components/Parti.tsx",
+          "line": 116
+        },
+        {
+          "file": "src/components/Parti.tsx",
+          "line": 123
+        },
+        {
+          "file": "src/components/VenueFlows.tsx",
+          "line": 226
+        },
+        {
+          "file": "src/components/VenueFlows.tsx",
+          "line": 227
+        }
+      ],
+      "reusable": true,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "button",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Contact.tsx",
+        "src/components/Hero.tsx",
+        "src/components/Lightbox.tsx",
+        "src/components/Work.tsx"
+      ],
+      "usageCount": 9,
+      "elements": [
+        "a",
+        "button",
+        "span"
+      ],
+      "modifiers": [
+        "primary"
+      ],
+      "states": [
+        "focus-visible",
+        "hover"
+      ],
+      "styles": [
+        {
+          "file": "src/styles/global.css",
+          "line": 148
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 163
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 38
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 38
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 45
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 49
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 54
+        },
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 100
+        },
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 100
+        },
+        {
+          "file": "src/components/Lightbox.tsx",
+          "line": 33
+        },
+        {
+          "file": "src/components/Work.tsx",
+          "line": 70
+        }
+      ],
+      "reusable": true,
+      "confidence": "inferred",
+      "notes": [
+        "Styled as interactive but also applied to non-interactive element(s): span."
+      ]
+    },
+    {
+      "id": "display",
+      "kind": "component",
+      "usedIn": [
+        "src/components/About.tsx",
+        "src/components/CaseStudy.tsx",
+        "src/components/Contact.tsx",
+        "src/components/Hero.tsx"
+      ],
+      "usageCount": 5,
+      "elements": [
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/styles/global.css",
+          "line": 135
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/About.tsx",
+          "line": 56
+        },
+        {
+          "file": "src/components/About.tsx",
+          "line": 120
+        },
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 105
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 26
+        },
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 88
+        }
+      ],
+      "reusable": true,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "paper-sheet",
+      "kind": "component",
+      "usedIn": [
+        "src/components/About.tsx",
+        "src/components/Contact.tsx",
+        "src/components/Hero.tsx",
+        "src/components/Work.tsx"
+      ],
+      "usageCount": 4,
+      "elements": [
+        "section"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/styles/global.css",
+          "line": 208
+        },
+        {
+          "file": "src/styles/global.css",
+          "line": 221
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/About.tsx",
+          "line": 41
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 24
+        },
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 80
+        },
+        {
+          "file": "src/components/Work.tsx",
+          "line": 27
+        }
+      ],
+      "reusable": true,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "visually-hidden",
+      "kind": "component",
+      "usedIn": [
+        "src/components/About.tsx",
+        "src/components/Contact.tsx",
+        "src/components/TreeAssistFlow.tsx"
+      ],
+      "usageCount": 4,
+      "elements": [
+        "caption",
+        "ol",
+        "span"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/styles/global.css",
+          "line": 67
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/About.tsx",
+          "line": 72
+        },
+        {
+          "file": "src/components/About.tsx",
+          "line": 95
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 42
+        },
+        {
+          "file": "src/components/TreeAssistFlow.tsx",
+          "line": 429
+        }
+      ],
+      "reusable": true,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "scope",
+      "kind": "component",
+      "usedIn": [
+        "src/components/HostDayFlow.tsx",
+        "src/components/MvpScopeFlow.tsx",
+        "src/components/VenueGapsFlow.tsx"
+      ],
+      "usageCount": 3,
+      "elements": [
+        "figure"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/MvpScopeFlow.css",
+          "line": 2
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/HostDayFlow.tsx",
+          "line": 185
+        },
+        {
+          "file": "src/components/MvpScopeFlow.tsx",
+          "line": 151
+        },
+        {
+          "file": "src/components/VenueGapsFlow.tsx",
+          "line": 181
+        }
+      ],
+      "reusable": true,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "section",
+      "kind": "component",
+      "usedIn": [
+        "src/components/About.tsx",
+        "src/components/Contact.tsx",
+        "src/components/Work.tsx"
+      ],
+      "usageCount": 3,
+      "elements": [
+        "section"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/styles/global.css",
+          "line": 144
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/About.tsx",
+          "line": 41
+        },
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 24
+        },
+        {
+          "file": "src/components/Work.tsx",
+          "line": 27
+        }
+      ],
+      "reusable": true,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "vfp",
+      "kind": "component",
+      "usedIn": [
+        "src/components/LegacyBriefPrototype.tsx",
+        "src/components/VenueFinderPrototype.tsx"
+      ],
+      "usageCount": 4,
+      "elements": [
+        "figure"
+      ],
+      "modifiers": [
+        "auto"
+      ],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/VenueFinderPrototype.css",
+          "line": 2
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/LegacyBriefPrototype.tsx",
+          "line": 98
+        },
+        {
+          "file": "src/components/LegacyBriefPrototype.tsx",
+          "line": 98
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.tsx",
+          "line": 153
+        },
+        {
+          "file": "src/components/VenueFinderPrototype.tsx",
+          "line": 153
+        }
+      ],
+      "reusable": true,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "parti",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/DecisionFork.tsx",
+        "src/components/DrawOnScroll.tsx",
+        "src/components/Parti.tsx"
+      ],
+      "usageCount": 3,
+      "elements": [
+        "svg"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Parti.css",
+          "line": 1
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/DecisionFork.tsx",
+          "line": 123
+        },
+        {
+          "file": "src/components/DrawOnScroll.tsx",
+          "line": 64
+        },
+        {
+          "file": "src/components/Parti.tsx",
+          "line": 99
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "f",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/CaseIcons.tsx",
+        "src/components/Cursor.tsx"
+      ],
+      "usageCount": 29,
+      "elements": [
+        "circle",
+        "path",
+        "rect"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 27
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 28
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 29
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 37
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 47
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 48
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 57
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 68
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 76
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 77
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 78
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 85
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 94
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 95
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 101
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 102
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 103
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 111
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 119
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 120
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 121
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 122
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 131
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 139
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 147
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 148
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 155
+        },
+        {
+          "file": "src/components/Cursor.tsx",
+          "line": 58
+        },
+        {
+          "file": "src/components/Cursor.tsx",
+          "line": 66
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "d",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/CaseIcons.tsx",
+        "src/components/Cursor.tsx"
+      ],
+      "usageCount": 16,
+      "elements": [
+        "circle",
+        "path"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 30
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 40
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 49
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 50
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 60
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 69
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 70
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 79
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 86
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 104
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 140
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 149
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 157
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 158
+        },
+        {
+          "file": "src/components/Cursor.tsx",
+          "line": 59
+        },
+        {
+          "file": "src/components/Cursor.tsx",
+          "line": 69
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "plan",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/CaseStudy.tsx",
+        "src/components/SitePlan.tsx"
+      ],
+      "usageCount": 3,
+      "elements": [
+        "svg"
+      ],
+      "modifiers": [
+        "portrait"
+      ],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/SitePlan.css",
+          "line": 1
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 79
+        },
+        {
+          "file": "src/components/SitePlan.tsx",
+          "line": 196
+        },
+        {
+          "file": "src/components/SitePlan.tsx",
+          "line": 196
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "is-open",
+      "kind": "state",
+      "usedIn": [
+        "src/components/FieldStrip.tsx",
+        "src/components/Hero.tsx"
+      ],
+      "usageCount": 2,
+      "elements": [
+        "button",
+        "li"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/FieldStrip.tsx",
+          "line": 72
+        },
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 149
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "draw-late",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/PrinciplePartis.tsx"
+      ],
+      "usageCount": 22,
+      "elements": [
+        "circle",
+        "path",
+        "rect",
+        "text"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 31
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 33
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 35
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 38
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 41
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 55
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 56
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 77
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 79
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 103
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 123
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 125
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 127
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 156
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 175
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 177
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 179
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 192
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 193
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 196
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 199
+        },
+        {
+          "file": "src/components/PrinciplePartis.tsx",
+          "line": 213
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "o",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/CaseIcons.tsx"
+      ],
+      "usageCount": 3,
+      "elements": [
+        "path"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 92
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 93
+        },
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 156
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "revisions",
+      "kind": "component",
+      "usedIn": [
+        "src/components/About.tsx"
+      ],
+      "usageCount": 3,
+      "elements": [
+        "table"
+      ],
+      "modifiers": [
+        "education"
+      ],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/About.css",
+          "line": 167
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/About.tsx",
+          "line": 71
+        },
+        {
+          "file": "src/components/About.tsx",
+          "line": 94
+        },
+        {
+          "file": "src/components/About.tsx",
+          "line": 94
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "vf-flow",
+      "kind": "component",
+      "usedIn": [
+        "src/components/VenueFlows.tsx"
+      ],
+      "usageCount": 3,
+      "elements": [
+        "figure"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 1
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/VenueFlows.tsx",
+          "line": 19
+        },
+        {
+          "file": "src/components/VenueFlows.tsx",
+          "line": 67
+        },
+        {
+          "file": "src/components/VenueFlows.tsx",
+          "line": 150
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "case-nav",
+      "kind": "component",
+      "usedIn": [
+        "src/components/CaseNav.tsx"
+      ],
+      "usageCount": 2,
+      "elements": [
+        "nav"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 53
+        },
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 114
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/CaseNav.tsx",
+          "line": 45
+        },
+        {
+          "file": "src/components/CaseNav.tsx",
+          "line": 45
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "is-paid",
+      "kind": "state",
+      "usedIn": [
+        "src/components/VenueFlows.tsx"
+      ],
+      "usageCount": 2,
+      "elements": [
+        "li"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/VenueFlows.tsx",
+          "line": 114
+        },
+        {
+          "file": "src/components/VenueFlows.tsx",
+          "line": 127
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "titlesheet",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Footer.tsx"
+      ],
+      "usageCount": 2,
+      "elements": [
+        "div"
+      ],
+      "modifiers": [
+        "blueprint"
+      ],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Footer.css",
+          "line": 11
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 25
+        },
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 25
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "about",
+      "kind": "component",
+      "usedIn": [
+        "src/components/About.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "section"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/About.css",
+          "line": 1
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/About.tsx",
+          "line": 41
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "ai-principles",
+      "kind": "component",
+      "usedIn": [
+        "src/components/AiPrinciples.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "section"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/AiPrinciples.css",
+          "line": 2
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/AiPrinciples.tsx",
+          "line": 81
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "aip-big",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/AiPrinciples.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "path"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/AiPrinciples.tsx",
+          "line": 37
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "aip-loop",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/AiPrinciples.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "g"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/AiPrinciples.tsx",
+          "line": 13
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "aip-small",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/AiPrinciples.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "path"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/AiPrinciples.tsx",
+          "line": 38
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "bsw",
+      "kind": "component",
+      "usedIn": [
+        "src/components/BookingStatusWidget.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "div"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/BookingStatusWidget.css",
+          "line": 1
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/BookingStatusWidget.tsx",
+          "line": 97
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "card",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Work.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "article"
+      ],
+      "modifiers": [],
+      "states": [
+        "focus-visible",
+        "focus-within",
+        "hover"
+      ],
+      "styles": [
+        {
+          "file": "src/components/Work.css",
+          "line": 37
+        },
+        {
+          "file": "src/components/Work.css",
+          "line": 308
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Work.tsx",
+          "line": 38
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "case",
+      "kind": "component",
+      "usedIn": [
+        "src/components/CaseStudy.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "article"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 92
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "case-icon",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/CaseIcons.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "svg"
+      ],
+      "modifiers": [],
+      "states": [
+        "hover"
+      ],
+      "styles": [
+        {
+          "file": "src/components/CaseNav.css",
+          "line": 2
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/CaseIcons.tsx",
+          "line": 185
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "cc",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Cursor.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "div"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Cursor.css",
+          "line": 6
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Cursor.tsx",
+          "line": 54
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "contact",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Contact.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "section"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Contact.css",
+          "line": 1
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Contact.tsx",
+          "line": 24
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "decision-sketch",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/DecisionFork.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "svg"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/DecisionFork.css",
+          "line": 1
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/DecisionFork.tsx",
+          "line": 123
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "deck-sheet",
+      "kind": "component",
+      "usedIn": [
+        "src/components/HeroStack.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "article"
+      ],
+      "modifiers": [],
+      "states": [
+        "aria",
+        "focus-visible"
+      ],
+      "styles": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 494
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 547
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/HeroStack.tsx",
+          "line": 273
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "draw-on-scroll",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/DrawOnScroll.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "svg"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/DrawOnScroll.tsx",
+          "line": 64
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "existing",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/TreeAssistFlow.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "text"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/TreeAssistFlow.tsx",
+          "line": 333
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "field-notes",
+      "kind": "component",
+      "usedIn": [
+        "src/components/About.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "div"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/About.css",
+          "line": 236
+        },
+        {
+          "file": "src/components/About.css",
+          "line": 328
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/About.tsx",
+          "line": 118
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "figure",
+      "kind": "component",
+      "usedIn": [
+        "src/components/FieldStrip.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "figure"
+      ],
+      "modifiers": [],
+      "states": [
+        "hover"
+      ],
+      "styles": [
+        {
+          "file": "src/components/About.css",
+          "line": 265
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/FieldStrip.tsx",
+          "line": 6
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "flow",
+      "kind": "component",
+      "usedIn": [
+        "src/components/TreeAssistFlow.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "figure"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/TreeAssistFlow.css",
+          "line": 2
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/TreeAssistFlow.tsx",
+          "line": 402
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "footer",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Footer.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "footer"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Footer.css",
+          "line": 4
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Footer.tsx",
+          "line": 23
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "gap",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/VenueGapsFlow.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "path"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/VenueGapsFlow.tsx",
+          "line": 132
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "hero",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Hero.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "section"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Hero.css",
+          "line": 1
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 280
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 286
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 642
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 766
+        },
+        {
+          "file": "src/components/Hero.css",
+          "line": 1275
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 80
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "hosthq",
+      "kind": "component",
+      "usedIn": [
+        "src/components/CaseStudy.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "div"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/CaseStudy.tsx",
+          "line": 112
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "is-flipped",
+      "kind": "state",
+      "usedIn": [
+        "src/components/Hero.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "figure"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 112
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "is-grid",
+      "kind": "state",
+      "usedIn": [
+        "src/components/HeroStack.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "div"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/HeroStack.tsx",
+          "line": 265
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "is-nudge",
+      "kind": "state",
+      "usedIn": [
+        "src/components/Hero.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "button"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 149
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "is-shown",
+      "kind": "state",
+      "usedIn": [
+        "src/components/CaseNav.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "nav"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/CaseNav.tsx",
+          "line": 45
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "keyplan",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/KeyPlan.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "svg"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Footer.css",
+          "line": 83
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/KeyPlan.tsx",
+          "line": 21
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "lightbox",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Lightbox.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "dialog"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Lightbox.css",
+          "line": 4
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Lightbox.tsx",
+          "line": 27
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "nav",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Nav.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "header"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Nav.css",
+          "line": 1
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Nav.tsx",
+          "line": 48
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "ok",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/VenueGapsFlow.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "path"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/VenueGapsFlow.tsx",
+          "line": 132
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "parti-transition",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Parti.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "div"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Parti.css",
+          "line": 53
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 103
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 138
+        },
+        {
+          "file": "src/components/Parti.css",
+          "line": 188
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Parti.tsx",
+          "line": 113
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "pulse",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Hero.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "button"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 149
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "rk",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/RocketCrayon.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "svg"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 3
+        },
+        {
+          "file": "src/components/RocketCrayon.css",
+          "line": 253
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/RocketCrayon.tsx",
+          "line": 5
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "skip-link",
+      "kind": "component",
+      "usedIn": [
+        "src/App.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "a"
+      ],
+      "modifiers": [],
+      "states": [
+        "focus"
+      ],
+      "styles": [
+        {
+          "file": "src/styles/global.css",
+          "line": 79
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/App.tsx",
+          "line": 24
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "switch",
+      "kind": "component",
+      "usedIn": [
+        "src/components/ModeSwitch.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "button"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/ModeSwitch.css",
+          "line": 3
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/ModeSwitch.tsx",
+          "line": 17
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "tip",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Hero.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "button"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/Hero.tsx",
+          "line": 149
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "toolkit",
+      "kind": "component",
+      "usedIn": [
+        "src/components/Skills.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "section"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/Skills.css",
+          "line": 178
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/Skills.tsx",
+          "line": 17
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "vf-pipe",
+      "kind": "component",
+      "usedIn": [
+        "src/components/VenueFlows.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "figure"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 71
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/VenueFlows.tsx",
+          "line": 67
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "vf-problem",
+      "kind": "component",
+      "usedIn": [
+        "src/components/VenueFlows.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "figure"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/VenueFlows.tsx",
+          "line": 150
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "vf-trio",
+      "kind": "component",
+      "usedIn": [
+        "src/components/VenueFlows.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "div"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/VenueFlows.css",
+          "line": 313
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/VenueFlows.tsx",
+          "line": 206
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "vfg",
+      "kind": "component",
+      "usedIn": [
+        "src/components/VenueGapsFlow.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "figure"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/VenueGapsFlow.tsx",
+          "line": 181
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    },
+    {
+      "id": "wink",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/About.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "svg"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [
+        {
+          "file": "src/components/About.css",
+          "line": 25
+        }
+      ],
+      "usages": [
+        {
+          "file": "src/components/About.tsx",
+          "line": 47
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": []
+    },
+    {
+      "id": "x",
+      "kind": "graphic",
+      "usedIn": [
+        "src/components/TreeAssistFlow.tsx"
+      ],
+      "usageCount": 1,
+      "elements": [
+        "text"
+      ],
+      "modifiers": [],
+      "states": [],
+      "styles": [],
+      "usages": [
+        {
+          "file": "src/components/TreeAssistFlow.tsx",
+          "line": 333
+        }
+      ],
+      "reusable": false,
+      "confidence": "inferred",
+      "notes": [
+        "No base CSS rule found for this block."
+      ]
+    }
+  ]
+}

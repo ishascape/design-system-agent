@@ -1,0 +1,3 @@
+/* Import once in your app: tokens first, then component styles. */
+@import '@dsa/tokens/css';
+@import './button/button.css';

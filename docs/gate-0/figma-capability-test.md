@@ -12,16 +12,16 @@ Date: 2026-11-02 · File: [Ai-Design-system-agent](https://www.figma.com/design/
 
 ## Checks run
 
-| Check | Result |
-| --- | --- |
-| `whoami` returns Ashni's account and plan | Pass |
-| Create collection and 8 variables with scopes and code syntax | Pass |
-| Create 4 variants and combine into a component set | Pass |
-| Read back: variant properties are real (`VARIANT` type, 2 × 2 options) | Pass |
-| Read back: fills, strokes, text colour, padding, gap, radius, min height bound | Pass |
-| Read back: stroke weight bound | **Fail on first try**, fixed by binding each side (`strokeTopWeight` etc.), then pass |
-| Instance created, label overridden to "View resume ↗", then removed | Pass (width hugs: 191px) |
-| Visual screenshot | Pass, see Ashni's file |
+| Check                                                                          | Result                                                                                |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `whoami` returns Ashni's account and plan                                      | Pass                                                                                  |
+| Create collection and 8 variables with scopes and code syntax                  | Pass                                                                                  |
+| Create 4 variants and combine into a component set                             | Pass                                                                                  |
+| Read back: variant properties are real (`VARIANT` type, 2 × 2 options)         | Pass                                                                                  |
+| Read back: fills, strokes, text colour, padding, gap, radius, min height bound | Pass                                                                                  |
+| Read back: stroke weight bound                                                 | **Fail on first try**, fixed by binding each side (`strokeTopWeight` etc.), then pass |
+| Instance created, label overridden to "View resume ↗", then removed            | Pass (width hugs: 191px)                                                              |
+| Visual screenshot                                                              | Pass, see Ashni's file                                                                |
 
 ## Gaps found (to handle in Gate 2)
 

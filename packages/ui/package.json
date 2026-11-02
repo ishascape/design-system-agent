@@ -1,0 +1,21 @@
+{
+  "name": "@dsa/ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "React components for the ashnidave design system. Styles use only canonical token variables.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles.css"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@dsa/tokens": "0.1.0"
+  },
+  "devDependencies": {
+    "@dsa/discovery": "0.1.0"
+  }
+}
