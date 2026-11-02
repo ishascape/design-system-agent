@@ -383,6 +383,11 @@ describe('website import with a sandboxed browser render', () => {
       skipped: { cssVar: string; reason: string }[];
     };
     expect(out.tokens.map((t) => `${t.cssVar}:${t.type}`).sort()).toEqual(['--grid-line:color', '--space-4:dimension']);
+    // Counted once from the stylesheet, not again from the copy inside the page's HTML.
+    expect(out.tokens.find((t) => t.cssVar === '--grid-line')).toMatchObject({ usageCount: 1, confidence: 'inferred' });
+    expect(out.tokens.find((t) => t.cssVar === '--space-4')).toMatchObject({
+      overrides: [{ media: '(width >= 600px)', value: '28px' }],
+    });
     const reasons = Object.fromEntries(out.skipped.map((t) => [t.cssVar, t.reason]));
     expect(reasons['--alias']).toMatch(/points at another variable/);
     expect(reasons['--narrow']).toMatch(/max-width: 400px/);

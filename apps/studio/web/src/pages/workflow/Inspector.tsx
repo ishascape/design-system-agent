@@ -329,6 +329,31 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
 const swatchColor = (v: string) =>
   /^\d{1,3}(\s*,\s*|\s+)\d{1,3}(\s*,\s*|\s+)\d{1,3}$/.test(v.trim()) ? `rgb(${v})` : v;
 
+/** Short evidence line under each proposed token: value, responsive values, uses and where it came from. */
+function evidence(t: TokenProposal): string {
+  const steps = (t.overrides ?? []).map((o) => `${o.value} ${mediaLabel(o.media)}`);
+  const file = t.source.split('/').pop();
+  return [[t.value, ...steps].join(' → '), `${t.usageCount} ${t.usageCount === 1 ? 'use' : 'uses'}`, file]
+    .filter(Boolean)
+    .join(' · ');
+}
+function evidenceTitle(t: TokenProposal): string {
+  return [
+    `${t.cssVar}: ${t.value}`,
+    `Declared at ${t.source}`,
+    ...(t.overrides ?? []).map((o) => `@media ${o.media}: ${o.value} (${o.source})`),
+    `Used ${t.usageCount}× through var(${t.cssVar})`,
+    t.confidence === 'inferred' ? 'Type inferred: the CSS does not state it' : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+/** "(width >= 600px)" or "(min-width: 600px)" → "≥600px"; anything else stays as written. */
+const mediaLabel = (m: string) => {
+  const w = /(?:min-width\s*:\s*|width\s*>=\s*)([\d.]+(?:px|em|rem))/.exec(m);
+  return w ? `≥${w[1]}` : `@media ${m}`;
+};
+
 /** The review gate: choose which tokens enter the design system and what they are called. */
 function ApprovalPanel({
   project,
@@ -453,7 +478,12 @@ function ApprovalPanel({
                                 aria-hidden="true"
                               />
                             )}
-                            <code title={`${t.value} · used ${t.usageCount}×`}>{t.cssVar}</code>
+                            <span className="token-from__text">
+                              <code>{t.cssVar}</code>
+                              <span className="token-evidence" title={evidenceTitle(t)}>
+                                {evidence(t)}
+                              </span>
+                            </span>
                           </span>
                           <span role="cell">
                             <input

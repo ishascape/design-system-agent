@@ -1389,7 +1389,7 @@ textarea.input {
 }
 .token-table__row {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1.2fr);
+  grid-template-columns: 40px minmax(0, 1.3fr) minmax(0, 1fr);
   gap: 8px;
   align-items: center;
   padding: 5px 8px;
@@ -1424,6 +1424,17 @@ textarea.input {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.token-from__text {
+  display: grid;
+  min-width: 0;
+}
+.token-evidence {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--ds-font-size-xs);
+  color: var(--ds-color-text-tertiary);
 }
 
 .token-group__head {

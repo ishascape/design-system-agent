@@ -58,6 +58,10 @@ export interface TokenProposal {
   proposedName: string;
   promotable: boolean;
   reason?: string;
+  /** How sure discovery is of the type: observed in the CSS, or inferred (e.g. bare RGB channels). */
+  confidence?: string;
+  /** Values inside media queries, e.g. a larger space from 600px up. */
+  overrides?: { media: string; value: string; source: string }[];
 }
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -205,6 +209,16 @@ const extractTokens: StepDefinition = {
         source: `${t.source.file}:${t.source.line}`,
         proposedName: proposeName(t),
         promotable,
+        confidence: t.confidence,
+        ...(t.overrides.length
+          ? {
+              overrides: t.overrides.map((o) => ({
+                media: o.media,
+                value: o.value,
+                source: `${o.source.file}:${o.source.line}`,
+              })),
+            }
+          : {}),
         ...(reason ? { reason } : {}),
       };
     });

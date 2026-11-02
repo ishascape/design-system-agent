@@ -46,9 +46,12 @@ export interface AuditOptions {
 export function runAudit(repoDir: string, source: AuditSource, opts: AuditOptions = {}): AuditInventory {
   const read = (p: string): CssFile => ({ path: p, content: readFileSync(join(repoDir, p), 'utf8') });
   const cssFiles = listFiles(repoDir, ['.css']).map(read);
-  const componentFiles = [...listFiles(repoDir, ['.tsx', '.jsx']), ...(opts.markup ?? [])].map(read);
+  const codeFiles = listFiles(repoDir, ['.tsx', '.jsx']).map(read);
+  const componentFiles = [...codeFiles, ...(opts.markup ?? []).map(read)];
 
-  const varUsage = countVarUsage([...cssFiles, ...componentFiles].map((f) => f.content));
+  // Page markup repeats its <style> blocks, which are already read as CSS files, so it is left
+  // out of usage counts.
+  const varUsage = countVarUsage([...cssFiles, ...codeFiles].map((f) => f.content));
   const tokens = parseTokens(cssFiles).map((t) => ({ ...t, usageCount: varUsage.get(t.id) ?? 0 }));
 
   const inventory = {
