@@ -313,6 +313,17 @@ describe('website import with a sandboxed browser render', () => {
         res.end('secret');
         return;
       }
+      if (req.url === '/portfolio/') {
+        // The shapes found on ashnidave.com: range media queries and bare RGB channels.
+        res.setHeader('content-type', 'text/html');
+        res.end(`<!doctype html><title>Portfolio</title><style>
+          :root { --grid-line: 216 210 196; --space-4: 24px; --alias: var(--space-4); --narrow: 8px; }
+          @media (width >= 600px) { :root { --space-4: 28px; } }
+          @media (max-width: 400px) { :root { --narrow: 4px; } }
+          .g { border: 1px solid rgb(var(--grid-line) / 0.5); padding: var(--space-4); margin: var(--narrow); }
+        </style><p class="g">Hi</p>`);
+        return;
+      }
       res.setHeader('content-type', 'text/html');
       // No stylesheet in the HTML: the styles only exist once the script runs.
       res.end(`<!doctype html><title>JS site</title><p class="x">Hello</p><script>
@@ -348,5 +359,41 @@ describe('website import with a sandboxed browser render', () => {
     expect(res.headers.get('content-type')).toBe('image/png');
     expect(res.headers.get('content-disposition')).toBeNull();
     expect([...new Uint8Array(await res.arrayBuffer()).slice(1, 4)]).toEqual([0x50, 0x4e, 0x47]); // "PNG"
+  }, 60_000);
+
+  it('reads range media queries and RGB channels, and shows what it left out with the reason', async () => {
+    const p = (
+      await call('POST', '/api/projects', { name: 'Portfolio', source: { kind: 'website', url: `${base}portfolio/` } })
+    ).data;
+    const sourceId = (p.sources as unknown as { id: string }[])[0]!.id;
+    const r = (await call('POST', `/api/projects/${p.id}/runs`, { sourceId, params: {} })).data;
+    await engine.idle(r.id as string);
+    let view = (await call('GET', `/api/projects/${p.id}/runs/${r.id}`)).data as unknown as RunView;
+    expect(statuses(view).review).toBe('awaiting-approval');
+    const review = view.steps.find((s) => s.key === 'review')!;
+    const out = review.output as {
+      tokens: { cssVar: string; type: string }[];
+      skipped: { cssVar: string; reason: string }[];
+    };
+    expect(out.tokens.map((t) => `${t.cssVar}:${t.type}`).sort()).toEqual(['--grid-line:color', '--space-4:dimension']);
+    const reasons = Object.fromEntries(out.skipped.map((t) => [t.cssVar, t.reason]));
+    expect(reasons['--alias']).toMatch(/points at another variable/);
+    expect(reasons['--narrow']).toMatch(/max-width: 400px/);
+
+    expect((await call('POST', `/api/projects/${p.id}/steps/${review.id}/approve`, { decision: {} })).status).toBe(200);
+    await engine.idle(r.id as string);
+    view = (await call('GET', `/api/projects/${p.id}/runs/${r.id}`)).data as unknown as RunView;
+    expect(statuses(view)['generate-code']).toBe('succeeded');
+    const arts = (await call('GET', `/api/projects/${p.id}/artifacts`)).data as unknown as {
+      id: string;
+      kind: string;
+    }[];
+    const css = await (
+      await app.request(`/api/projects/${p.id}/artifacts/${arts.find((a) => a.kind === 'tokens-css')!.id}/raw`, {
+        headers: { host: 'localhost' },
+      })
+    ).text();
+    expect(css).toMatch(/--color-grid-line: 216 210 196;/);
+    expect(css).toMatch(/@media \(min-width: 600px\) \{\s*:root \{\s*--space-4: 28px;/);
   }, 60_000);
 });

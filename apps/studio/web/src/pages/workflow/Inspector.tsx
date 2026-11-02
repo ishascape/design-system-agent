@@ -325,6 +325,10 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
   );
 }
 
+/** Bare channels (`216 210 196`) are not a CSS colour by themselves; wrap them for the swatch. */
+const swatchColor = (v: string) =>
+  /^\d{1,3}(\s*,\s*|\s+)\d{1,3}(\s*,\s*|\s+)\d{1,3}$/.test(v.trim()) ? `rgb(${v})` : v;
+
 /** The review gate: choose which tokens enter the design system and what they are called. */
 function ApprovalPanel({
   project,
@@ -339,7 +343,9 @@ function ApprovalPanel({
   onAct: (fn: () => Promise<unknown>) => void;
   busy: boolean;
 }) {
-  const tokens = useMemo(() => (step.output as { tokens?: TokenProposal[] } | null)?.tokens ?? [], [step.output]);
+  const out = step.output as { tokens?: TokenProposal[]; skipped?: TokenProposal[] } | null;
+  const tokens = useMemo(() => out?.tokens ?? [], [out]);
+  const skipped = out?.skipped ?? [];
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [names, setNames] = useState<Record<string, string>>({});
   const [note, setNote] = useState('');
@@ -441,7 +447,11 @@ function ApprovalPanel({
                           </span>
                           <span role="cell" className="token-from">
                             {t.type === 'color' && (
-                              <span className="swatch" style={{ background: t.value }} aria-hidden="true" />
+                              <span
+                                className="swatch"
+                                style={{ background: swatchColor(t.value) }}
+                                aria-hidden="true"
+                              />
                             )}
                             <code title={`${t.value} · used ${t.usageCount}×`}>{t.cssVar}</code>
                           </span>
@@ -462,6 +472,22 @@ function ApprovalPanel({
             })}
           </div>
         </>
+      )}
+      {skipped.length > 0 && (
+        <details className="skipped">
+          <summary>
+            {skipped.length} {skipped.length === 1 ? 'custom property is' : 'custom properties are'} left out of review,
+            with the reason
+          </summary>
+          <ul className="skipped__list" aria-label="Left out of review">
+            {skipped.map((t) => (
+              <li key={t.cssVar}>
+                <code title={`${t.source} · used ${t.usageCount}×`}>{t.cssVar}</code>
+                <span className="muted">{t.reason}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
       {dupes.size > 0 && <ErrorNote>Two kept tokens share a name: {[...dupes].join(', ')}</ErrorNote>}
       {invalid && (

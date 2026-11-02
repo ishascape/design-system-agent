@@ -13,11 +13,13 @@ const source = { id: 'mini-site', repo: 'https://example.com/mini-site', commit:
 describe('token parsing', () => {
   it('infers DTCG types and refuses to guess unknown shapes', () => {
     expect(inferTokenType('#f5f2ea')).toBe('color');
+    expect(inferTokenType('216 210 196')).toBe('color');
+    expect(inferTokenType('216, 210, 196')).toBe('color');
+    expect(inferTokenType('1 2 300')).toBe('other');
     expect(inferTokenType('clamp(16px, 1.4vw, 18px)')).toBe('dimension');
     expect(inferTokenType('150ms')).toBe('duration');
     expect(inferTokenType('cubic-bezier(0.2, 0, 0, 1)')).toBe('cubicBezier');
     expect(inferTokenType("'Poppins', system-ui")).toBe('fontFamily');
-    expect(inferTokenType('216 210 196')).toBe('other');
   });
 
   it('reads :root tokens with source lines, comments and media overrides', () => {

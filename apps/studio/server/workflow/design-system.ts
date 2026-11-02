@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { z } from 'zod';
 import type { AuditInventory, TokenCandidate } from '@dsa/registry';
 import { renderComponentsReport, renderDriftReport, runAudit, toDtcgCandidates } from '@dsa/discovery';
-import { TokenMap, buildTokens, promoteTokens, toDtcgToken } from '@dsa/tokens';
+import { TokenMap, buildTokens, promoteTokens, promotionBlocker, toDtcgToken } from '@dsa/tokens';
 import { allowLocalSites, fetchRepo, fetchWebsite, type FetchedSource } from '../sources.ts';
 import { renderWebsite } from '../render.ts';
 import { StepBlocked, type StepContext, type StepDefinition, type WorkflowDefinition } from './types.ts';
@@ -169,14 +169,15 @@ const extractTokens: StepDefinition = {
       'application/json',
     );
     const proposals: TokenProposal[] = inv.tokens.map((t) => {
-      let promotable = true;
-      let reason: string | undefined;
-      try {
-        toDtcgToken(t, inv.source.commit);
-      } catch (e) {
-        promotable = false;
-        reason = e instanceof Error ? e.message : String(e);
+      let reason = promotionBlocker(t);
+      if (!reason) {
+        try {
+          toDtcgToken(t, inv.source.commit);
+        } catch (e) {
+          reason = e instanceof Error ? e.message : String(e);
+        }
       }
+      const promotable = !reason;
       return {
         cssVar: `--${t.id}`,
         type: t.type,
@@ -195,7 +196,7 @@ const extractTokens: StepDefinition = {
       summary: {
         headline: `${proposals.length - skipped.length} token candidates`,
         facts: [...byType].map(([type, n]) => ({ label: type, value: String(n) })),
-        warnings: skipped.map((p) => `${p.cssVar} can't become a token yet: ${p.reason}`),
+        warnings: skipped.map((p) => `${p.cssVar} is left out of review: ${p.reason}`),
       },
       output: { proposals },
     };
@@ -293,9 +294,10 @@ const review: StepDefinition = {
   description: 'You decide which tokens and names become the design system.',
   action: 'Preparing proposals',
   run(ctx) {
-    const proposals = (ctx.outputs['extract-tokens'] as { proposals: TokenProposal[] }).proposals.filter(
-      (p) => p.promotable,
-    );
+    const all = (ctx.outputs['extract-tokens'] as { proposals: TokenProposal[] }).proposals;
+    const proposals = all.filter((p) => p.promotable);
+    // Shown in the review panel with their reason, so nothing disappears silently.
+    const skipped = all.filter((p) => !p.promotable);
     const components = (ctx.outputs['identify-components'] as { candidates: unknown[] }).candidates;
     return {
       summary: {
@@ -303,10 +305,11 @@ const review: StepDefinition = {
         facts: [
           { label: 'Tokens proposed', value: String(proposals.length) },
           { label: 'Components found', value: String(components.length) },
+          ...(skipped.length ? [{ label: 'Left out, with a reason', value: String(skipped.length) }] : []),
         ],
         warnings: [],
       },
-      output: { tokens: proposals, components },
+      output: { tokens: proposals, skipped, components },
     };
   },
   approval: {

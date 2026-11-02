@@ -1,8 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { fileURLToPath } from 'node:url';
 import { runAudit } from '@dsa/discovery';
-import { TokenMap as TokenMapSchema, promoteTokens, toDtcgToken, type TokenMap } from './promote.ts';
-import { renderCss, type ManifestToken } from './build.ts';
+import {
+  TokenMap as TokenMapSchema,
+  minWidthOf,
+  parseColor,
+  promoteTokens,
+  promotionBlocker,
+  toDtcgToken,
+  type TokenMap,
+} from './promote.ts';
+import type { TokenCandidate } from '@dsa/registry';
+import { cssValue, renderCss, type ManifestToken } from './build.ts';
 
 const fixture = fileURLToPath(new URL('../../../tests/fixtures/mini-site', import.meta.url));
 const inv = runAudit(fixture, { id: 'mini-site', repo: 'https://example.com/mini', commit: 'b'.repeat(40) });
@@ -93,9 +102,9 @@ describe('promoteTokens', () => {
     expect(() =>
       toDtcgToken(
         {
-          id: 'grid-line',
+          id: 'layout',
           type: 'other',
-          value: '1 2 3',
+          value: 'auto',
           overrides: [],
           usageCount: 0,
           confidence: 'observed',
@@ -104,6 +113,78 @@ describe('promoteTokens', () => {
         'c'.repeat(40),
       ),
     ).toThrow(/cannot be promoted/);
+  });
+});
+
+const cand = (over: Partial<TokenCandidate>): TokenCandidate => ({
+  id: 'x',
+  type: 'dimension',
+  value: '16px',
+  overrides: [],
+  usageCount: 1,
+  confidence: 'observed',
+  source: { file: 'a.css', line: 1 },
+  ...over,
+});
+
+describe('media queries', () => {
+  it('reads classic and range forms of "from this width up"', () => {
+    expect(minWidthOf('(min-width: 600px)')).toBe(600);
+    expect(minWidthOf('(width>=600px)')).toBe(600);
+    expect(minWidthOf('(width >= 1024px)')).toBe(1024);
+    expect(minWidthOf('(600px <= width)')).toBe(600);
+    expect(minWidthOf('only screen and (min-width: 40em)')).toBe(640);
+  });
+  it('does not guess at queries with a different meaning', () => {
+    expect(minWidthOf('(max-width: 600px)')).toBeUndefined();
+    expect(minWidthOf('(width > 600px)')).toBeUndefined();
+    expect(minWidthOf('(min-width: 600px) and (max-width: 900px)')).toBeUndefined();
+    expect(minWidthOf('print')).toBeUndefined();
+  });
+  it('promotes range-syntax overrides as responsive values (the ashnidave.com case)', () => {
+    const t = toDtcgToken(
+      cand({
+        id: 'space-4',
+        value: '24px',
+        overrides: [
+          { media: '(width>=600px)', value: '28px', source: { file: 'a.css', line: 9 } },
+          { media: '(width>=1024px)', value: '32px', source: { file: 'a.css', line: 14 } },
+        ],
+      }),
+      'c'.repeat(40),
+    );
+    expect(t.$extensions['dev.dsa.responsive']).toEqual([
+      { minWidth: 600, value: '28px', source: 'a.css:9' },
+      { minWidth: 1024, value: '32px', source: 'a.css:14' },
+    ]);
+  });
+  it('explains an unsupported query instead of failing silently', () => {
+    const reason = promotionBlocker(
+      cand({ overrides: [{ media: '(max-width: 600px)', value: '8px', source: { file: 'a.css', line: 2 } }] }),
+    );
+    expect(reason).toMatch(/@media \(max-width: 600px\)/);
+  });
+});
+
+describe('colours', () => {
+  it('reads hex, rgb() and bare channels', () => {
+    expect(parseColor('#ABC')).toEqual({ hex: '#aabbcc' });
+    expect(parseColor('rgb(216, 210, 196)')).toEqual({ hex: '#d8d2c4' });
+    expect(parseColor('rgb(0 0 0 / 50%)')).toEqual({ hex: '#00000080' });
+    expect(parseColor('216 210 196')).toEqual({ hex: '#d8d2c4', channels: '216 210 196' });
+    expect(parseColor('300 0 0')).toBeUndefined();
+    expect(parseColor('hsl(10 20% 30%)')).toBeUndefined();
+  });
+  it('keeps bare channels in the generated CSS so rgb(var(--x) / a) still works', () => {
+    const t = toDtcgToken(cand({ id: 'grid-line', type: 'color', value: '216 210 196' }), 'c'.repeat(40));
+    expect(t.$value).toBe('#d8d2c4');
+    expect(t.$extensions['dev.dsa.channels']).toBe('216 210 196');
+    expect(cssValue(t as unknown as Parameters<typeof cssValue>[0])).toBe('216 210 196');
+  });
+  it('gives a plain reason for values it cannot read', () => {
+    expect(promotionBlocker(cand({ type: 'color', value: 'hsl(10 20% 30%)' }))).toMatch(/hex and rgb/);
+    expect(promotionBlocker(cand({ type: 'other', value: 'var(--ink)' }))).toMatch(/points at another variable/);
+    expect(promotionBlocker(cand({}))).toBeUndefined();
   });
 });
 
