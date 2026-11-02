@@ -9,7 +9,6 @@ Status: **pending-approval** · Version 0.2.0 · Source: ashnidave @ `e072889`
 ```tsx
 import { Button } from '@dsa/ui';
 import '@dsa/ui/styles.css';
-
 <Button href="#work" variant="primary" icon="↓">Explore my work</Button>
 <Button onClick={copyEmail}>Copy email</Button>
 ```
@@ -118,7 +117,7 @@ Don't:
 
 - Code: `packages/ui/src/button/Button.tsx`, styles `packages/ui/src/button/button.css`
 - Spec: `registry/components/button.json`
-- Figma: component set `3:19` in file `gate0-test` (generated); ids in `registry/figma-map.json`
+- Figma: node `3:19` in file `gate0-test` (generated); ids in `registry/figma-map.json`
 - Storybook: `components-button--docs`
 - Source evidence: `src/styles/global.css:148-202`, `src/styles/global.css:56`
 

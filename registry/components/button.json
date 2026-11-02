@@ -197,15 +197,36 @@
     "file": "packages/ui/src/button/Button.tsx",
     "propsTypes": ["ButtonAsButtonProps", "ButtonAsLinkProps"],
     "css": "packages/ui/src/button/button.css",
-    "className": "ds-button"
+    "className": "ds-button",
+    "examples": [
+      "import { Button } from '@dsa/ui';\nimport '@dsa/ui/styles.css';",
+      "<Button href=\"#work\" variant=\"primary\" icon=\"↓\">Explore my work</Button>",
+      "<Button onClick={copyEmail}>Copy email</Button>"
+    ]
   },
   "figma": {
     "file": "gate0-test",
-    "componentSet": "3:19",
+    "node": "3:19",
     "status": "generated"
   },
   "docs": {
     "storybook": "components-button--docs"
   },
-  "openQuestions": []
+  "openQuestions": [],
+  "parity": {
+    "selector": ".ds-button",
+    "states": ["default", "hover", "focus"],
+    "stories": {
+      "primary": "components-button--primary",
+      "outline": "components-button--outline"
+    },
+    "exceptions": [
+      {
+        "variants": ["primary"],
+        "widths": [375],
+        "props": ["font-size", "line-height", "padding-left", "padding-right"],
+        "reason": "Hero page-level override of the primary button below 600px (src/components/Hero.css:856), not a variant."
+      }
+    ]
+  }
 }

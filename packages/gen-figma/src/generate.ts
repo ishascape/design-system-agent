@@ -23,7 +23,7 @@ export const FigmaMap = z.object({
   files: z.record(z.string(), z.object({ fileKey: z.string(), url: z.url(), purpose: z.string() })),
   collection: z.object({ id: z.string().optional(), name: z.string() }),
   variables: z.record(z.string(), z.string()),
-  components: z.record(z.string(), z.object({ componentSet: z.string(), file: z.string() })),
+  components: z.record(z.string(), z.object({ node: z.string(), file: z.string() })),
 });
 export type FigmaMap = z.infer<typeof FigmaMap>;
 
@@ -136,7 +136,7 @@ export function buildPayload(tokens: ManifestToken[], spec: ComponentSpec, map: 
     ids: {
       ...(map.collection.id ? { collection: map.collection.id } : {}),
       variables: map.variables,
-      ...(map.components[spec.id] ? { componentSet: map.components[spec.id]!.componentSet } : {}),
+      ...(map.components[spec.id] ? { componentSet: map.components[spec.id]!.node } : {}),
     },
     variables,
     font: { family: (sans.value as string[])[0]!, style: 'Regular' },

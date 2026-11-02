@@ -53,11 +53,38 @@ export const ComponentSpec = z.object({
     propsTypes: z.array(z.string()).min(1),
     css: z.string(),
     className: z.string(),
+    /** Short, copy-ready usage snippets for people and agents. */
+    examples: z.array(z.string().min(1)).min(1),
   }),
   figma: z
-    .object({ file: z.string(), componentSet: z.string(), status: z.enum(['generated', 'not-generated', 'blocked']) })
+    .object({
+      file: z.string(),
+      /** Node id of the component set (or single component) in that file. */
+      node: z.string(),
+      status: z.enum(['generated', 'not-generated', 'blocked']),
+    })
     .optional(),
   docs: z.object({ storybook: z.string() }).optional(),
+  /**
+   * Style parity against the source's rendered evidence (sources/<id>/render.json target = spec id).
+   * Exceptions are understood differences, each with a reason; anything else fails the test.
+   */
+  parity: z
+    .object({
+      selector: z.string().min(1),
+      states: z.array(z.enum(['default', 'hover', 'focus'])).min(1),
+      stories: z.record(z.string(), z.string()),
+      exceptions: z.array(
+        z.object({
+          variants: z.array(z.string()).optional(),
+          widths: z.array(z.number()).optional(),
+          states: z.array(z.string()).optional(),
+          props: z.array(z.string()).min(1),
+          reason: z.string().min(1),
+        }),
+      ),
+    })
+    .optional(),
   openQuestions: z.array(z.string()),
 });
 export type ComponentSpec = z.infer<typeof ComponentSpec>;

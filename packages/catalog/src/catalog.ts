@@ -66,13 +66,7 @@ export function checkComponent(
 }
 
 function usageExample(spec: ComponentSpec): string {
-  return [
-    `import { ${spec.code.export} } from '${spec.code.package}';`,
-    `import '${spec.code.package}/styles.css';`,
-    '',
-    `<${spec.code.export} href="#work" variant="primary" icon="↓">Explore my work</${spec.code.export}>`,
-    `<${spec.code.export} onClick={copyEmail}>Copy email</${spec.code.export}>`,
-  ].join('\n');
+  return spec.code.examples.join('\n');
 }
 
 export function buildCatalog(root: string, name: string, tokens: ManifestToken[], specs: ComponentSpec[]): Catalog {
@@ -180,7 +174,7 @@ ${list(spec.responsive)}
 
 - Code: \`${spec.code.file}\`, styles \`${spec.code.css}\`
 - Spec: \`registry/components/${spec.id}.json\`
-${spec.figma ? `- Figma: component set \`${spec.figma.componentSet}\` in file \`${spec.figma.file}\` (${spec.figma.status}); ids in \`registry/figma-map.json\`` : '- Figma: not generated'}
+${spec.figma ? `- Figma: node \`${spec.figma.node}\` in file \`${spec.figma.file}\` (${spec.figma.status}); ids in \`registry/figma-map.json\`` : '- Figma: not generated'}
 ${spec.docs ? `- Storybook: \`${spec.docs.storybook}\`` : ''}
 - Source evidence: ${spec.source.styles.map((s) => `\`${s}\``).join(', ')}
 

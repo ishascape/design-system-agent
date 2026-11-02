@@ -70,7 +70,7 @@ describe('buildPayload', () => {
   });
 
   it('passes known Figma ids so the script updates in place', () => {
-    expect(payload.ids.componentSet).toBe(map.components.button!.componentSet);
+    expect(payload.ids.componentSet).toBe(map.components.button!.node);
     expect(payload.ids.variables['color.ink']).toBe(map.variables['color.ink']);
   });
 });

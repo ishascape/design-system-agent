@@ -46,7 +46,7 @@
   },
   "components": {
     "button": {
-      "componentSet": "3:19",
+      "node": "3:19",
       "file": "gate0-test"
     }
   }

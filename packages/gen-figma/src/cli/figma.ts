@@ -52,7 +52,7 @@ if (cmd === 'script') {
     variables: Object.fromEntries(Object.entries(result.variableIds).sort(([a], [b]) => a.localeCompare(b))),
     components: {
       ...map.components,
-      button: { componentSet: result.componentSetId, file: map.components.button?.file ?? 'gate0-test' },
+      button: { node: result.componentSetId, file: map.components.button?.file ?? 'gate0-test' },
     },
   };
   writeFileSync(join(root, 'registry/figma-map.json'), JSON.stringify(updated, null, 2) + '\n');
