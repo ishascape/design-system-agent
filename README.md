@@ -8,9 +8,22 @@ Turns websites, codebases and Figma files into three linked outputs, all generat
 
 First source: ashnidave.com. Status: **MVP v1, Button vertical slice complete and pending design approval.** See `TASKS.md` for what is next.
 
+## Design System Studio (the app)
+
+A local app for running this workflow on any project: create a project from a website or GitHub repository, watch each stage run on a canvas, review and approve the proposed tokens, and download what it produced.
+
+```sh
+npm ci --ignore-scripts
+npm run studio
+```
+
+Then open **http://localhost:4310** in your browser. Stop it with Ctrl+C in the terminal. The app only listens on your own computer. Its data (projects, runs, imported copies and generated files) lives in `.studio/` in this folder, which git ignores; set `STUDIO_HOME` to keep it somewhere else.
+
+What works today (milestones 1 and 2): projects, sources, the 10-stage workflow with real execution, approvals, retries, reruns with changed inputs, cancel, run history, logs and versioned files. Importing a Figma file or a package, and the Figma, documentation and validation stages, say "Not available yet" until they are built.
+
 ## Setup
 
-Needs Node 22.12 or newer.
+Needs Node 22.13 or newer.
 
 ```sh
 npm ci --ignore-scripts      # install without running package install scripts
@@ -24,6 +37,8 @@ The browser checks need Chromium: `npx playwright install chromium`.
 | Command                           | What it does                                                                             |
 | --------------------------------- | ---------------------------------------------------------------------------------------- |
 | `npm run check`                   | Typecheck, lint, Prettier check and all unit tests                                       |
+| `npm run studio`                  | Builds and starts the Studio at http://localhost:4310                                    |
+| `npm run test:studio-ui`          | Browser smoke test of the Studio (build it first with `npm run build -w @dsa/studio`)    |
 | `npm run storybook`               | Docs site at http://localhost:6006                                                       |
 | `npm run build-storybook`         | Static docs site in `storybook-static/`                                                  |
 | `npm run test:docs`               | Opens every story in Chromium: render, interaction tests, axe (includes colour contrast) |

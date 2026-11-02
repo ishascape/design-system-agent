@@ -1,0 +1,22 @@
+{
+  "name": "@dsa/studio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Design System Studio: a local app to run the design-system workflow for any project.",
+  "scripts": {
+    "build": "vite build --config web/vite.config.ts",
+    "start": "node --experimental-strip-types --disable-warning=ExperimentalWarning server/main.ts",
+    "dev:web": "vite --config web/vite.config.ts"
+  },
+  "dependencies": {
+    "@dsa/discovery": "0.1.0",
+    "@dsa/gen-figma": "0.1.0",
+    "@dsa/registry": "0.1.0",
+    "@dsa/tokens": "0.1.0",
+    "@hono/node-server": "2.1.5",
+    "@xyflow/react": "12.12.0",
+    "hono": "4.13.16",
+    "zod": "4.6.7"
+  }
+}

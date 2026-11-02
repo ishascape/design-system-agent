@@ -23,6 +23,11 @@
     "vitest.config.ts",
     "eslint.config.js",
     "apps/storybook/.storybook/*.ts",
-    "apps/storybook/src/**/*.tsx"
+    "apps/storybook/src/**/*.tsx",
+    "apps/studio/server/**/*.ts",
+    "apps/studio/tests/**/*.ts",
+    "apps/studio/web/src/**/*.ts",
+    "apps/studio/web/src/**/*.tsx",
+    "apps/studio/web/vite.config.ts"
   ]
 }

@@ -4,6 +4,7 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   {
     ignores: [
+      'apps/studio/dist-web/**',
       'node_modules/**',
       '.cache/**',
       'audits/**',
@@ -24,7 +25,13 @@ export default tseslint.config(
   },
   {
     // Command-line tools and browser checks report progress on stdout.
-    files: ['packages/*/src/cli/**/*.ts', 'tests/docs/**/*.ts', 'tests/parity/**/*.ts'],
+    files: [
+      'packages/*/src/cli/**/*.ts',
+      'apps/studio/server/main.ts',
+      'tests/docs/**/*.ts',
+      'tests/parity/**/*.ts',
+      'tests/studio/**/*.ts',
+    ],
     rules: { 'no-console': 'off' },
   },
 );
