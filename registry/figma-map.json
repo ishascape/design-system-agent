@@ -1,0 +1,33 @@
+{
+  "$comment": "Maps registry ids to Figma ids. Gate 0 test file only. Generators update nodes by these ids instead of creating duplicates.",
+  "files": {
+    "gate0-test": {
+      "fileKey": "wCnc6RXvuK5ZuwanC1epne",
+      "url": "https://www.figma.com/design/wCnc6RXvuK5ZuwanC1epne/Ai-Design-system-agent",
+      "purpose": "Scratch file for capability tests. Safe to write."
+    }
+  },
+  "variables": {
+    "collection": "VariableCollectionId:3:2",
+    "color/paper": "VariableID:3:3",
+    "color/ink": "VariableID:3:4",
+    "color/marker": "VariableID:3:5",
+    "radius/default": "VariableID:3:6",
+    "space/2": "VariableID:3:7",
+    "space/4": "VariableID:3:8",
+    "line/building": "VariableID:3:9",
+    "size/tap": "VariableID:3:10"
+  },
+  "components": {
+    "button": {
+      "componentSet": "3:19",
+      "variants": {
+        "Variant=Outline, State=Default": "3:11",
+        "Variant=Outline, State=Hover": "3:13",
+        "Variant=Primary, State=Default": "3:15",
+        "Variant=Primary, State=Hover": "3:17"
+      },
+      "properties": { "label": "Label#3:0" }
+    }
+  }
+}
