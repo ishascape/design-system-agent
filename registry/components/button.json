@@ -1,7 +1,7 @@
 {
   "id": "button",
   "name": "Button",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "pending-approval",
   "summary": "An action or navigation link with an ink outline or fill that turns marker blue on hover, with registration corner marks on hover and focus.",
   "whenToUse": [
@@ -41,7 +41,12 @@
     }
   ],
   "states": [
-    { "name": "default", "trigger": "At rest.", "visual": "As the variant describes.", "confidence": "observed" },
+    {
+      "name": "default",
+      "trigger": "At rest.",
+      "visual": "As the variant describes.",
+      "confidence": "observed"
+    },
     {
       "name": "hover",
       "trigger": "Pointer over the button.",
@@ -57,8 +62,8 @@
     {
       "name": "disabled",
       "trigger": "disabled attribute on a button (links cannot be disabled).",
-      "visual": "45% opacity, no hover change, not-allowed cursor.",
-      "confidence": "proposed"
+      "visual": "45% opacity, no hover change, not-allowed cursor. Not in the source; decided by Ashni on 2026-11-02.",
+      "confidence": "decided"
     }
   ],
   "anatomy": [
@@ -67,8 +72,16 @@
       "description": "The outlined or filled shape; the hit area is at least 44px tall.",
       "optional": false
     },
-    { "part": "label", "description": "The visible text, which is also the accessible name.", "optional": false },
-    { "part": "icon", "description": "Optional decorative icon after the label, such as an arrow.", "optional": true },
+    {
+      "part": "label",
+      "description": "The visible text, which is also the accessible name.",
+      "optional": false
+    },
+    {
+      "part": "icon",
+      "description": "Optional decorative icon after the label, such as an arrow.",
+      "optional": true
+    },
     {
       "part": "corner marks",
       "description": "Two registration marks at opposite corners, shown on hover and focus.",
@@ -76,19 +89,58 @@
     }
   ],
   "tokens": [
-    { "name": "color.ink", "usedFor": "outline, label (outline variant), fill (primary variant)" },
-    { "name": "color.paper", "usedFor": "label on primary and on hover" },
-    { "name": "color.marker", "usedFor": "hover fill and outline, focus ring" },
-    { "name": "color.graphite", "usedFor": "corner marks at 45%" },
-    { "name": "font.family.sans", "usedFor": "label" },
-    { "name": "font.size.body", "usedFor": "label" },
-    { "name": "space.2", "usedFor": "gap between label and icon" },
-    { "name": "space.4", "usedFor": "horizontal padding" },
-    { "name": "size.tap", "usedFor": "minimum height" },
-    { "name": "radius.default", "usedFor": "corner radius" },
-    { "name": "line.building", "usedFor": "outline and corner mark weight" },
-    { "name": "motion.duration.micro", "usedFor": "hover transition" },
-    { "name": "motion.easing.pen", "usedFor": "hover transition" }
+    {
+      "name": "color.ink",
+      "usedFor": "outline, label (outline variant), fill (primary variant)"
+    },
+    {
+      "name": "color.paper",
+      "usedFor": "label on primary and on hover"
+    },
+    {
+      "name": "color.marker",
+      "usedFor": "hover fill and outline, focus ring"
+    },
+    {
+      "name": "color.graphite",
+      "usedFor": "corner marks at 45%"
+    },
+    {
+      "name": "font.family.sans",
+      "usedFor": "label"
+    },
+    {
+      "name": "font.size.body",
+      "usedFor": "label"
+    },
+    {
+      "name": "space.2",
+      "usedFor": "gap between label and icon"
+    },
+    {
+      "name": "space.4",
+      "usedFor": "horizontal padding"
+    },
+    {
+      "name": "size.tap",
+      "usedFor": "minimum height"
+    },
+    {
+      "name": "radius.default",
+      "usedFor": "corner radius"
+    },
+    {
+      "name": "line.building",
+      "usedFor": "outline and corner mark weight"
+    },
+    {
+      "name": "motion.duration.micro",
+      "usedFor": "hover transition"
+    },
+    {
+      "name": "motion.easing.pen",
+      "usedFor": "hover transition"
+    }
   ],
   "constants": [
     {
@@ -101,8 +153,16 @@
       "value": "2px solid, offset 3px",
       "reason": "Global :focus-visible rule in the source; candidate for a focus token later."
     },
-    { "name": "corner mark size", "value": "10px, offset -6px", "reason": "Decorative geometry from the source." },
-    { "name": "corner mark opacity", "value": "45%", "reason": "From the source (rgb(97 94 88 / 0.45))." }
+    {
+      "name": "corner mark size",
+      "value": "10px, offset -6px",
+      "reason": "Decorative geometry from the source."
+    },
+    {
+      "name": "corner mark opacity",
+      "value": "45%",
+      "reason": "From the source (rgb(97 94 88 / 0.45))."
+    }
   ],
   "accessibility": {
     "elements": ["button (type=\"button\" by default)", "a (when href is set)"],
@@ -139,10 +199,13 @@
     "css": "packages/ui/src/button/button.css",
     "className": "ds-button"
   },
-  "figma": { "file": "gate0-test", "componentSet": "3:19", "status": "generated" },
-  "docs": { "storybook": "components-button--docs" },
-  "openQuestions": [
-    "Approve the proposed disabled state, or leave disabled unstyled like the source?",
-    "Should the 1.5px outline stay 1.5px? Chromium draws it as 1px on standard screens, so the site looks thinner than the token."
-  ]
+  "figma": {
+    "file": "gate0-test",
+    "componentSet": "3:19",
+    "status": "generated"
+  },
+  "docs": {
+    "storybook": "components-button--docs"
+  },
+  "openQuestions": []
 }

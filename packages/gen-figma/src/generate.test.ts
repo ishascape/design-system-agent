@@ -41,6 +41,12 @@ describe('toFigmaVariables', () => {
     expect(byName['font.size.body']!.description).toContain('clamp(16px, 1.4vw, 18px)');
   });
 
+  it('explains design decisions that replace the source value', () => {
+    expect(byName['line.building']).toMatchObject({ value: 1 });
+    expect(byName['line.building']!.description).toContain('Design decision (Ashni, 2026-11-02)');
+    expect(byName['line.building']!.description).toContain('Source had 1.5px');
+  });
+
   it('keeps provenance in the description', () => {
     expect(byName['color.ink']!.description).toMatch(/Source: src\/styles\/tokens\.css:\d+/);
   });

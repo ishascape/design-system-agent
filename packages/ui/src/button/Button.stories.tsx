@@ -40,9 +40,10 @@ export const AsLinkWithIcon: Story = {
 };
 
 export const Disabled: Story = {
-  name: 'Disabled (proposed)',
   args: { disabled: true, children: 'Copy email' },
-  parameters: { docs: { description: { story: 'Not in the source site. Proposed state, pending design approval.' } } },
+  parameters: {
+    docs: { description: { story: 'Not in the source site. Added by design decision (Ashni, 2026-11-02).' } },
+  },
 };
 
 export const LongLabel: Story = {

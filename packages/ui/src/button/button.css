@@ -75,7 +75,7 @@
   opacity: 1;
 }
 
-/* PROPOSED (not in the source): disabled state. Pending design approval. */
+/* DECIDED (not in the source): disabled state at 45% opacity. Approved by Ashni, 2026-11-02. */
 .ds-button:disabled {
   opacity: 0.45;
   cursor: not-allowed;

@@ -20,7 +20,15 @@ export interface ManifestToken {
   responsive?: { minWidth: number; value: string }[];
   fluid?: { min: string; max: string; css: string };
   reducedMotion?: string;
-  provenance: { source: string; sourceVar: string; commit: string; confidence: string };
+  provenance: {
+    source: string;
+    sourceVar: string;
+    commit: string;
+    confidence: string;
+    /** Present when a design decision replaced the source value. */
+    sourceValue?: string;
+    decision?: { value: string; reason: string; decidedBy: string; date: string };
+  };
 }
 
 const ext = <T>(t: TransformedToken, key: string): T | undefined =>

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fileURLToPath } from 'node:url';
 import { runAudit } from '@dsa/discovery';
-import { promoteTokens, toDtcgToken, type TokenMap } from './promote.ts';
+import { TokenMap as TokenMapSchema, promoteTokens, toDtcgToken, type TokenMap } from './promote.ts';
 import { renderCss, type ManifestToken } from './build.ts';
 
 const fixture = fileURLToPath(new URL('../../../tests/fixtures/mini-site', import.meta.url));
@@ -42,6 +42,30 @@ describe('promoteTokens', () => {
     expect((out.motion as Record<string, Record<string, unknown>>).easing!.pen).toMatchObject({
       $value: [0.2, 0, 0, 1],
     });
+  });
+
+  it('applies a design decision but keeps the source value in provenance', () => {
+    const decided = promoteTokens(inv, {
+      ...map,
+      tokens: {
+        'space.4': {
+          from: 'space-4',
+          override: { value: '30px', reason: 'Test decision', decidedBy: 'Ashni', date: '2026-11-02' },
+        },
+      },
+    }) as Record<string, Record<string, Record<string, unknown>>>;
+    const token = decided.space!['4'] as { $value: string; $extensions: Record<string, Record<string, unknown>> };
+    expect(token.$value).toBe('30px');
+    expect(token.$extensions['dev.dsa.provenance']).toMatchObject({
+      confidence: 'decided',
+      sourceValue: '28px',
+      decision: { reason: 'Test decision', decidedBy: 'Ashni' },
+    });
+  });
+
+  it('refuses a design decision without a reason', () => {
+    const bad = { from: 'space-4', override: { value: '30px', reason: '', decidedBy: 'Ashni', date: '2026-11-02' } };
+    expect(() => TokenMapSchema.parse({ ...map, tokens: { 'space.4': bad } })).toThrow();
   });
 
   it('refuses a map entry that is not in the audit', () => {

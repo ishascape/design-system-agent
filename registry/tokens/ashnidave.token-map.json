@@ -1,7 +1,7 @@
 {
   "$comment": "Human-curated: which source custom properties become canonical tokens, under which name. Values and provenance are copied from audits/ashnidave/inventory.json by `npm run registry:tokens -- ashnidave`. Edit this file, never the generated tokens file.",
   "source": "ashnidave",
-  "status": "pending-approval",
+  "status": "approved",
   "tokens": {
     "color.paper": { "from": "paper", "description": "Page background: warm paper." },
     "color.paper-shade": { "from": "paper-shade", "description": "Slightly darker paper for alternate surfaces." },
@@ -30,7 +30,13 @@
     "line.thin": { "from": "line-thin" },
     "line.building": {
       "from": "line-building",
-      "description": "Button and card outlines. Rendered audit: Chromium draws 1.5px as 1px on 1x screens."
+      "description": "Button and card outlines.",
+      "override": {
+        "value": "1px",
+        "reason": "The site sets 1.5px, but browsers draw it as 1px on standard screens. 1px matches what people see.",
+        "decidedBy": "Ashni",
+        "date": "2026-11-02"
+      }
     },
     "line.cut": { "from": "line-cut" },
     "motion.duration.micro": { "from": "dur-micro", "description": "Hover and other small state changes." },

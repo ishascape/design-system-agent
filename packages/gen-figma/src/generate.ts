@@ -16,7 +16,7 @@ export interface ManifestToken {
   description?: string;
   responsive?: { minWidth: number; value: string }[];
   fluid?: { min: string; max: string; css: string };
-  provenance: { source: string };
+  provenance: { source: string; sourceValue?: string; decision?: { reason: string; decidedBy: string; date: string } };
 }
 
 export const FigmaMap = z.object({
@@ -80,6 +80,9 @@ export function toFigmaVariables(tokens: ManifestToken[]): FigmaVariable[] {
       t.fluid ? `Fluid in code: ${t.fluid.css}. Figma holds the minimum.` : undefined,
       t.responsive?.length
         ? `In code: ${t.responsive.map((r) => `${r.value} from ${r.minWidth}px`).join(', ')}.`
+        : undefined,
+      t.provenance.decision
+        ? `Design decision (${t.provenance.decision.decidedBy}, ${t.provenance.decision.date}): ${t.provenance.decision.reason} Source had ${t.provenance.sourceValue}.`
         : undefined,
       `Source: ${t.provenance.source}`,
     ].filter(Boolean);

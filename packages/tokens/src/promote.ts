@@ -13,7 +13,22 @@ export const TokenMap = z.object({
   status: z.enum(['pending-approval', 'approved']),
   tokens: z.record(
     z.string().regex(/^[a-z]+(\.[a-z0-9-]+)+$/, 'Canonical names are dot paths like "color.ink"'),
-    z.object({ from: z.string().regex(/^[a-z0-9-]+$/), description: z.string().optional() }),
+    z.object({
+      from: z.string().regex(/^[a-z0-9-]+$/),
+      description: z.string().optional(),
+      /**
+       * A design decision that replaces the source value. The source value stays in provenance,
+       * so the change from the live site is always visible and reversible.
+       */
+      override: z
+        .object({
+          value: z.string(),
+          reason: z.string().min(1),
+          decidedBy: z.string().min(1),
+          date: z.iso.date(),
+        })
+        .optional(),
+    }),
   ),
 });
 export type TokenMap = z.infer<typeof TokenMap>;
@@ -128,7 +143,20 @@ export function promoteTokens(inv: AuditInventory, map: TokenMap): Record<string
     const path = name.split('.');
     let node = out;
     for (const seg of path.slice(0, -1)) node = (node[seg] ??= {}) as Record<string, unknown>;
-    node[path.at(-1)!] = toDtcgToken(byId.get(m.from)!, inv.source.commit, m.description);
+    const source = byId.get(m.from)!;
+    if (!m.override) {
+      node[path.at(-1)!] = toDtcgToken(source, inv.source.commit, m.description);
+      continue;
+    }
+    const token = toDtcgToken({ ...source, value: m.override.value }, inv.source.commit, m.description);
+    const prov = token.$extensions['dev.dsa.provenance'] as Record<string, unknown>;
+    token.$extensions['dev.dsa.provenance'] = {
+      ...prov,
+      confidence: 'decided',
+      sourceValue: source.value.trim(),
+      decision: m.override,
+    };
+    node[path.at(-1)!] = token;
   }
   return out;
 }

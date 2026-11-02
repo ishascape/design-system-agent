@@ -2,7 +2,7 @@
 
 > An action or navigation link with an ink outline or fill that turns marker blue on hover, with registration corner marks on hover and focus.
 
-Status: **pending-approval** · Version 0.1.0 · Source: ashnidave @ `e072889`
+Status: **pending-approval** · Version 0.2.0 · Source: ashnidave @ `e072889`
 
 ## Use it
 
@@ -49,7 +49,7 @@ Generated from `packages/ui/src/button/Button.tsx`. All other native `<button>` 
 | default | At rest. | As the variant describes. | observed |
 | hover | Pointer over the button. | Marker fill and outline, paper label, corner marks appear. | observed |
 | focus-visible | Keyboard focus. | 2px marker outline offset 3px, corner marks appear. Fill unchanged. | observed |
-| disabled | disabled attribute on a button (links cannot be disabled). | 45% opacity, no hover change, not-allowed cursor. | proposed |
+| disabled | disabled attribute on a button (links cannot be disabled). | 45% opacity, no hover change, not-allowed cursor. Not in the source; decided by Ashni on 2026-11-02. | decided |
 
 ## Anatomy
 
@@ -72,7 +72,7 @@ Generated from `packages/ui/src/button/Button.tsx`. All other native `<button>` 
 | `space.4` | `--space-4` | `28px` | horizontal padding |
 | `size.tap` | `--size-tap` | `44px` | minimum height |
 | `radius.default` | `--radius-default` | `16px` | corner radius |
-| `line.building` | `--line-building` | `1.5px` | outline and corner mark weight |
+| `line.building` | `--line-building` | `1px` | outline and corner mark weight |
 | `motion.duration.micro` | `--motion-duration-micro` | `150ms` | hover transition |
 | `motion.easing.pen` | `--motion-easing-pen` | `cubic-bezier(0.2, 0, 0, 1)` | hover transition |
 
@@ -124,5 +124,4 @@ Don't:
 
 ## Open questions
 
-- Approve the proposed disabled state, or leave disabled unstyled like the source?
-- Should the 1.5px outline stay 1.5px? Chromium draws it as 1px on standard screens, so the site looks thinner than the token.
+None.

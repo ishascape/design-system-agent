@@ -13,9 +13,9 @@
 ## Waiting on Ashni (product decisions)
 
 - [ ] Approve the Button spec, or ask for changes (`registry/components/button.json`, Storybook, Figma file)
-- [ ] Disabled state: approve the proposed 45% opacity, or leave disabled unstyled like the source
-- [ ] Outline weight: keep the 1.5px token, or use 1px, which is what browsers draw on standard screens
-- [ ] Approve the 35 token names in `registry/tokens/ashnidave.token-map.json`
+- [x] Disabled state: 45% opacity (decided 2026-11-02)
+- [x] Outline weight: 1px (decided 2026-11-02)
+- [x] Token names approved (2026-11-02)
 - [ ] Confirm `October-Portfolio` is the repo behind the live site
 - [ ] Choose the next four components (proposal below)
 

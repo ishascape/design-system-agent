@@ -13,7 +13,11 @@ import { z } from 'zod';
 
 export const AUDIT_SCHEMA_VERSION = 1 as const;
 
-export const Confidence = z.enum(['observed', 'inferred', 'proposed']);
+/**
+ * observed: read directly from the source. inferred: derived by a rule. proposed: suggested by
+ * the agent, not yet approved. decided: a design decision by the owner, recorded with a reason.
+ */
+export const Confidence = z.enum(['observed', 'inferred', 'proposed', 'decided']);
 export type Confidence = z.infer<typeof Confidence>;
 
 export const SourceRef = z.object({

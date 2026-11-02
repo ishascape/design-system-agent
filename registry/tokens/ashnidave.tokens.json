@@ -4,7 +4,7 @@
     "dev.dsa.registry": {
       "source": "ashnidave",
       "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976",
-      "status": "pending-approval"
+      "status": "approved"
     }
   },
   "color": {
@@ -286,14 +286,21 @@
   "line": {
     "building": {
       "$type": "dimension",
-      "$value": "1.5px",
-      "$description": "Button and card outlines. Rendered audit: Chromium draws 1.5px as 1px on 1x screens.",
+      "$value": "1px",
+      "$description": "Button and card outlines.",
       "$extensions": {
         "dev.dsa.provenance": {
           "source": "src/styles/tokens.css:44",
           "sourceVar": "--line-building",
           "commit": "e072889f167f521bc2e5c15952b148e5ee1c6976",
-          "confidence": "observed"
+          "confidence": "decided",
+          "sourceValue": "1.5px",
+          "decision": {
+            "value": "1px",
+            "reason": "The site sets 1.5px, but browsers draw it as 1px on standard screens. 1px matches what people see.",
+            "decidedBy": "Ashni",
+            "date": "2026-11-02"
+          }
         }
       }
     },
