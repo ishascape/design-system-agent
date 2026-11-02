@@ -1,5 +1,6 @@
 node_modules/
 dist/
+!packages/tokens/dist/
 storybook-static/
 .env
 .env.*
