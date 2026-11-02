@@ -1522,3 +1522,20 @@ textarea.input {
 .steps-list textarea {
   width: 100%;
 }
+
+.spec-draft {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+.spec-draft h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.plain {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}

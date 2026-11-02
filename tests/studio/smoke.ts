@@ -208,6 +208,12 @@ try {
   await page.screenshot({ path: join(shots, '6-foundations.png') });
   ok(`Foundations lists the ${builtRows} built tokens with the rename applied`);
 
+  // 6b. Components: a draft spec is built from the source and lists what needs a person
+  await page.getByRole('link', { name: 'Components' }).click();
+  await page.getByRole('button', { name: 'Draft a spec' }).first().click();
+  await page.getByRole('heading', { name: 'Needs you' }).waitFor();
+  ok('Components: "Draft a spec" shows a draft built from the source and what still needs a person');
+
   // 7. Changes and Exports
   await page.getByRole('link', { name: 'Changes' }).click();
   await page.getByText('Smoke test approval').waitFor();

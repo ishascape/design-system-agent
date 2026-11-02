@@ -62,6 +62,25 @@ export interface ComponentCandidateView {
 export type ComponentsResult =
   { status: 'none' } | { status: 'candidates'; runId: string; candidates: ComponentCandidateView[] };
 
+export interface SpecDraftView {
+  id: string;
+  name: string;
+  source: { styles: string[]; usages: string[] };
+  variants: { name: string; description: string; confidence: string }[];
+  states: { name: string; trigger: string; visual: string; confidence: string }[];
+  anatomy: { part: string; description: string; optional: boolean }[];
+  tokens: { name: string; usedFor: string }[];
+  hardCoded: { property: string; value: string; at: string }[];
+  unapprovedVars: string[];
+  accessibility: { elements: string[]; notes: string[] };
+  needsYou: string[];
+}
+export interface SpecDraftResult {
+  runId: string;
+  tokensApproved: boolean;
+  draft: SpecDraftView;
+}
+
 export class ApiError extends Error {
   readonly status: number;
   constructor(status: number, message: string) {
@@ -115,4 +134,6 @@ export const api = {
   },
   foundations: (pid: string) => req<Foundations>('GET', `/projects/${pid}/foundations`),
   components: (pid: string) => req<ComponentsResult>('GET', `/projects/${pid}/components`),
+  specDraft: (pid: string, cid: string) =>
+    req<SpecDraftResult>('GET', `/projects/${pid}/components/${encodeURIComponent(cid)}/draft`),
 };
