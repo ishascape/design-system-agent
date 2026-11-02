@@ -12,6 +12,9 @@ import { findComponentCandidates } from './components.ts';
 const SKIP_DIRS = new Set(['node_modules', 'dist', 'dist-ssr', 'build', '.git', 'coverage', 'public']);
 const MAX_FILE_BYTES = 1_000_000;
 
+/** `x.min.css` is a minified copy of another file; reading both would double-count every value. */
+const isMinified = (name: string) => /\.min\.[a-z]+$/.test(name);
+
 export function listFiles(root: string, extensions: string[]): string[] {
   const out: string[] = [];
   const walk = (dir: string) => {
@@ -20,7 +23,7 @@ export function listFiles(root: string, extensions: string[]): string[] {
       const st = statSync(full);
       if (st.isDirectory()) {
         if (!SKIP_DIRS.has(name) && !name.startsWith('.')) walk(full);
-      } else if (extensions.some((e) => name.endsWith(e)) && st.size <= MAX_FILE_BYTES) {
+      } else if (extensions.some((e) => name.endsWith(e)) && !isMinified(name) && st.size <= MAX_FILE_BYTES) {
         out.push(relative(root, full).split(sep).join('/'));
       }
     }

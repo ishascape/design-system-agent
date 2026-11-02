@@ -132,3 +132,16 @@ describe('end-to-end audit of the fixture site', () => {
     );
   });
 });
+
+describe('file listing', () => {
+  it('skips minified copies so values are not counted twice', async () => {
+    const { mkdtempSync, writeFileSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const { listFiles } = await import('./audit.ts');
+    const dir = mkdtempSync(join(tmpdir(), 'list-'));
+    writeFileSync(join(dir, 'pico.css'), ':root{--a:1px}');
+    writeFileSync(join(dir, 'pico.min.css'), ':root{--a:1px}');
+    expect(listFiles(dir, ['.css'])).toEqual(['pico.css']);
+  });
+});

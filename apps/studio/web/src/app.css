@@ -1425,3 +1425,31 @@ textarea.input {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.token-group__head {
+  background: var(--ds-color-surface-sunken);
+}
+.token-group__toggle {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ds-color-text);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.token-group__toggle .muted {
+  margin-left: auto;
+  font-weight: 400;
+}
+.token-group__toggle svg {
+  transition: transform var(--ds-motion-fast) var(--ds-ease);
+}
+.token-group__toggle svg.is-open {
+  transform: rotate(90deg);
+}

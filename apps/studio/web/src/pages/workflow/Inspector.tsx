@@ -9,6 +9,7 @@ import {
 } from '../../lib/api.ts';
 import { bytes, duration, sourceKindLabel } from '../../lib/format.ts';
 import { useLoad } from '../../lib/hooks.ts';
+import { COLLAPSE_OVER, groupTokens } from '../../lib/token-groups.ts';
 import { Button, ErrorNote, Facts, Icon, StatusBadge, sourceIcon } from '../../components/ui.tsx';
 
 type Tab = 'overview' | 'output' | 'logs' | 'artifacts';
@@ -339,7 +340,17 @@ function ApprovalPanel({
   const kept = tokens.filter((t) => !excluded.has(t.cssVar));
   const dupes = new Set(kept.map(finalName).filter((n, i, all) => all.indexOf(n) !== i));
   const invalid = kept.some((t) => !/^[a-z]+(\.[a-z0-9-]+)+$/.test(finalName(t)));
-  const shown = tokens.filter((t) => !filter || t.cssVar.includes(filter) || finalName(t).includes(filter));
+  const matches = (t: TokenProposal) => !filter || t.cssVar.includes(filter) || finalName(t).includes(filter);
+  const groups = useMemo(() => groupTokens(tokens), [tokens]);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const setGroup = (items: TokenProposal[], keep: boolean) => {
+    const next = new Set(excluded);
+    for (const t of items) {
+      if (keep) next.delete(t.cssVar);
+      else next.add(t.cssVar);
+    }
+    setExcluded(next);
+  };
 
   const approve = () => {
     const rename: Record<string, string> = {};
@@ -373,39 +384,70 @@ function ApprovalPanel({
               <span role="columnheader">From</span>
               <span role="columnheader">Name in the design system</span>
             </div>
-            {shown.map((t) => {
-              const on = !excluded.has(t.cssVar);
-              const name = finalName(t);
+            {groups.map((g) => {
+              const items = g.items.filter(matches);
+              if (!items.length) return null;
+              const keptCount = g.items.filter((t) => !excluded.has(t.cssVar)).length;
+              const open = !!filter || (expanded[g.key] ?? g.items.length <= COLLAPSE_OVER);
               return (
-                <div key={t.cssVar} className={`token-table__row${on ? '' : ' is-off'}`} role="row">
-                  <span role="cell">
-                    <input
-                      type="checkbox"
-                      checked={on}
-                      aria-label={`Keep ${t.cssVar}`}
-                      onChange={() => {
-                        const next = new Set(excluded);
-                        if (on) next.add(t.cssVar);
-                        else next.delete(t.cssVar);
-                        setExcluded(next);
-                      }}
-                    />
-                  </span>
-                  <span role="cell" className="token-from">
-                    {t.type === 'color' && (
-                      <span className="swatch" style={{ background: t.value }} aria-hidden="true" />
-                    )}
-                    <code title={`${t.value} · used ${t.usageCount}×`}>{t.cssVar}</code>
-                  </span>
-                  <span role="cell">
-                    <input
-                      className={`input input--sm input--mono${on && dupes.has(name) ? ' is-invalid' : ''}`}
-                      value={names[t.cssVar] ?? t.proposedName}
-                      disabled={!on}
-                      aria-label={`Name for ${t.cssVar}`}
-                      onChange={(e) => setNames({ ...names, [t.cssVar]: e.target.value })}
-                    />
-                  </span>
+                <div key={g.key} role="rowgroup" className="token-group">
+                  <div className="token-table__row token-group__head" role="row">
+                    <span role="cell">
+                      <input
+                        type="checkbox"
+                        checked={keptCount === g.items.length}
+                        ref={(el) => {
+                          if (el) el.indeterminate = keptCount > 0 && keptCount < g.items.length;
+                        }}
+                        aria-label={`Keep all ${g.label}`}
+                        onChange={() => setGroup(g.items, keptCount < g.items.length)}
+                      />
+                    </span>
+                    <button
+                      type="button"
+                      className="token-group__toggle"
+                      aria-expanded={open}
+                      onClick={() => setExpanded({ ...expanded, [g.key]: !open })}
+                    >
+                      <Icon name="chevron" size={12} className={open ? 'is-open' : ''} />
+                      <span>{g.label}</span>
+                      <span className="muted">
+                        {keptCount} of {g.items.length} kept
+                      </span>
+                    </button>
+                  </div>
+                  {open &&
+                    items.map((t) => {
+                      const on = !excluded.has(t.cssVar);
+                      const name = finalName(t);
+                      return (
+                        <div key={t.cssVar} className={`token-table__row${on ? '' : ' is-off'}`} role="row">
+                          <span role="cell">
+                            <input
+                              type="checkbox"
+                              checked={on}
+                              aria-label={`Keep ${t.cssVar}`}
+                              onChange={() => setGroup([t], !on)}
+                            />
+                          </span>
+                          <span role="cell" className="token-from">
+                            {t.type === 'color' && (
+                              <span className="swatch" style={{ background: t.value }} aria-hidden="true" />
+                            )}
+                            <code title={`${t.value} · used ${t.usageCount}×`}>{t.cssVar}</code>
+                          </span>
+                          <span role="cell">
+                            <input
+                              className={`input input--sm input--mono${on && dupes.has(name) ? ' is-invalid' : ''}`}
+                              value={names[t.cssVar] ?? t.proposedName}
+                              disabled={!on}
+                              aria-label={`Name for ${t.cssVar}`}
+                              onChange={(e) => setNames({ ...names, [t.cssVar]: e.target.value })}
+                            />
+                          </span>
+                        </div>
+                      );
+                    })}
                 </div>
               );
             })}

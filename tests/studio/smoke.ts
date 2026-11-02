@@ -123,7 +123,7 @@ try {
   // 5. Approve with one token left out and one renamed
   await page.getByTestId('stage-review').click();
   const approval = page.getByRole('region', { name: 'Approval needed' });
-  const boxes = approval.getByRole('checkbox');
+  const boxes = approval.getByRole('checkbox', { name: /^Keep --/ });
   const total = await boxes.count();
   if (total < 2) throw new Error(`Expected at least 2 proposed tokens, saw ${total}`);
   const excludedLabel = (await boxes.nth(0).getAttribute('aria-label'))!.replace('Keep ', '');
