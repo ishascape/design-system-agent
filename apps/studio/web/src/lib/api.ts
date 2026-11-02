@@ -81,6 +81,21 @@ export interface SpecDraftResult {
   draft: SpecDraftView;
 }
 
+export interface SpecFields {
+  summary: string;
+  whenToUse: string;
+  dos: string[];
+  donts: string[];
+  keyboard: string;
+  gapNotes: string;
+}
+export interface SavedSpec {
+  status: 'draft' | 'approved';
+  savedAt: string;
+  runId: string;
+  human: SpecFields;
+}
+
 export class ApiError extends Error {
   readonly status: number;
   constructor(status: number, message: string) {
@@ -134,6 +149,13 @@ export const api = {
   },
   foundations: (pid: string) => req<Foundations>('GET', `/projects/${pid}/foundations`),
   components: (pid: string) => req<ComponentsResult>('GET', `/projects/${pid}/components`),
+  savedSpec: (pid: string, cid: string) =>
+    req<{ spec: SavedSpec | null }>('GET', `/projects/${pid}/components/${encodeURIComponent(cid)}/spec`),
+  saveSpec: (pid: string, cid: string, fields: SpecFields, approve: boolean) =>
+    req<{ spec: SavedSpec }>('PUT', `/projects/${pid}/components/${encodeURIComponent(cid)}/spec`, {
+      ...fields,
+      approve,
+    }),
   specDraft: (pid: string, cid: string) =>
     req<SpecDraftResult>('GET', `/projects/${pid}/components/${encodeURIComponent(cid)}/draft`),
 };

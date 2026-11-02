@@ -2,7 +2,7 @@
  * The Studio's HTTP API. Every project route checks that the project exists, and every nested
  * record is looked up with its project id, so one project's ids never resolve in another.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { Hono, type Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
@@ -25,6 +25,20 @@ const ProjectInput = z.object({
   description: z.string().trim().max(500).default(''),
   source: SourceInput.optional(),
 });
+
+const line = z.string().trim().max(400);
+/** What a person fills in on a component spec. Everything else comes from the source. */
+const SpecInput = z.object({
+  summary: line.max(280),
+  whenToUse: line,
+  dos: z.array(line).max(12),
+  donts: z.array(line).max(12),
+  keyboard: line,
+  /** For each gap the drafter listed: the decision, in the person's words. */
+  gapNotes: line.max(800),
+  approve: z.boolean(),
+});
+const COMPONENT_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
 
 const TEXT_TYPES = new Set(['application/json', 'text/markdown', 'text/css', 'text/plain', 'text/javascript']);
 
@@ -301,9 +315,7 @@ export function createApp({ store, engine, workflows, projectDir, allowedHosts }
    * A draft spec for one component, from the latest run's evidence: the candidate, its CSS and
    * the approved token names (if tokens were approved). Read-only: nothing is saved.
    */
-  app.get('/api/projects/:pid/components/:cid/draft', (c) => {
-    const p = project(c);
-    const cid = c.req.param('cid');
+  const buildDraft = (p: { id: string }, cid: string) => {
     for (const r of store.listRuns(p.id)) {
       const steps = store.listSteps(p.id, r.id);
       const imp = steps.find((x) => x.key === 'import-source' && x.status === 'succeeded');
@@ -324,13 +336,54 @@ export function createApp({ store, engine, workflows, projectDir, allowedHosts }
         const map = JSON.parse(readFileSync(mapFile, 'utf8')) as { tokens: Record<string, { from: string }> };
         for (const [name, t] of Object.entries(map.tokens)) names[t.from] = name;
       }
-      return c.json({
+      return {
         runId: r.id,
         tokensApproved: Object.keys(names).length > 0,
         draft: draftComponentSpec(cand, css, names, inv.source),
-      });
+      };
     }
     throw new WorkflowError(404, 'Run the workflow first');
+  };
+  app.get('/api/projects/:pid/components/:cid/draft', (c) => {
+    const p = project(c);
+    return c.json(buildDraft(p, c.req.param('cid')));
+  });
+
+  /** The saved spec for a component, or null when none was saved yet. */
+  const specFile = (pid: string, cid: string) => {
+    if (!COMPONENT_ID.test(cid)) throw new WorkflowError(400, 'That is not a component id');
+    return join(resolve(projectDir(pid)), 'registry', 'components', `${cid}.spec.json`);
+  };
+  app.get('/api/projects/:pid/components/:cid/spec', (c) => {
+    const p = project(c);
+    const f = specFile(p.id, c.req.param('cid'));
+    return c.json({ spec: existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null });
+  });
+  /**
+   * Saves a person's edits to a spec, with the evidence draft it was written against.
+   * "approve" marks it approved; saving without it keeps it a draft. Only this file is written.
+   */
+  app.put('/api/projects/:pid/components/:cid/spec', async (c) => {
+    const p = project(c);
+    const cid = c.req.param('cid');
+    const f = specFile(p.id, cid);
+    const parsed = SpecInput.safeParse(await c.req.json().catch(() => null));
+    if (!parsed.success) throw new WorkflowError(400, parsed.error.issues[0]?.message ?? 'Check the spec fields');
+    const input = parsed.data;
+    if (input.approve && (!input.summary || !input.whenToUse))
+      throw new WorkflowError(400, 'Add a summary and when to use it before approving');
+    const { runId, draft } = buildDraft(p, cid);
+    const { approve, ...human } = input;
+    mkdirSync(join(f, '..'), { recursive: true });
+    const saved = {
+      status: approve ? 'approved' : 'draft',
+      savedAt: new Date().toISOString(),
+      runId,
+      human,
+      evidence: draft,
+    };
+    writeFileSync(f, JSON.stringify(saved, null, 2) + '\n');
+    return c.json({ spec: saved });
   });
 
   // ---------- Live updates ----------

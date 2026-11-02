@@ -212,7 +212,16 @@ try {
   await page.getByRole('link', { name: 'Components' }).click();
   await page.getByRole('button', { name: 'Draft a spec' }).first().click();
   await page.getByRole('heading', { name: 'Needs you' }).waitFor();
-  ok('Components: "Draft a spec" shows a draft built from the source and what still needs a person');
+  // Approving without the person's own words is refused; with them, it saves as approved.
+  refusing = true;
+  await page.getByRole('button', { name: 'Approve spec' }).first().click();
+  await page.getByText('Add a summary and when to use it before approving').waitFor();
+  refusing = false;
+  await page.getByLabel('One-line summary').first().fill('The main call to action.');
+  await page.getByLabel('When to use it').first().fill('One per view, for the next step.');
+  await page.getByRole('button', { name: 'Approve spec' }).first().click();
+  await page.getByText('Approved', { exact: true }).first().waitFor();
+  ok('Components: "Draft a spec" shows the evidence draft; approving needs your own words, then saves as approved');
 
   // 7. Changes and Exports
   await page.getByRole('link', { name: 'Changes' }).click();

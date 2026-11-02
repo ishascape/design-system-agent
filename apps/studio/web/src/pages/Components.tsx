@@ -1,11 +1,112 @@
 import { useState } from 'react';
-import { api, type ComponentCandidateView } from '../lib/api.ts';
+import { api, type ComponentCandidateView, type SavedSpec, type SpecFields } from '../lib/api.ts';
 import { href, useLoad } from '../lib/hooks.ts';
 import { EmptyState, ErrorNote, PageHeader } from '../components/ui.tsx';
 import type { PageProps } from './types.ts';
 
 /** The repetition note duplicates the count in the header, so it is not repeated as a warning. */
 const notesFor = (x: ComponentCandidateView) => x.notes.filter((n) => !(x.onPage && n.startsWith('Repeated ')));
+
+const lines = (text: string) =>
+  text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+/** The parts of a spec only a person can write. Saving keeps a draft; approving needs the first two. */
+function SpecForm({ projectId, id }: { projectId: string; id: string }) {
+  const saved = useLoad(() => api.savedSpec(projectId, id), [projectId, id]);
+  const [f, setF] = useState<{ [K in keyof SpecFields]: string } | null>(null);
+  const [state, setState] = useState<{ spec: SavedSpec | null; busy: boolean; error: string | null }>({
+    spec: null,
+    busy: false,
+    error: null,
+  });
+  if (saved.error) return <ErrorNote>{saved.error}</ErrorNote>;
+  if (!saved.data) return <div className="loading">Loading…</div>;
+  const current = state.spec ?? saved.data.spec;
+  const h = current?.human;
+  const form = f ?? {
+    summary: h?.summary ?? '',
+    whenToUse: h?.whenToUse ?? '',
+    dos: (h?.dos ?? []).join('\n'),
+    donts: (h?.donts ?? []).join('\n'),
+    keyboard: h?.keyboard ?? '',
+    gapNotes: h?.gapNotes ?? '',
+  };
+  const set = (k: keyof SpecFields) => (e: { target: { value: string } }) => setF({ ...form, [k]: e.target.value });
+  const save = async (approve: boolean) => {
+    setState((s) => ({ ...s, busy: true, error: null }));
+    try {
+      const { spec } = await api.saveSpec(
+        projectId,
+        id,
+        { ...form, dos: lines(form.dos), donts: lines(form.donts) },
+        approve,
+      );
+      setState({ spec, busy: false, error: null });
+    } catch (e) {
+      setState((s) => ({ ...s, busy: false, error: e instanceof Error ? e.message : String(e) }));
+    }
+  };
+  return (
+    <form className="spec-form" onSubmit={(e) => e.preventDefault()}>
+      <h3>
+        Your part{' '}
+        {current && (
+          <span
+            className={`status status--compact ${current.status === 'approved' ? 'status--success' : 'status--neutral'}`}
+          >
+            {current.status === 'approved' ? 'Approved' : 'Saved as draft'}
+          </span>
+        )}
+      </h3>
+      <label>
+        One-line summary
+        <input value={form.summary} onChange={set('summary')} maxLength={280} />
+      </label>
+      <label>
+        When to use it
+        <textarea rows={2} value={form.whenToUse} onChange={set('whenToUse')} />
+      </label>
+      <label>
+        Do (one per line)
+        <textarea rows={3} value={form.dos} onChange={set('dos')} />
+      </label>
+      <label>
+        Don’t (one per line)
+        <textarea rows={3} value={form.donts} onChange={set('donts')} />
+      </label>
+      <label>
+        Keyboard behaviour
+        <textarea rows={2} value={form.keyboard} onChange={set('keyboard')} />
+      </label>
+      <label>
+        What to do about the gaps above
+        <textarea rows={3} value={form.gapNotes} onChange={set('gapNotes')} />
+      </label>
+      {state.error && <ErrorNote>{state.error}</ErrorNote>}
+      <div className="row">
+        <button
+          type="button"
+          className="btn btn--secondary btn--md"
+          disabled={state.busy}
+          onClick={() => void save(false)}
+        >
+          Save draft
+        </button>
+        <button
+          type="button"
+          className="btn btn--primary btn--md"
+          disabled={state.busy}
+          onClick={() => void save(true)}
+        >
+          Approve spec
+        </button>
+      </div>
+    </form>
+  );
+}
 
 function SpecDraft({ projectId, id }: { projectId: string; id: string }) {
   const d = useLoad(() => api.specDraft(projectId, id), [projectId, id]);
@@ -94,6 +195,7 @@ function SpecDraft({ projectId, id }: { projectId: string; id: string }) {
           <li key={n}>{n}</li>
         ))}
       </ul>
+      <SpecForm projectId={projectId} id={id} />
     </div>
   );
 }

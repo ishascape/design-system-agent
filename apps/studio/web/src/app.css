@@ -1539,3 +1539,28 @@ textarea.input {
   display: grid;
   gap: 4px;
 }
+
+.spec-form {
+  display: grid;
+  gap: 10px;
+}
+.spec-form h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.spec-form label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.spec-form input,
+.spec-form textarea {
+  font: inherit;
+  font-weight: 400;
+  padding: 8px 10px;
+  border: 1px solid var(--line, #d8d2c4);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+}

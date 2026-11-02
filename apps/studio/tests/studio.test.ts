@@ -259,6 +259,40 @@ describe('design-system workflow on a real repo', () => {
     expect(f.status).toBe('built');
   });
 
+  it('saves a component spec as a draft, then approves it only when a person wrote the judgement parts', async () => {
+    const url = `/api/projects/${pid}/components/button/spec`;
+    expect((await call('GET', url)).data.spec).toBeNull();
+    const fields = {
+      summary: 'The main call to action.',
+      whenToUse: 'One per view, for the next step.',
+      dos: ['Use a short verb'],
+      donts: ['Do not stack two primary buttons'],
+      keyboard: 'Enter and Space activate it.',
+      gapNotes: '--radius should become a token.',
+    };
+    // Approving without the summary and when-to-use is refused; nothing is written.
+    const blank = await call('PUT', url, { ...fields, summary: '', approve: true });
+    expect(blank.status).toBe(400);
+    expect((await call('GET', url)).data.spec).toBeNull();
+    // A draft save keeps the evidence it was written against.
+    const draft = await call('PUT', url, { ...fields, approve: false });
+    expect(draft.status).toBe(200);
+    expect(draft.data.spec).toMatchObject({ status: 'draft', human: { summary: fields.summary } });
+    expect((draft.data.spec as unknown as { evidence: unknown }).evidence).toMatchObject({
+      id: 'button',
+      name: 'Button',
+    });
+    const ok = await call('PUT', url, { ...fields, approve: true });
+    expect((ok.data.spec as unknown as { status: string }).status).toBe('approved');
+    const onDisk = JSON.parse(readFileSync(join(projectDir(pid), 'registry/components/button.spec.json'), 'utf8'));
+    expect(onDisk.status).toBe('approved');
+    // Ids are checked, so nothing can be written outside the registry folder.
+    expect((await call('GET', `/api/projects/${pid}/components/..%2Fx/spec`)).status).toBe(400);
+    expect((await call('PUT', `/api/projects/${pid}/components/nope/spec`, { ...fields, approve: false })).status).toBe(
+      404,
+    );
+  });
+
   it('keeps projects isolated: ids from one project do not resolve in another', async () => {
     const other = (await call('POST', '/api/projects', { name: 'Other' })).data;
     const step = run.steps[0]!;
