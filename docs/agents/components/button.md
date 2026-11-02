@@ -112,7 +112,7 @@ Don't:
 
 - Horizontal padding follows space.4: 28px below 600px, 32px from 600px.
 - Label size follows font.size.body: fluid from 16px to 18px.
-- Source note: the hero overrides the primary button to 14px text and 8px padding below 600px. That is a page-level override, not a variant.
+- Source note: the hero overrides the primary button to 14px text and 8px padding below 600px (src/components/Hero.css:856). That is a page-level override, not a variant.
 
 ## Links
 

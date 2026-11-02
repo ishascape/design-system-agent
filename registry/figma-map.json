@@ -1,33 +1,53 @@
 {
-  "$comment": "Maps registry ids to Figma ids. Gate 0 test file only. Generators update nodes by these ids instead of creating duplicates.",
+  "$comment": "Registry name -> Figma id. Generators look nodes up by these ids and update them in place instead of creating duplicates. Updated from each sync's result.",
   "files": {
     "gate0-test": {
       "fileKey": "wCnc6RXvuK5ZuwanC1epne",
       "url": "https://www.figma.com/design/wCnc6RXvuK5ZuwanC1epne/Ai-Design-system-agent",
-      "purpose": "Scratch file for capability tests. Safe to write."
+      "purpose": "Ashni's scratch file for generated output. Safe to write. Not a published library."
     }
   },
+  "collection": {
+    "id": "VariableCollectionId:3:2",
+    "name": "ashnidave"
+  },
   "variables": {
-    "collection": "VariableCollectionId:3:2",
-    "color/paper": "VariableID:3:3",
-    "color/ink": "VariableID:3:4",
-    "color/marker": "VariableID:3:5",
-    "radius/default": "VariableID:3:6",
-    "space/2": "VariableID:3:7",
-    "space/4": "VariableID:3:8",
-    "line/building": "VariableID:3:9",
-    "size/tap": "VariableID:3:10"
+    "color.graphite": "VariableID:4:2",
+    "color.ink": "VariableID:3:4",
+    "color.marker": "VariableID:3:5",
+    "color.paper": "VariableID:3:3",
+    "color.paper-deep": "VariableID:4:3",
+    "color.paper-shade": "VariableID:4:4",
+    "color.rule": "VariableID:4:5",
+    "color.sheet-lift": "VariableID:4:6",
+    "font.family.hand": "VariableID:4:7",
+    "font.family.sans": "VariableID:4:8",
+    "font.size.body": "VariableID:4:9",
+    "font.size.display": "VariableID:4:10",
+    "font.size.heading": "VariableID:4:11",
+    "font.size.label": "VariableID:4:12",
+    "font.size.metric": "VariableID:4:13",
+    "layout.content-max": "VariableID:4:14",
+    "layout.gutter": "VariableID:4:15",
+    "layout.margin": "VariableID:4:16",
+    "line.building": "VariableID:3:9",
+    "line.cut": "VariableID:4:17",
+    "line.hair": "VariableID:4:18",
+    "line.thin": "VariableID:4:19",
+    "radius.default": "VariableID:3:6",
+    "size.tap": "VariableID:3:10",
+    "space.1": "VariableID:4:20",
+    "space.2": "VariableID:3:7",
+    "space.3": "VariableID:4:21",
+    "space.4": "VariableID:3:8",
+    "space.5": "VariableID:4:22",
+    "space.6": "VariableID:4:23",
+    "space.7": "VariableID:4:24"
   },
   "components": {
     "button": {
       "componentSet": "3:19",
-      "variants": {
-        "Variant=Outline, State=Default": "3:11",
-        "Variant=Outline, State=Hover": "3:13",
-        "Variant=Primary, State=Default": "3:15",
-        "Variant=Primary, State=Hover": "3:17"
-      },
-      "properties": { "label": "Label#3:0" }
+      "file": "gate0-test"
     }
   }
 }

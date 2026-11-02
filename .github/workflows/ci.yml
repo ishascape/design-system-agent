@@ -1,0 +1,54 @@
+# Runs on every push and pull request. No secrets are used, and nothing is deployed or published.
+# Not run here: the style parity test and the source audit. Both need the ashnidave source repo,
+# which is private, so they run locally (see QUALITY.md).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck, lint, format, unit tests, generated files
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run check
+      - name: Generated files are up to date
+        run: |
+          npm run tokens -- ashnidave
+          npm run catalog
+          git diff --exit-code -- packages/tokens/dist registry/tokens docs/agents llms.txt
+      - name: Agent catalog matches code, tokens and specs
+        run: npm run catalog -- --check
+      - name: Figma sync script generates
+        run: npm run figma -- script
+
+  docs:
+    name: Storybook build and browser checks (render, interactions, axe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build-storybook
+      - run: npm run test:docs

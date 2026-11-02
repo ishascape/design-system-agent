@@ -21,6 +21,8 @@
     "packages/*/src/**/*.tsx",
     "tests/**/*.ts",
     "vitest.config.ts",
-    "eslint.config.js"
+    "eslint.config.js",
+    "apps/storybook/.storybook/*.ts",
+    "apps/storybook/src/**/*.tsx"
   ]
 }

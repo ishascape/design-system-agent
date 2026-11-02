@@ -1,0 +1,15 @@
+{
+  "name": "@dsa/storybook",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "The documentation site: foundations, components, accessibility and changelog.",
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build -o ../../storybook-static"
+  },
+  "dependencies": {
+    "@dsa/tokens": "0.1.0",
+    "@dsa/ui": "0.1.0"
+  }
+}
