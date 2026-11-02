@@ -38,10 +38,15 @@ export interface AuditSource {
   commit: string;
 }
 
-export function runAudit(repoDir: string, source: AuditSource): AuditInventory {
+export interface AuditOptions {
+  /** Page markup to read class names from (websites), relative to the source folder. */
+  markup?: string[];
+}
+
+export function runAudit(repoDir: string, source: AuditSource, opts: AuditOptions = {}): AuditInventory {
   const read = (p: string): CssFile => ({ path: p, content: readFileSync(join(repoDir, p), 'utf8') });
   const cssFiles = listFiles(repoDir, ['.css']).map(read);
-  const componentFiles = listFiles(repoDir, ['.tsx', '.jsx']).map(read);
+  const componentFiles = [...listFiles(repoDir, ['.tsx', '.jsx']), ...(opts.markup ?? [])].map(read);
 
   const varUsage = countVarUsage([...cssFiles, ...componentFiles].map((f) => f.content));
   const tokens = parseTokens(cssFiles).map((t) => ({ ...t, usageCount: varUsage.get(t.id) ?? 0 }));

@@ -56,6 +56,8 @@ export interface ComponentCandidateView {
   states: string[];
   styles: string[];
   notes: string[];
+  /** Websites: the evidence is repetition on the page, not component files. */
+  onPage?: boolean;
 }
 export type ComponentsResult =
   { status: 'none' } | { status: 'candidates'; runId: string; candidates: ComponentCandidateView[] };

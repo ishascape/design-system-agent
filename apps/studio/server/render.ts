@@ -14,7 +14,11 @@ export interface Rendered {
   css: string;
   screenshot: Buffer;
   title: string;
+  /** The page's HTML after scripts ran, for finding repeated components. Read as text only. */
+  html: string;
 }
+
+const MAX_HTML = 5 * 1024 * 1024;
 
 const PRIVATE_HOST = /^(localhost|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[?::1\]?$|0\.0\.0\.0)/;
 
@@ -80,8 +84,9 @@ export async function renderWebsite(
     });
     const screenshot = await page.screenshot({ type: 'png', fullPage: false });
     const title = await page.title();
+    const html = (await page.content()).slice(0, MAX_HTML);
     log(`Rendered "${title}": ${css.length.toLocaleString()} characters of CSS, screenshot taken`);
-    return { css, screenshot, title };
+    return { css, screenshot, title, html };
   } finally {
     signal.removeEventListener('abort', abort);
     await browser.close().catch(() => undefined);

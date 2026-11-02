@@ -4,6 +4,9 @@
  * JSX is parsed with the TypeScript compiler (never executed). For each class name we record
  * the element it is applied to and where. CSS tells us which modifiers and interactive states
  * each block styles. A block used in two or more component files is marked reusable.
+ *
+ * For websites, the page's HTML stands in for component files: a block repeated on the page
+ * with its own CSS rule is marked reusable.
  */
 import ts from 'typescript';
 import postcss from 'postcss';
@@ -14,6 +17,8 @@ export interface ClassUsage {
   className: string;
   element: string;
   ref: SourceRef;
+  /** Position of the element in its file, so `card card--wide` on one element counts once. */
+  at: number;
 }
 
 /** Split "button--primary" or "card__tags" into block / element / modifier. */
@@ -51,7 +56,7 @@ export function findClassUsages(file: { path: string; content: string }): ClassU
           : 'unknown';
       const line = sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
       for (const className of staticClassNames(node.initializer)) {
-        out.push({ className, element, ref: { file: file.path, line } });
+        out.push({ className, element, ref: { file: file.path, line }, at: node.getStart(sf) });
       }
     }
     node.forEachChild(visit);
@@ -59,6 +64,45 @@ export function findClassUsages(file: { path: string; content: string }): ClassU
   visit(sf);
   return out;
 }
+
+/** Blank out a region but keep its newlines, so line numbers after it stay right. */
+const blank = (m: string) => m.replace(/[^\n]/g, ' ');
+
+/**
+ * Class names in HTML markup (a downloaded or rendered page), with the element and line.
+ * Comments, scripts, styles and templates are skipped. The markup is only scanned as text.
+ */
+export function findHtmlClassUsages(file: { path: string; content: string }): ClassUsage[] {
+  const text = file.content
+    .replace(/<!--[\s\S]*?-->/g, blank)
+    .replace(/<(script|style|template|noscript)\b[\s\S]*?<\/\1\s*>/gi, blank);
+  const out: ClassUsage[] = [];
+  const lineStarts = [0];
+  for (let i = 0; i < text.length; i++) if (text[i] === '\n') lineStarts.push(i + 1);
+  const lineAt = (pos: number) => {
+    let lo = 0;
+    let hi = lineStarts.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (lineStarts[mid]! <= pos) lo = mid;
+      else hi = mid - 1;
+    }
+    return lo + 1;
+  };
+  for (const m of text.matchAll(/<([a-zA-Z][a-zA-Z0-9-]*)\b([^>]*)>/g)) {
+    const attr = /(?:^|\s)class\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i.exec(m[2]!);
+    if (!attr) continue;
+    const element = m[1]!.toLowerCase();
+    const line = lineAt(m.index);
+    for (const className of (attr[1] ?? attr[2] ?? attr[3] ?? '').split(/\s+/)) {
+      if (/^[a-z][a-z0-9_-]*$/.test(className))
+        out.push({ className, element, ref: { file: file.path, line }, at: m.index });
+    }
+  }
+  return out;
+}
+
+const isMarkup = (path: string) => /\.html?$/i.test(path);
 
 const STATE_PSEUDOS = [
   'hover',
@@ -75,13 +119,15 @@ interface BlockStyles {
   modifiers: Set<string>;
   states: Set<string>;
   styles: SourceRef[];
+  /** Declarations in the block's own base rules; utility classes have one or two. */
+  declarations: number;
 }
 
 export function findBlockStyles(files: CssFile[]): Map<string, BlockStyles> {
   const blocks = new Map<string, BlockStyles>();
   const get = (b: string) => {
     let s = blocks.get(b);
-    if (!s) blocks.set(b, (s = { modifiers: new Set(), states: new Set(), styles: [] }));
+    if (!s) blocks.set(b, (s = { modifiers: new Set(), states: new Set(), styles: [], declarations: 0 }));
     return s;
   };
   for (const file of files) {
@@ -93,6 +139,7 @@ export function findBlockStyles(files: CssFile[]): Map<string, BlockStyles> {
           if (modifier && !element) s.modifiers.add(modifier);
           if (!element && !modifier && selector.trim() === `.${block}`) {
             s.styles.push({ file: file.path, line: rule.source?.start?.line ?? 1 });
+            s.declarations += rule.nodes.filter((n) => n.type === 'decl').length;
           }
           for (const p of STATE_PSEUDOS) {
             if (!element && new RegExp(`:${p}(?![a-z-])`).test(m[2] ?? '')) s.states.add(p);
@@ -137,7 +184,7 @@ export function findComponentCandidates(
   componentFiles: { path: string; content: string }[],
   cssFiles: CssFile[],
 ): ComponentCandidate[] {
-  const usages = componentFiles.flatMap(findClassUsages);
+  const usages = componentFiles.flatMap((f) => (isMarkup(f.path) ? findHtmlClassUsages(f) : findClassUsages(f)));
   const styles = findBlockStyles(cssFiles);
   const byBlock = new Map<string, { root: ClassUsage[]; all: ClassUsage[]; modifiers: Set<string> }>();
 
@@ -146,7 +193,8 @@ export function findComponentCandidates(
     let b = byBlock.get(block);
     if (!b) byBlock.set(block, (b = { root: [], all: [], modifiers: new Set() }));
     b.all.push(u);
-    if (!element) b.root.push(u);
+    const seen = b.root.some((r) => r.at === u.at && r.ref.file === u.ref.file);
+    if (!element && !seen) b.root.push(u);
     if (modifier && !element) b.modifiers.add(modifier);
   }
 
@@ -165,6 +213,15 @@ export function findComponentCandidates(
     }
     if (!css || css.styles.length === 0) notes.push('No base CSS rule found for this block.');
     const kind = blockKind(id, elements);
+    // A page has no component files, so repetition on the page is the evidence instead: used at
+    // least twice, with its own base CSS rule that is more than a utility class (parts, variants,
+    // styled states, or three or more declarations).
+    const onPage = b.root.filter((u) => isMarkup(u.ref.file)).length;
+    const hasParts = b.all.some((u) => parseBem(u.className).element);
+    const substantial =
+      !!css?.styles.length && (hasParts || css.modifiers.size > 0 || css.states.size > 0 || css.declarations >= 3);
+    const repeatedOnPage = onPage >= 2 && substantial;
+    if (repeatedOnPage) notes.push(`Repeated ${onPage} times on the page.`);
     candidates.push({
       id,
       kind,
@@ -175,7 +232,7 @@ export function findComponentCandidates(
       states: sorted(css?.states ?? []),
       styles: css?.styles ?? [],
       usages: b.root.map((u) => u.ref),
-      reusable: kind === 'component' && usedIn.length >= 2,
+      reusable: kind === 'component' && (usedIn.length >= 2 || repeatedOnPage),
       confidence: 'inferred',
       notes,
     });

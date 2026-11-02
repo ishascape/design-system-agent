@@ -1,7 +1,10 @@
-import { api } from '../lib/api.ts';
+import { api, type ComponentCandidateView } from '../lib/api.ts';
 import { href, useLoad } from '../lib/hooks.ts';
 import { EmptyState, ErrorNote, PageHeader } from '../components/ui.tsx';
 import type { PageProps } from './types.ts';
+
+/** The repetition note duplicates the count in the header, so it is not repeated as a warning. */
+const notesFor = (x: ComponentCandidateView) => x.notes.filter((n) => !(x.onPage && n.startsWith('Repeated ')));
 
 export function ComponentsPage({ project, version }: PageProps) {
   const c = useLoad(() => api.components(project.id), [project.id, version]);
@@ -37,7 +40,9 @@ export function ComponentsPage({ project, version }: PageProps) {
               <div className="component-card__head">
                 <h2>{x.id}</h2>
                 <span className="muted small">
-                  {x.uses} uses in {x.usedIn} {x.usedIn === 1 ? 'file' : 'files'}
+                  {x.onPage
+                    ? `${x.uses} times on the page`
+                    : `${x.uses} uses in ${x.usedIn} ${x.usedIn === 1 ? 'file' : 'files'}`}
                 </span>
               </div>
               <dl className="facts">
@@ -55,8 +60,10 @@ export function ComponentsPage({ project, version }: PageProps) {
                 )}
                 {x.elements.length > 0 && (
                   <div className="facts__row">
-                    <dt>Parts</dt>
-                    <dd>{x.elements.join(', ')}</dd>
+                    <dt>Used on</dt>
+                    <dd>
+                      <code>{x.elements.map((e) => `<${e}>`).join(' ')}</code>
+                    </dd>
                   </div>
                 )}
                 <div className="facts__row">
@@ -67,9 +74,9 @@ export function ComponentsPage({ project, version }: PageProps) {
                   </dd>
                 </div>
               </dl>
-              {x.notes.length > 0 && (
+              {notesFor(x).length > 0 && (
                 <ul className="warnings">
-                  {x.notes.map((n) => (
+                  {notesFor(x).map((n) => (
                     <li key={n}>{n}</li>
                   ))}
                 </ul>

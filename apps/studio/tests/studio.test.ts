@@ -321,7 +321,14 @@ describe('website import with a sandboxed browser render', () => {
           @media (width >= 600px) { :root { --space-4: 28px; } }
           @media (max-width: 400px) { :root { --narrow: 4px; } }
           .g { border: 1px solid rgb(var(--grid-line) / 0.5); padding: var(--space-4); margin: var(--narrow); }
-        </style><p class="g">Hi</p>`);
+          .card { padding: var(--space-4); } .card--wide { grid-column: span 2; } .card:hover { outline: 1px solid; }
+          .hero { margin: 0; }
+        </style><p class="g">Hi</p><section class="hero">Hello</section>
+        <!-- <div class="card">commented out</div> -->
+        <a class="card card--wide" href="#a"><span class="card__title">A</span></a>
+        <a class="card" href="#b"><span class="card__title">B</span></a>
+        <div id="later"></div>
+        <script>document.getElementById('later').innerHTML = '<a class="card" href="#c">C</a>';</script>`);
         return;
       }
       res.setHeader('content-type', 'text/html');
@@ -379,6 +386,15 @@ describe('website import with a sandboxed browser render', () => {
     const reasons = Object.fromEntries(out.skipped.map((t) => [t.cssVar, t.reason]));
     expect(reasons['--alias']).toMatch(/points at another variable/);
     expect(reasons['--narrow']).toMatch(/max-width: 400px/);
+
+    // Components come from the rendered page: the third card only exists after the script ran.
+    const comps = (
+      view.steps.find((s) => s.key === 'identify-components')!.output as {
+        candidates: { id: string; uses: number; modifiers: string[]; states: string[]; elements: string[] }[];
+      }
+    ).candidates;
+    expect(comps.map((c) => c.id)).toEqual(['card']);
+    expect(comps[0]).toMatchObject({ uses: 3, modifiers: ['wide'], states: ['hover'], elements: ['a'] });
 
     expect((await call('POST', `/api/projects/${p.id}/steps/${review.id}/approve`, { decision: {} })).status).toBe(200);
     await engine.idle(r.id as string);

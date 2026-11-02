@@ -89,6 +89,9 @@ const importSource: StepDefinition = {
           ctx.log(r.unavailable, 'warn');
         } else {
           ctx.saveArtifact('screenshot', 'screenshot.png', r.screenshot, 'image/png');
+          // The rendered page is what people see, so components are looked for there.
+          writeFileSync(join(got.dir, 'page.rendered.html'), r.html);
+          got = { ...got, commit: createHash('sha1').update(got.commit).update(r.html).digest('hex') };
           if (mode === 'always' || !got.styles) {
             const styles = join(got.dir, 'styles');
             if (mode === 'always') rmSync(styles, { recursive: true, force: true });
@@ -122,7 +125,15 @@ const importSource: StepDefinition = {
         ],
         warnings,
       },
-      output: { dir: rel, commit: got.commit, ref: got.ref, kind: ctx.source.kind },
+      output: {
+        dir: rel,
+        commit: got.commit,
+        ref: got.ref,
+        kind: ctx.source.kind,
+        ...(ctx.source.kind === 'website'
+          ? { markup: existsSync(join(got.dir, 'page.rendered.html')) ? 'page.rendered.html' : 'page.html' }
+          : {}),
+      },
     };
   },
 };
@@ -133,16 +144,24 @@ const discover: StepDefinition = {
   description: 'Reads the styles and component code (without running it) and builds an inventory.',
   action: 'Reading styles and components',
   run(ctx) {
-    const src = ctx.outputs['import-source'] as { dir: string; commit: string };
-    const inv = runAudit(join(ctx.workspace, src.dir), { id: ctx.source.id, repo: ctx.source.url, commit: src.commit });
+    const src = ctx.outputs['import-source'] as { dir: string; commit: string; markup?: string };
+    const inv = runAudit(
+      join(ctx.workspace, src.dir),
+      { id: ctx.source.id, repo: ctx.source.url, commit: src.commit },
+      src.markup ? { markup: [src.markup] } : {},
+    );
     const art = ctx.saveArtifact('inventory', 'inventory.json', JSON.stringify(inv, null, 2), 'application/json');
-    ctx.log(`Scanned ${inv.scanned.cssFiles} CSS files and ${inv.scanned.componentFiles} component files`);
+    const code = inv.scanned.componentFiles - (src.markup ? 1 : 0);
+    const read = src.markup
+      ? `${plural(inv.scanned.cssFiles, 'stylesheet')} and the page's HTML read`
+      : `${plural(inv.scanned.cssFiles, 'stylesheet')} and ${plural(code, 'component file')} read`;
+    ctx.log(src.markup ? `Read ${src.markup} for repeated components` : `Scanned ${code} component files`);
     const warnings: string[] = [];
     if (inv.scanned.cssFiles === 0)
       warnings.push('No CSS files found. Projects that style only with Tailwind or CSS-in-JS are not supported yet.');
     return {
       summary: {
-        headline: `${plural(inv.scanned.cssFiles, 'stylesheet')} and ${plural(inv.scanned.componentFiles, 'component file')} read`,
+        headline: read,
         facts: [
           { label: 'Custom properties', value: String(inv.tokens.length) },
           { label: 'Hard-coded values', value: String(inv.hardCoded.length) },
@@ -221,6 +240,7 @@ const identifyComponents: StepDefinition = {
       states: c.states,
       styles: c.styles.map((s) => `${s.file}:${s.line}`),
       notes: c.notes,
+      ...(c.usedIn.every((f) => /\.html?$/.test(f)) ? { onPage: true } : {}),
     }));
     return {
       summary: {
