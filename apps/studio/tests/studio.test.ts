@@ -298,6 +298,7 @@ describe('proposeName', () => {
     expect(proposeName({ id: 'radius', type: 'dimension' })).toBe('radius.default');
     expect(proposeName({ id: 'paper', type: 'color' })).toBe('color.paper');
     expect(proposeName({ id: 'tap', type: 'dimension' })).toBe('size.tap');
+    expect(proposeName({ id: 'grid-line', type: 'other', value: '216 210 196' })).toBe('color.grid-line');
   });
 });
 

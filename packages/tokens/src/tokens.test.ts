@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { fileURLToPath } from 'node:url';
 import { runAudit } from '@dsa/discovery';
-import { TokenMap as TokenMapSchema, promoteTokens, toDtcgToken, type TokenMap } from './promote.ts';
-import { renderCss, type ManifestToken } from './build.ts';
+import type { TokenCandidate } from '@dsa/registry';
+import { TokenMap as TokenMapSchema, isRgbChannels, promoteTokens, toDtcgToken, type TokenMap } from './promote.ts';
+import { cssValue, renderCss, type ManifestToken } from './build.ts';
 
 const fixture = fileURLToPath(new URL('../../../tests/fixtures/mini-site', import.meta.url));
 const inv = runAudit(fixture, { id: 'mini-site', repo: 'https://example.com/mini', commit: 'b'.repeat(40) });
@@ -93,9 +94,9 @@ describe('promoteTokens', () => {
     expect(() =>
       toDtcgToken(
         {
-          id: 'grid-line',
+          id: 'rule-style',
           type: 'other',
-          value: '1 2 3',
+          value: 'solid',
           overrides: [],
           usageCount: 0,
           confidence: 'observed',
@@ -104,6 +105,46 @@ describe('promoteTokens', () => {
         'c'.repeat(40),
       ),
     ).toThrow(/cannot be promoted/);
+  });
+});
+
+describe('colour formats', () => {
+  const token = (id: string, type: TokenCandidate['type'], value: string, media?: string) =>
+    toDtcgToken(
+      {
+        id,
+        type,
+        value,
+        overrides: media ? [{ media, value: '32px', source: { file: 'a.css', line: 2 } }] : [],
+        usageCount: 1,
+        confidence: 'observed',
+        source: { file: 'a.css', line: 1 },
+      },
+      'c'.repeat(40),
+    );
+
+  it('converts rgb() with alpha, in space or comma syntax, to hex', () => {
+    expect(token('marker-wash', 'color', 'rgb(47 95 179 / 0.12)').$value).toBe('#2f5fb31f');
+    expect(token('marker-wash', 'color', 'rgba(47, 95, 179, 12%)').$value).toBe('#2f5fb31f');
+    expect(token('ink', 'color', 'rgb(28 27 25)').$value).toBe('#1c1b19');
+  });
+
+  it('still refuses colour formats it cannot convert', () => {
+    expect(() => token('x', 'color', 'hsl(10 20% 30%)')).toThrow(/only hex and rgb/);
+  });
+
+  it('stores RGB channel triplets as colours that keep their channel form in CSS', () => {
+    const t = token('grid-line', 'other', '216 210 196');
+    expect(t).toMatchObject({ $type: 'color', $value: '#d8d2c4' });
+    expect(t.$extensions['dev.dsa.cssFormat']).toBe('rgb-channels');
+    expect(cssValue({ ...t, name: 'grid-line', path: ['color', 'grid-line'] } as never)).toBe('216 210 196');
+    expect(isRgbChannels('300 0 0')).toBe(false);
+  });
+
+  it('reads the (width>=600px) range syntax as a min-width override', () => {
+    expect(token('space-4', 'dimension', '28px', '(width>=600px)').$extensions['dev.dsa.responsive']).toEqual([
+      { minWidth: 600, value: '32px', source: 'a.css:2' },
+    ]);
   });
 });
 

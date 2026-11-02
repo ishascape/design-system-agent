@@ -34,7 +34,9 @@ export const TokenMap = z.object({
 export type TokenMap = z.infer<typeof TokenMap>;
 
 const REDUCED_MOTION = /prefers-reduced-motion:\s*reduce/;
-const MIN_WIDTH = /^\(min-width:\s*(\d+)px\)$/;
+/** `(min-width: 600px)`, or the range syntax `(width>=600px)` that CSS minifiers produce. */
+const MIN_WIDTH = /^\((?:min-width:\s*|width\s*>=\s*)(\d+)px\)$/;
+const RGB_CHANNELS = /^(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})$/;
 
 export interface DtcgToken {
   $type: string;
@@ -68,6 +70,31 @@ function normalizeHex(v: string): string {
   return s;
 }
 
+/** Space-separated channels like "216 210 196", written so CSS can use rgb(var(--x) / 0.4). */
+export function isRgbChannels(v: string): boolean {
+  const m = RGB_CHANNELS.exec(v.trim());
+  return !!m && m.slice(1).every((c) => Number(c) <= 255);
+}
+
+const hex2 = (n: number) =>
+  Math.round(Math.min(255, Math.max(0, n)))
+    .toString(16)
+    .padStart(2, '0');
+
+/** rgb()/rgba() in comma or space syntax, with an optional alpha, as a hex colour (#rrggbb or #rrggbbaa). */
+function rgbToHex(v: string): string | undefined {
+  const m = /^rgba?\(([^)]*)\)$/i.exec(v.trim());
+  if (!m) return undefined;
+  const parts = m[1]!.split(/[\s,/]+/).filter(Boolean);
+  if (parts.length !== 3 && parts.length !== 4) return undefined;
+  const channel = (p: string) => (p.endsWith('%') ? (Number(p.slice(0, -1)) / 100) * 255 : Number(p));
+  const alpha = (p: string) => (p.endsWith('%') ? Number(p.slice(0, -1)) / 100 : Number(p));
+  const rgb = parts.slice(0, 3).map(channel);
+  const a = parts[3] === undefined ? 1 : alpha(parts[3]);
+  if ([...rgb, a].some(Number.isNaN)) return undefined;
+  return `#${rgb.map(hex2).join('')}${a < 1 ? hex2(a * 255) : ''}`;
+}
+
 export function toDtcgToken(t: TokenCandidate, commit: string, description?: string): DtcgToken {
   const ext: Record<string, unknown> = {
     'dev.dsa.provenance': {
@@ -80,12 +107,13 @@ export function toDtcgToken(t: TokenCandidate, commit: string, description?: str
   let $type: string;
   let $value: unknown;
   switch (t.type) {
-    case 'color':
-      if (!/^#[0-9a-f]{3,8}$/i.test(t.value.trim()))
-        throw new Error(`--${t.id}: only hex colours are supported, got ${t.value}`);
+    case 'color': {
+      const hex = /^#[0-9a-f]{3,8}$/i.test(t.value.trim()) ? normalizeHex(t.value) : rgbToHex(t.value);
+      if (!hex) throw new Error(`--${t.id}: only hex and rgb() colours are supported, got ${t.value}`);
       $type = 'color';
-      $value = normalizeHex(t.value);
+      $value = hex;
       break;
+    }
     case 'dimension': {
       $type = 'dimension';
       const fluid = parseFluid(t.value);
@@ -108,6 +136,14 @@ export function toDtcgToken(t: TokenCandidate, commit: string, description?: str
       $value = parseCubicBezier(t.value);
       break;
     default:
+      if (isRgbChannels(t.value)) {
+        // Stored as a normal colour (what Figma and docs need); the CSS keeps the channel form
+        // so existing rgb(var(--x) / alpha) uses on the site keep working.
+        $type = 'color';
+        $value = `#${t.value.trim().split(/\s+/).map(Number).map(hex2).join('')}`;
+        ext['dev.dsa.cssFormat'] = 'rgb-channels';
+        break;
+      }
       throw new Error(`--${t.id} has type "${t.type}", which cannot be promoted yet. Remove it from the token map.`);
   }
   const responsive = t.overrides

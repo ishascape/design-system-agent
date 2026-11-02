@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { z } from 'zod';
 import type { AuditInventory, TokenCandidate } from '@dsa/registry';
 import { renderComponentsReport, renderDriftReport, runAudit, toDtcgCandidates } from '@dsa/discovery';
-import { TokenMap, buildTokens, promoteTokens, toDtcgToken } from '@dsa/tokens';
+import { TokenMap, buildTokens, isRgbChannels, promoteTokens, toDtcgToken } from '@dsa/tokens';
 import { allowLocalSites, fetchRepo, fetchWebsite, type FetchedSource } from '../sources.ts';
 import { renderWebsite } from '../render.ts';
 import { StepBlocked, type StepContext, type StepDefinition, type WorkflowDefinition } from './types.ts';
@@ -21,7 +21,7 @@ const inventoryOf = (ctx: StepContext): AuditInventory => {
 };
 
 /** Proposed canonical name for a source custom property, e.g. --text-body -> font.size.body. */
-export function proposeName(t: Pick<TokenCandidate, 'id' | 'type'>): string {
+export function proposeName(t: Pick<TokenCandidate, 'id' | 'type'> & { value?: string }): string {
   const id = t.id;
   const rules: [RegExp, (m: RegExpExecArray) => string][] = [
     [/^(?:space|spacing)-(.+)$/, (m) => `space.${m[1]}`],
@@ -46,7 +46,8 @@ export function proposeName(t: Pick<TokenCandidate, 'id' | 'type'>): string {
     number: 'number',
     other: 'other',
   };
-  return `${group[t.type] ?? 'other'}.${id}`;
+  const type = t.type === 'other' && isRgbChannels(t.value ?? '') ? 'color' : t.type;
+  return `${group[type] ?? 'other'}.${id}`;
 }
 
 export interface TokenProposal {

@@ -5,6 +5,7 @@ export default tseslint.config(
   {
     ignores: [
       'apps/studio/dist-web/**',
+      '.studio/**',
       'node_modules/**',
       '.cache/**',
       'audits/**',

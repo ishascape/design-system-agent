@@ -38,6 +38,8 @@ export function cssValue(t: TransformedToken): string {
   const fluid = ext<{ css: string }>(t, 'dev.dsa.fluid');
   if (fluid) return fluid.css;
   const v = t.$value as unknown;
+  if (ext(t, 'dev.dsa.cssFormat') === 'rgb-channels' && typeof v === 'string')
+    return [1, 3, 5].map((i) => parseInt(v.slice(i, i + 2), 16)).join(' ');
   if (t.$type === 'fontFamily' && Array.isArray(v))
     return v.map((f) => (/\s/.test(String(f)) ? `'${f}'` : String(f))).join(', ');
   if (t.$type === 'cubicBezier' && Array.isArray(v)) return `cubic-bezier(${v.join(', ')})`;
