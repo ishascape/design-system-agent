@@ -1,0 +1,129 @@
+{
+  "color": {
+    "paper": {
+      "$type": "color",
+      "$value": "#f5f2ea",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:2",
+          "confidence": "observed",
+          "usageCount": 0,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "ink": {
+      "$type": "color",
+      "$value": "#1c1b19",
+      "$description": "body text",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:3",
+          "confidence": "observed",
+          "usageCount": 2,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    }
+  },
+  "dimension": {
+    "space-2": {
+      "$type": "dimension",
+      "$value": "8px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:4",
+          "confidence": "observed",
+          "usageCount": 0,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    "space-4": {
+      "$type": "dimension",
+      "$value": "28px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:5",
+          "confidence": "observed",
+          "usageCount": 1,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "dev.dsa.responsive": [
+          {
+            "media": "(min-width: 600px)",
+            "value": "32px",
+            "source": "src/styles/tokens.css:14"
+          }
+        ]
+      }
+    },
+    "radius": {
+      "$type": "dimension",
+      "$value": "16px",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:6",
+          "confidence": "observed",
+          "usageCount": 1,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    }
+  },
+  "fontFamily": {
+    "font-sans": {
+      "$type": "fontFamily",
+      "$value": "'Poppins', system-ui, sans-serif",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:7",
+          "confidence": "observed",
+          "usageCount": 0,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    }
+  },
+  "duration": {
+    "dur-micro": {
+      "$type": "duration",
+      "$value": "150ms",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:8",
+          "confidence": "observed",
+          "usageCount": 0,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    }
+  },
+  "cubicBezier": {
+    "ease-pen": {
+      "$type": "cubicBezier",
+      "$value": "cubic-bezier(0.2, 0, 0, 1)",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:9",
+          "confidence": "observed",
+          "usageCount": 0,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    }
+  },
+  "other": {
+    "grid-line": {
+      "$value": "216 210 196",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:10",
+          "confidence": "observed",
+          "usageCount": 0,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    }
+  }
+}

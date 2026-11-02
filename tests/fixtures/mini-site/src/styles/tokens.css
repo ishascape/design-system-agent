@@ -1,0 +1,16 @@
+:root {
+  --paper: #f5f2ea;
+  --ink: #1c1b19; /* body text */
+  --space-2: 8px;
+  --space-4: 28px;
+  --radius: 16px;
+  --font-sans: 'Poppins', system-ui, sans-serif;
+  --dur-micro: 150ms;
+  --ease-pen: cubic-bezier(0.2, 0, 0, 1);
+  --grid-line: 216 210 196;
+}
+@media (min-width: 600px) {
+  :root {
+    --space-4: 32px;
+  }
+}

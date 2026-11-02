@@ -1,0 +1,16 @@
+{
+  "name": "@dsa/discovery",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Read-only discovery: reads a source repo at a pinned commit and produces audit evidence.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@dsa/registry": "0.1.0",
+    "postcss": "8.5.32",
+    "typescript": "5.9.3",
+    "zod": "4.6.7"
+  }
+}

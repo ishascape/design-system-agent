@@ -1,0 +1,5 @@
+.cache/
+audits/
+tests/golden/
+tests/fixtures/
+package-lock.json
