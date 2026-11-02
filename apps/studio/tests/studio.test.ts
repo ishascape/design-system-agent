@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import type { VariablesPayload, VariablesReadback } from '@dsa/gen-figma';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { Store, type Step } from '../server/db.ts';
@@ -182,7 +183,7 @@ describe('design-system workflow on a real repo', () => {
     expect(run.steps.find((s) => s.key === 'review')!.attempt).toBe(2);
   });
 
-  it('applies the approval with exclusions and renames, builds tokens, then blocks at Figma', async () => {
+  it('applies the approval, builds tokens and docs, then checks the Figma result before validating', async () => {
     const review = run.steps.find((s) => s.key === 'review')!;
     const tokens = (review.output as { tokens: { cssVar: string }[] }).tokens;
     const dupe = await call('POST', `/api/projects/${pid}/steps/${review.id}/approve`, {
@@ -199,16 +200,42 @@ describe('design-system workflow on a real repo', () => {
     expect(statuses(run)).toMatchObject({
       review: 'succeeded',
       'generate-code': 'succeeded',
-      'generate-figma': 'blocked',
-      // Figma is optional: docs and checks still run, and the run says some stages are not built.
       'generate-docs': 'succeeded',
-      validate: 'succeeded',
+      // Figma needs a person: the run waits for the plugin's result.
+      'generate-figma': 'awaiting-approval',
+      validate: 'pending',
     });
-    expect(run.status).toBe('blocked');
+    expect(run.status).toBe('awaiting-approval');
+    const figma = run.steps.find((s) => s.key === 'generate-figma')!;
+    const payload = (figma.output as { payload: VariablesPayload }).payload;
+    expect(payload.collectionName).toBe('Mini tokens');
+
+    // Not a plugin result, then a result where Figma has the wrong value: both refused.
+    expect(
+      (await call('POST', `/api/projects/${pid}/steps/${figma.id}/approve`, { decision: { readback: { hi: 1 } } }))
+        .status,
+    ).toBe(400);
+    const wrong = readbackFor(payload);
+    wrong.variables[0]!.value = wrong.variables[0]!.type === 'FLOAT' ? 999 : '#000001';
+    const refused = await call('POST', `/api/projects/${pid}/steps/${figma.id}/approve`, {
+      decision: { readback: wrong },
+    });
+    expect(refused.status).toBe(400);
+    expect(String(refused.data.error)).toMatch(/Figma does not match the tokens yet/);
+
+    // What the plugin returns when Figma matches.
+    const ok = await call('POST', `/api/projects/${pid}/steps/${figma.id}/approve`, {
+      decision: { readback: readbackFor(payload) },
+    });
+    expect(ok.status).toBe(200);
+    await engine.idle(run.id);
+    run = (await call('GET', `/api/projects/${pid}/runs/${run.id}`)).data as unknown as RunView;
+    expect(statuses(run)).toMatchObject({ 'generate-figma': 'succeeded', validate: 'succeeded' });
+    expect(run.status).toBe('succeeded');
     const v = run.steps.find((s) => s.key === 'validate')!;
-    expect(v.summary?.headline).toMatch(/checks passed, 1 not run/);
+    expect(v.summary?.headline).toMatch(/^(\d+) of \1 checks passed$/);
     expect((v.output as { checks: { name: string; status: string }[] }).checks).toContainEqual(
-      expect.objectContaining({ name: 'Figma matches the tokens', status: 'not-run' }),
+      expect.objectContaining({ name: 'Figma matches the tokens', status: 'pass' }),
     );
 
     const arts = (await call('GET', `/api/projects/${pid}/artifacts`)).data as unknown as {
@@ -325,6 +352,25 @@ describe('proposeName', () => {
   });
 });
 
+/** What the Studio's Figma plugin returns when Figma holds exactly the payload. */
+function readbackFor(p: VariablesPayload): VariablesReadback {
+  return {
+    kind: 'dsa-figma-variables-readback',
+    fileName: 'Test file',
+    collection: { id: 'VariableCollectionId:1:1', name: p.collectionName, modes: 1 },
+    variables: p.variables.map((v, i) => ({
+      id: `VariableID:1:${i + 2}`,
+      name: v.figmaName,
+      type: v.figmaType,
+      value: v.value,
+      scopes: [...v.scopes].reverse(),
+      web: `var(${v.cssVar})`,
+    })),
+    created: p.variables.length,
+    updated: 0,
+  };
+}
+
 describe('website import with a sandboxed browser render', () => {
   let server: import('node:http').Server;
   let base = '';
@@ -429,6 +475,22 @@ describe('website import with a sandboxed browser render', () => {
     await engine.idle(r.id as string);
     view = (await call('GET', `/api/projects/${p.id}/runs/${r.id}`)).data as unknown as RunView;
     expect(statuses(view)['generate-code']).toBe('succeeded');
+    // Skipping Figma lets the run finish; Validate says Figma was not checked.
+    const fig = view.steps.find((s) => s.key === 'generate-figma')!;
+    expect(fig.status).toBe('awaiting-approval');
+    expect((fig.output as { payload: VariablesPayload }).payload.variables.map((x) => x.figmaName).sort()).toEqual([
+      'color/grid-line',
+      'space/4',
+    ]);
+    expect(
+      (await call('POST', `/api/projects/${p.id}/steps/${fig.id}/approve`, { decision: { skip: true } })).status,
+    ).toBe(200);
+    await engine.idle(r.id as string);
+    view = (await call('GET', `/api/projects/${p.id}/runs/${r.id}`)).data as unknown as RunView;
+    expect(statuses(view)).toMatchObject({ 'generate-figma': 'succeeded', validate: 'succeeded' });
+    expect(view.steps.find((s) => s.key === 'validate')!.summary?.warnings).toEqual([
+      'Figma matches the tokens: not run. You skipped Figma for this run.',
+    ]);
     const arts = (await call('GET', `/api/projects/${p.id}/artifacts`)).data as unknown as {
       id: string;
       kind: string;

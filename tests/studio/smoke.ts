@@ -69,11 +69,17 @@ const browser = await chromium.launch();
 try {
   await waitForServer();
   mkdirSync(shots, { recursive: true });
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base });
+  const page = await context.newPage();
   const consoleErrors: string[] = [];
   let restarting = false;
-  // Killing the server on purpose (step 8) cuts the live-update stream; only that is tolerated.
-  const expected = (t: string) => restarting && /ERR_INCOMPLETE_CHUNKED_ENCODING|ERR_CONNECTION_REFUSED/.test(t);
+  let refusing = false;
+  // Killing the server on purpose (step 8) cuts the live-update stream, and the deliberately wrong
+  // Figma result (step 5b) is answered with 400. Only those are tolerated.
+  const expected = (t: string) =>
+    (restarting && /ERR_INCOMPLETE_CHUNKED_ENCODING|ERR_CONNECTION_REFUSED/.test(t)) ||
+    (refusing && /status of 400/.test(t));
   page.on('console', (m) => m.type() === 'error' && !expected(m.text()) && consoleErrors.push(m.text()));
   page.on('pageerror', (e) => consoleErrors.push(e.message));
 
@@ -143,14 +149,52 @@ try {
   await approval.getByLabel('Decision note').fill('Smoke test approval');
   await approval.getByRole('button', { name: `Approve ${total - 1} tokens` }).click();
   await waitStage(page, 'generate-code', 'succeeded');
-  await waitStage(page, 'generate-figma', 'blocked');
+  await waitStage(page, 'generate-docs', 'succeeded');
+  await waitStage(page, 'generate-figma', 'awaiting-approval');
   ok(
-    `Approved ${total - 1} of ${total} tokens (left out ${excludedLabel}, renamed ${renameTarget}); code generation ran`,
+    `Approved ${total - 1} of ${total} tokens (left out ${excludedLabel}, renamed ${renameTarget}); code and docs were generated`,
   );
-  ok('Figma generation reports "Not available yet" instead of pretending');
+
+  // 5b. Figma hand-off: copy the tokens, do what the Figma plugin does, paste its result back.
+  const handoff = page.getByRole('region', { name: 'Figma hand-off' });
+  await handoff.waitFor();
+  await page.screenshot({ path: join(shots, '5b-figma-handoff.png') });
+  await handoff.getByRole('button', { name: 'Copy tokens for Figma' }).click();
+  await handoff.getByText('Copied.').waitFor();
+  const copiedPayload = JSON.parse(await page.evaluate(() => navigator.clipboard.readText())) as {
+    collectionName: string;
+    variables: { figmaName: string; figmaType: string; value: string | number; scopes: string[]; cssVar: string }[];
+  };
+  if (!copiedPayload.variables.some((v) => v.figmaName === 'color/smoke-renamed'))
+    throw new Error('The copied Figma tokens lack the renamed token');
+  const pluginResult = {
+    kind: 'dsa-figma-variables-readback',
+    fileName: 'Smoke file',
+    collection: { id: 'VariableCollectionId:1:1', name: copiedPayload.collectionName, modes: 1 },
+    variables: copiedPayload.variables.map((v, i) => ({
+      id: `VariableID:1:${i}`,
+      name: v.figmaName,
+      type: v.figmaType,
+      value: v.value,
+      scopes: v.scopes,
+      web: `var(${v.cssVar})`,
+    })),
+    created: copiedPayload.variables.length,
+    updated: 0,
+  };
+  // A result that does not match is refused with the reason.
+  const bad = structuredClone(pluginResult);
+  bad.variables = bad.variables.slice(1);
+  await handoff.getByLabel('Result from the Figma plugin').fill(JSON.stringify(bad));
+  refusing = true;
+  await handoff.getByRole('button', { name: 'Check Figma result' }).click();
+  await page.getByText(/Figma does not match the tokens yet: .* is missing in Figma/).waitFor();
+  refusing = false;
+  await handoff.getByLabel('Result from the Figma plugin').fill(JSON.stringify(pluginResult));
+  await handoff.getByRole('button', { name: 'Check Figma result' }).click();
+  await waitStage(page, 'generate-figma', 'succeeded');
   await waitStage(page, 'validate', 'succeeded');
-  if ((await stageStatus(page, 'generate-docs')) !== 'succeeded') throw new Error('generate-docs did not succeed');
-  ok('Documentation and validation still ran without Figma');
+  ok('Figma hand-off: copied tokens, a wrong plugin result was refused, the matching one passed and Validate ran');
   await page.getByTestId('stage-generate-code').click();
   await page.screenshot({ path: join(shots, '5-after-approval.png') });
 

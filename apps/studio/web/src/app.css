@@ -1510,3 +1510,15 @@ textarea.input {
   display: grid;
   gap: var(--ds-space-1);
 }
+
+/* Numbered hand-off steps (Figma) */
+.steps-list {
+  margin: 0;
+  padding-left: var(--ds-space-5);
+  display: grid;
+  gap: var(--ds-space-3);
+  font-size: var(--ds-font-size-sm);
+}
+.steps-list textarea {
+  width: 100%;
+}

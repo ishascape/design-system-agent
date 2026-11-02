@@ -1,0 +1,13 @@
+{
+  "name": "Design System Studio",
+  "id": "design-system-studio-local",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"],
+    "reasoning": "The plugin never goes online. You paste the tokens in from the Studio and copy the result back."
+  }
+}

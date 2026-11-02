@@ -98,7 +98,7 @@ describe('validation', () => {
       tokensCss: css,
       docsHtml: html,
       catalog,
-      figmaSkipped: 'Not built yet',
+      figma: { notRun: 'Not built yet' },
     });
     expect(checks.filter((c) => c.status !== 'pass').map((c) => [c.name, c.status])).toEqual([
       ['Figma matches the tokens', 'not-run'],

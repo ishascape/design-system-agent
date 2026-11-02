@@ -108,6 +108,13 @@ function Workflow({ project, version, workflow, runId }: PageProps & { runId: st
   useEffect(() => {
     if (focusKey && !pinned) setSelectedStep(focusKey);
   }, [focusKey, pinned]);
+  // A new stage asking for you always takes the inspector, even if you had picked another stage.
+  const waitingKey = r?.steps.find((s) => s.status === 'awaiting-approval')?.key;
+  useEffect(() => {
+    if (!waitingKey) return;
+    setSelectedStep(waitingKey);
+    setPinned(false);
+  }, [waitingKey]);
   const resetFocus = () => {
     setSelectedStep(null);
     setPinned(false);

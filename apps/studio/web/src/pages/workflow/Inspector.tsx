@@ -96,7 +96,10 @@ export function Inspector({
       </div>
       {error && <ErrorNote>{error}</ErrorNote>}
 
-      {step?.status === 'awaiting-approval' && (
+      {step?.status === 'awaiting-approval' && step.key === 'generate-figma' && (
+        <FigmaPanel key={step.id} project={project} step={step} onAct={act} busy={busy} />
+      )}
+      {step?.status === 'awaiting-approval' && step.key !== 'generate-figma' && (
         <ApprovalPanel
           key={step.id}
           project={project}
@@ -322,6 +325,103 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
         </pre>
       )}
     </div>
+  );
+}
+
+/**
+ * The Figma hand-off: copy the tokens, apply them with the Studio plugin in Figma, paste the
+ * plugin's result back. The server checks the result against the tokens before the step passes.
+ */
+function FigmaPanel({
+  project,
+  step,
+  onAct,
+  busy,
+}: {
+  project: ProjectDetail;
+  step: Step;
+  onAct: (fn: () => Promise<unknown>) => void;
+  busy: boolean;
+}) {
+  const out = step.output as { payload?: { collectionName: string; variables: unknown[] } } | null;
+  const payload = out?.payload;
+  const [result, setResult] = useState('');
+  const [copied, setCopied] = useState<'yes' | 'failed' | null>(null);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(payload));
+      setCopied('yes');
+    } catch {
+      setCopied('failed');
+    }
+  };
+  const confirm = () => {
+    let readback: unknown;
+    try {
+      readback = JSON.parse(result);
+    } catch {
+      setParseError('That is not the result from the plugin. In Figma, use "Copy result for the Studio".');
+      return;
+    }
+    setParseError(null);
+    onAct(() => api.approve(project.id, step.id, { readback }, null));
+  };
+  return (
+    <section className="approval" aria-label="Figma hand-off">
+      <div className="approval__head">
+        <Icon name="pause" size={14} />
+        <div>
+          <strong>Apply the tokens in Figma</strong>
+          <div className="muted">
+            {payload ? `${payload.variables.length} variables for the "${payload.collectionName}" collection.` : ''}{' '}
+            Variables are created or updated in the file you choose; nothing is deleted.
+          </div>
+        </div>
+      </div>
+      <ol className="steps-list">
+        <li>
+          <Button variant="secondary" icon="copy" onClick={() => void copy()} disabled={!payload}>
+            Copy tokens for Figma
+          </Button>
+          {copied === 'yes' && <span className="muted small"> Copied.</span>}
+          {copied === 'failed' && (
+            <span className="muted small">
+              {' '}
+              Copy failed; download <code>figma-variables.json</code> from the Artifacts tab instead.
+            </span>
+          )}
+        </li>
+        <li>
+          In Figma, run <strong>Plugins → Development → Design System Studio</strong>, paste, and apply. First time:
+          import the plugin from <code>apps/studio/figma-plugin/manifest.json</code> in this project.
+        </li>
+        <li>
+          <textarea
+            className="input input--mono"
+            rows={3}
+            placeholder="Paste the plugin's result here"
+            value={result}
+            onChange={(e) => setResult(e.target.value)}
+            aria-label="Result from the Figma plugin"
+          />
+        </li>
+      </ol>
+      {parseError && <ErrorNote>{parseError}</ErrorNote>}
+      <div className="approval__actions">
+        <Button
+          variant="ghost"
+          icon="x"
+          disabled={busy}
+          onClick={() => onAct(() => api.approve(project.id, step.id, { skip: true }, 'Skipped Figma'))}
+        >
+          Skip Figma this time
+        </Button>
+        <Button variant="primary" icon="check" disabled={busy || !result.trim()} onClick={confirm}>
+          Check Figma result
+        </Button>
+      </div>
+    </section>
   );
 }
 

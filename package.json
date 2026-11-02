@@ -29,7 +29,8 @@
     "test:parity": "node --experimental-strip-types tests/parity/button-parity.ts",
     "figma": "node --experimental-strip-types packages/gen-figma/src/cli/figma.ts",
     "studio": "npm run build -w @dsa/studio && npm run start -w @dsa/studio",
-    "test:studio-ui": "node --experimental-strip-types tests/studio/smoke.ts"
+    "test:studio-ui": "node --experimental-strip-types tests/studio/smoke.ts",
+    "build:figma-plugin": "node --experimental-strip-types --disable-warning=ExperimentalWarning apps/studio/figma-plugin/build.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

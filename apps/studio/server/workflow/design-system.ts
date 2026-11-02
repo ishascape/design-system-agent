@@ -12,13 +12,19 @@ import { TokenMap, buildTokens, promoteTokens, promotionBlocker, toDtcgToken, ty
 import { allowLocalSites, fetchRepo, fetchWebsite, type FetchedSource } from '../sources.ts';
 import { renderWebsite } from '../render.ts';
 import {
+  VariablesReadback,
+  buildVariablesPayload,
+  checkVariablesReadback,
+  type VariablesPayload,
+} from '@dsa/gen-figma';
+import {
   renderAgentCatalog,
   renderDocsSite,
   sectionsOf,
   type DocComponent,
   type DocsInput,
 } from '../generate/docs-site.ts';
-import { validateOutputs } from '../generate/validate.ts';
+import { validateOutputs, type FigmaCheck } from '../generate/validate.ts';
 import { StepBlocked, type StepContext, type StepDefinition, type WorkflowDefinition } from './types.ts';
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T;
@@ -431,16 +437,6 @@ const generateCode: StepDefinition = {
   },
 };
 
-const notYet = (key: string, title: string, description: string, action: string): StepDefinition => ({
-  key,
-  title,
-  description,
-  action,
-  run() {
-    throw new StepBlocked(`${title} is not connected to the Studio yet. It is the next milestone.`);
-  },
-});
-
 const manifestOf = (ctx: StepContext) => {
   const dir = join(ctx.workspace, 'build', ctx.runId, 'tokens');
   if (!ctx.outputs['generate-code'] || !existsSync(join(dir, 'tokens.manifest.json')))
@@ -451,14 +447,83 @@ const manifestOf = (ctx: StepContext) => {
   };
 };
 
+const FigmaDecision = z.union([
+  z.object({ skip: z.literal(true) }),
+  /** What the Studio's Figma plugin returned after applying the tokens. */
+  z.object({ readback: z.unknown() }),
+]);
+
 const generateFigma: StepDefinition = {
-  ...notYet(
-    'generate-figma',
-    'Generate Figma',
-    'Creates native, editable Figma variables and components.',
-    'Preparing the Figma sync',
-  ),
-  // Docs and checks do not need Figma, so they still run while this stage is not built.
+  key: 'generate-figma',
+  title: 'Generate Figma',
+  description: 'Turns the built tokens into native Figma variables, applied with the Studio plugin for Figma.',
+  action: 'Preparing tokens for Figma',
+  run(ctx) {
+    const { manifest } = manifestOf(ctx);
+    const payload = buildVariablesPayload(manifest, `${ctx.project.name} tokens`);
+    const art = ctx.saveArtifact('figma-payload', 'figma-variables.json', JSON.stringify(payload), 'application/json');
+    ctx.log(
+      `Prepared ${plural(payload.variables.length, 'variable')} for the "${payload.collectionName}" collection` +
+        (payload.skipped.length ? `; ${payload.skipped.length} stay in code only` : ''),
+    );
+    return {
+      summary: {
+        headline: `${plural(payload.variables.length, 'variable')} ready for Figma`,
+        facts: [
+          { label: 'Collection', value: payload.collectionName },
+          { label: 'Variables', value: String(payload.variables.length) },
+          { label: 'Code only', value: String(payload.skipped.length) },
+        ],
+        warnings: payload.skipped.map((t) => `${t.name} stays in code only: ${t.reason}.`),
+      },
+      output: { payloadArtifactId: art.id, payload },
+    };
+  },
+  approval: {
+    prompt: 'Apply the tokens in Figma with the Studio plugin, then paste its result here',
+    onApprove(ctx) {
+      const d = FigmaDecision.parse(ctx.decision ?? {});
+      const { payload } = ctx.pending as { payload: VariablesPayload };
+      if ('skip' in d) {
+        return {
+          summary: {
+            headline: 'Skipped: Figma was not updated in this run',
+            facts: [{ label: 'Variables prepared', value: String(payload.variables.length) }],
+            warnings: ['Figma was skipped, so Validate reports it as not checked.'],
+          },
+          output: { skipped: true },
+        };
+      }
+      const parsed = VariablesReadback.safeParse(d.readback);
+      if (!parsed.success)
+        throw new Error('That is not a result from the Studio plugin. In Figma, use "Copy result for the Studio".');
+      const problems = checkVariablesReadback(payload, parsed.data);
+      if (problems.length)
+        throw new Error(
+          `Figma does not match the tokens yet: ${problems.slice(0, 5).join('; ')}${problems.length > 5 ? ` and ${problems.length - 5} more` : ''}`,
+        );
+      const rb = parsed.data;
+      ctx.saveArtifact('figma-readback', 'figma-readback.json', JSON.stringify(rb, null, 2), 'application/json');
+      return {
+        summary: {
+          headline: `${plural(payload.variables.length, 'variable')} match in Figma`,
+          facts: [
+            { label: 'Figma file', value: rb.fileName },
+            { label: 'Collection', value: rb.collection.name },
+            { label: 'Created', value: String(rb.created) },
+            { label: 'Updated', value: String(rb.updated) },
+          ],
+          warnings: [],
+        },
+        output: {
+          verified: true,
+          fileName: rb.fileName,
+          collectionId: rb.collection.id,
+          count: payload.variables.length,
+        },
+      };
+    },
+  },
   optional: true,
 };
 
@@ -504,6 +569,14 @@ const generateDocs: StepDefinition = {
   },
 };
 
+/** What Validate should say about Figma, from the Figma stage's output (if it ran). */
+function figmaStatus(out: unknown): FigmaCheck {
+  const o = out as { verified?: boolean; skipped?: boolean; fileName?: string; count?: number } | undefined;
+  if (o?.verified) return { verified: `${o.count ?? 0} variables match in "${o.fileName ?? 'Figma'}"` };
+  if (o?.skipped) return { notRun: 'You skipped Figma for this run' };
+  return { notRun: 'The Figma stage did not finish in this run' };
+}
+
 const validate: StepDefinition = {
   key: 'validate',
   title: 'Validate',
@@ -520,9 +593,7 @@ const validate: StepDefinition = {
       tokensCss: css,
       ...(docsRan ? { docsHtml: readFileSync(join(docsDir, 'index.html'), 'utf8') } : {}),
       ...(docsRan ? { catalog: readFileSync(join(docsDir, 'catalog.md'), 'utf8') } : {}),
-      ...(ctx.outputs['generate-figma']
-        ? {}
-        : { figmaSkipped: 'The Figma stage is not built yet, so Figma was not checked' }),
+      figma: figmaStatus(ctx.outputs['generate-figma']),
     });
     const report = [
       `# Validation, run ${ctx.runNumber}`,
@@ -574,8 +645,8 @@ export const designSystemWorkflow: WorkflowDefinition = {
     audit,
     review,
     generateCode,
-    generateFigma,
     generateDocs,
+    generateFigma,
     validate,
   ],
 };

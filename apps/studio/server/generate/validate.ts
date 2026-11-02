@@ -17,9 +17,11 @@ export interface ValidateInput {
   tokensCss: string;
   docsHtml?: string;
   catalog?: string;
-  /** Why Figma was not checked, when its stage did not run. */
-  figmaSkipped?: string;
+  figma?: FigmaCheck;
 }
+
+/** The Figma stage's outcome: verified against a read-back from Figma, or why it was not checked. */
+export type FigmaCheck = { verified: string } | { notRun: string };
 
 const pass = (name: string, detail: string): Check => ({ name, status: 'pass', detail });
 const fail = (name: string, detail: string): Check => ({ name, status: 'fail', detail });
@@ -106,8 +108,13 @@ export function validateOutputs(i: ValidateInput): Check[] {
     );
   }
 
-  // 6. Figma, when it ran. It is never reported as passed when it did not.
-  if (i.figmaSkipped) checks.push({ name: 'Figma matches the tokens', status: 'not-run', detail: i.figmaSkipped });
+  // 6. Figma: passes only when the Figma stage checked a read-back from Figma itself.
+  if (i.figma)
+    checks.push(
+      'verified' in i.figma
+        ? pass('Figma matches the tokens', i.figma.verified)
+        : { name: 'Figma matches the tokens', status: 'not-run', detail: i.figma.notRun },
+    );
 
   return checks;
 }
