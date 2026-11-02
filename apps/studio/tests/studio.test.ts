@@ -182,7 +182,7 @@ describe('design-system workflow on a real repo', () => {
     expect(run.steps.find((s) => s.key === 'review')!.attempt).toBe(2);
   });
 
-  it('applies the approval with exclusions and renames, builds tokens, then blocks at Figma', async () => {
+  it('applies the approval with exclusions and renames, builds tokens and a Figma script, then blocks at docs', async () => {
     const review = run.steps.find((s) => s.key === 'review')!;
     const tokens = (review.output as { tokens: { cssVar: string }[] }).tokens;
     const dupe = await call('POST', `/api/projects/${pid}/steps/${review.id}/approve`, {
@@ -199,9 +199,15 @@ describe('design-system workflow on a real repo', () => {
     expect(statuses(run)).toMatchObject({
       review: 'succeeded',
       'generate-code': 'succeeded',
-      'generate-figma': 'blocked',
+      'generate-figma': 'succeeded',
+      'generate-docs': 'blocked',
     });
     expect(run.status).toBe('blocked');
+    const figma = run.steps.find((s) => s.key === 'generate-figma')!;
+    expect((figma.output as { variables: number }).variables).toBeGreaterThan(0);
+    expect(figma.summary!.warnings[0]).toMatch(/^Not applied to Figma yet/);
+    const arts = (await call('GET', `/api/projects/${pid}/artifacts`)).data as unknown as { kind: string }[];
+    expect(arts.some((a) => a.kind === 'figma-sync')).toBe(true);
     const map = JSON.parse(readFileSync(join(projectDir(pid), 'registry/token-map.json'), 'utf8'));
     expect(Object.keys(map.tokens)).toHaveLength(tokens.length - 1);
     const f = (await call('GET', `/api/projects/${pid}/foundations`)).data;

@@ -9,6 +9,7 @@ import { z } from 'zod';
 import type { AuditInventory, TokenCandidate } from '@dsa/registry';
 import { renderComponentsReport, renderDriftReport, runAudit, toDtcgCandidates } from '@dsa/discovery';
 import { TokenMap, buildTokens, isRgbChannels, promoteTokens, toDtcgToken } from '@dsa/tokens';
+import { buildVariablesPayload, renderSyncScript, type ManifestToken } from '@dsa/gen-figma';
 import { allowLocalSites, fetchRepo, fetchWebsite, type FetchedSource } from '../sources.ts';
 import { renderWebsite } from '../render.ts';
 import { StepBlocked, type StepContext, type StepDefinition, type WorkflowDefinition } from './types.ts';
@@ -387,6 +388,41 @@ const generateCode: StepDefinition = {
   },
 };
 
+const generateFigma: StepDefinition = {
+  key: 'generate-figma',
+  title: 'Generate Figma',
+  description: 'Prepares native, editable Figma variables from the built tokens.',
+  action: 'Preparing the Figma sync',
+  run(ctx) {
+    const built = join(ctx.workspace, 'build', ctx.runId, 'tokens', 'tokens.manifest.json');
+    if (!existsSync(built)) throw new Error('No built tokens in this run. Generate code first.');
+    const skipped: string[] = [];
+    const payload = buildVariablesPayload(readJson<ManifestToken[]>(built), ctx.project.name, skipped);
+    if (!payload.variables.length) throw new Error('None of the approved tokens can become Figma variables');
+    const script = ctx.saveArtifact(
+      'figma-sync',
+      'figma-sync-variables.js',
+      renderSyncScript(payload),
+      'text/javascript',
+    );
+    ctx.log(`Prepared ${payload.variables.length} Figma variables in the collection "${payload.collectionName}"`);
+    for (const s of skipped) ctx.log(`Not synced to Figma: ${s}`, 'warn');
+    const byType = new Map<string, number>();
+    for (const v of payload.variables) byType.set(v.figmaType, (byType.get(v.figmaType) ?? 0) + 1);
+    return {
+      summary: {
+        headline: `Figma sync script ready for ${payload.variables.length} variables`,
+        facts: [...byType].map(([type, n]) => ({ label: type, value: String(n) })),
+        warnings: [
+          'Not applied to Figma yet. Claude runs this script through the Figma MCP with your own Figma login, and only on your test file after you say so.',
+          ...skipped.map((s) => `Not synced to Figma: ${s}`),
+        ],
+      },
+      output: { scriptArtifactId: script.id, variables: payload.variables.length, skipped },
+    };
+  },
+};
+
 const notYet = (key: string, title: string, description: string, action: string): StepDefinition => ({
   key,
   title,
@@ -408,12 +444,7 @@ export const designSystemWorkflow: WorkflowDefinition = {
     audit,
     review,
     generateCode,
-    notYet(
-      'generate-figma',
-      'Generate Figma',
-      'Creates native, editable Figma variables and components.',
-      'Preparing the Figma sync',
-    ),
+    generateFigma,
     notYet(
       'generate-docs',
       'Generate documentation',

@@ -2,6 +2,7 @@
 /**
  * Runs inside Figma via the official Figma MCP `use_figma` tool (Plugin API).
  * `PAYLOAD` is injected by @dsa/gen-figma: tokens, the Button spec and known Figma ids.
+ * Without `PAYLOAD.button` only the variables are synced.
  *
  * Idempotent: variables and the component set are found by stored id, then by name, and updated
  * in place. Nothing is deleted except variants this script itself owns and no longer needs.
@@ -12,6 +13,8 @@ const hexToRgb = (h) => ({
   g: parseInt(h.slice(3, 5), 16) / 255,
   b: parseInt(h.slice(5, 7), 16) / 255,
 });
+// Variables can hold alpha (#rrggbbaa); paints cannot, so this is only used for variable values.
+const hexToRgba = (h) => ({ ...hexToRgb(h), a: h.length === 9 ? parseInt(h.slice(7, 9), 16) / 255 : 1 });
 
 // ---------- Variables ----------
 const collections = await figma.variables.getLocalVariableCollectionsAsync();
@@ -41,10 +44,12 @@ for (const t of PAYLOAD.variables) {
   v.description = t.description;
   v.scopes = t.scopes;
   v.setVariableCodeSyntax('WEB', `var(${t.cssVar})`);
-  v.setValueForMode(modeId, t.figmaType === 'COLOR' ? hexToRgb(t.value) : t.value);
+  v.setValueForMode(modeId, t.figmaType === 'COLOR' ? hexToRgba(t.value) : t.value);
   vars[t.name] = v;
   variableIds[t.name] = v.id;
 }
+
+if (!PAYLOAD.button) return { collectionId: collection.id, variableIds };
 
 // ---------- Button component set ----------
 const spec = PAYLOAD.button;

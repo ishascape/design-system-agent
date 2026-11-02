@@ -5,6 +5,7 @@ import { ComponentSpec } from '@dsa/registry';
 import {
   FigmaMap,
   buildPayload,
+  buildVariablesPayload,
   checkReadback,
   renderSyncScript,
   toFigmaVariables,
@@ -110,5 +111,38 @@ describe('checkReadback', () => {
     const problems = checkReadback(payload, rb);
     expect(problems[0]).toMatch(/Expected a COMPONENT_SET/);
     expect(problems.some((p) => p.startsWith('Variant list'))).toBe(true);
+  });
+});
+
+describe('buildVariablesPayload', () => {
+  const tok = (name: string, type: string, value: unknown): ManifestToken => ({
+    name,
+    cssVar: `--${name.split('.').pop()}`,
+    type,
+    value,
+    css: String(value),
+    provenance: { source: 'a.css:1' },
+  });
+
+  it('syncs colours with alpha and collects tokens Figma cannot hold instead of failing', () => {
+    const skipped: string[] = [];
+    const p = buildVariablesPayload(
+      [
+        tok('color.marker-wash', 'color', '#2f5fb31f'),
+        tok('space.gutter', 'dimension', '2rem'),
+        tok('motion.easing.pen', 'cubicBezier', [0, 0, 1, 1]),
+      ],
+      'my-project',
+      skipped,
+    );
+    expect(p.variables.map((v) => [v.name, v.value])).toEqual([['color.marker-wash', '#2f5fb31f']]);
+    expect(skipped).toEqual(['space.gutter: Expected a px value, got 2rem']);
+    expect(p).not.toHaveProperty('button');
+  });
+
+  it('renders a script that stops after the variables when there is no component', () => {
+    const script = renderSyncScript(buildVariablesPayload([tok('color.ink', 'color', '#1c1b19')], 'my-project'));
+    expect(script).toMatch(/^const PAYLOAD = \{"collectionName":"my-project"/);
+    expect(script).toContain('if (!PAYLOAD.button) return { collectionId: collection.id, variableIds };');
   });
 });

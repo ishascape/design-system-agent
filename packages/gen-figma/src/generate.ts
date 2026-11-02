@@ -56,25 +56,35 @@ const px = (v: string): number => {
   return Number(m[1]);
 };
 
-/** Tokens Figma variables can hold. Motion tokens have no Figma equivalent and are skipped. */
-export function toFigmaVariables(tokens: ManifestToken[]): FigmaVariable[] {
+/**
+ * Tokens Figma variables can hold. Motion tokens have no Figma equivalent and are skipped.
+ * By default a token Figma cannot hold is an error; pass `skipped` to collect the reasons instead.
+ */
+export function toFigmaVariables(tokens: ManifestToken[], skipped?: string[]): FigmaVariable[] {
   const out: FigmaVariable[] = [];
   for (const t of tokens) {
     const scopes = SCOPES.find(([re]) => re.test(t.name))?.[1];
     if (!scopes) continue;
     let figmaType: FigmaType;
     let value: string | number;
-    if (t.type === 'color') {
-      figmaType = 'COLOR';
-      value = String(t.value);
-      if (!/^#[0-9a-f]{6}$/.test(value)) throw new Error(`${t.name}: Figma sync needs #rrggbb, got ${value}`);
-    } else if (t.type === 'dimension') {
-      figmaType = 'FLOAT';
-      value = px(String(t.value));
-    } else if (t.type === 'fontFamily') {
-      figmaType = 'STRING';
-      value = (t.value as string[])[0]!;
-    } else continue;
+    try {
+      if (t.type === 'color') {
+        figmaType = 'COLOR';
+        value = String(t.value);
+        if (!/^#[0-9a-f]{6}([0-9a-f]{2})?$/.test(value))
+          throw new Error(`${t.name}: Figma sync needs #rrggbb or #rrggbbaa, got ${value}`);
+      } else if (t.type === 'dimension') {
+        figmaType = 'FLOAT';
+        value = px(String(t.value));
+      } else if (t.type === 'fontFamily') {
+        figmaType = 'STRING';
+        value = (t.value as string[])[0]!;
+      } else continue;
+    } catch (e) {
+      if (!skipped) throw e;
+      skipped.push(`${t.name}: ${e instanceof Error ? e.message : String(e)}`);
+      continue;
+    }
     const notes = [
       t.description,
       t.fluid ? `Fluid in code: ${t.fluid.css}. Figma holds the minimum.` : undefined,
@@ -125,6 +135,19 @@ export interface Payload {
   button: { name: string; description: string; defaultLabel: string; variants: string[]; states: string[] };
 }
 
+/** Variables only: what a project without approved component specs can sync. */
+export type VariablesPayload = Pick<Payload, 'collectionName' | 'variables'> & {
+  ids: { collection?: string; variables: Record<string, string> };
+};
+
+export function buildVariablesPayload(
+  tokens: ManifestToken[],
+  collectionName: string,
+  skipped: string[] = [],
+): VariablesPayload {
+  return { collectionName, ids: { variables: {} }, variables: toFigmaVariables(tokens, skipped) };
+}
+
 export function buildPayload(tokens: ManifestToken[], spec: ComponentSpec, map: FigmaMap): Payload {
   const variables = toFigmaVariables(tokens);
   const sans = tokens.find((t) => t.name === 'font.family.sans');
@@ -163,7 +186,7 @@ export function buildPayload(tokens: ManifestToken[], spec: ComponentSpec, map: 
 const PLUGIN_SOURCE = new URL('./plugin/sync.js', import.meta.url);
 
 /** The full script to pass as `code` to use_figma. */
-export function renderSyncScript(payload: Payload): string {
+export function renderSyncScript(payload: Payload | VariablesPayload): string {
   const body = readFileSync(PLUGIN_SOURCE, 'utf8').replace(/^\/\* global[^\n]*\n/, '');
   return `const PAYLOAD = ${JSON.stringify(payload)};\n${body}`;
 }
