@@ -107,6 +107,7 @@ export const api = {
     req<Artifact[]>('GET', `/projects/${pid}/artifacts?${new URLSearchParams(filter as Record<string, string>)}`),
   artifactUrl: (pid: string, aid: string, download = false) =>
     `/api/projects/${pid}/artifacts/${aid}/raw${download ? '?download=1' : ''}`,
+  docsUrl: (pid: string, aid: string) => `/api/projects/${pid}/docs/${aid}`,
   artifactText: async (pid: string, aid: string) => {
     const res = await fetch(`/api/projects/${pid}/artifacts/${aid}/raw`);
     if (!res.ok) throw new ApiError(res.status, 'Could not open the artifact');

@@ -235,6 +235,27 @@ export function createApp({ store, engine, workflows, projectDir, allowedHosts }
     return c.body(readFileSync(file));
   });
 
+  /**
+   * The generated docs site, viewable in the browser. Only docs-site artifacts, which the Studio
+   * writes itself with every source value escaped. Served sandboxed with scripts blocked anyway.
+   */
+  app.get('/api/projects/:pid/docs/:aid', (c) => {
+    const p = project(c);
+    const a = store.getArtifact(p.id, c.req.param('aid'));
+    if (!a || a.kind !== 'docs-site') throw new WorkflowError(404, 'Documentation not found');
+    const base = resolve(projectDir(p.id));
+    const file = resolve(base, a.path);
+    if (!file.startsWith(base + '/') || !existsSync(file))
+      throw new WorkflowError(404, 'Documentation file is missing');
+    c.header('content-type', 'text/html; charset=utf-8');
+    c.header('x-content-type-options', 'nosniff');
+    c.header(
+      'content-security-policy',
+      "default-src 'none'; style-src 'unsafe-inline'; img-src data:; frame-ancestors 'self'; sandbox",
+    );
+    return c.body(readFileSync(file));
+  });
+
   /** The project's current foundations: the latest built manifest, else the latest candidates. */
   app.get('/api/projects/:pid/foundations', (c) => {
     const p = project(c);

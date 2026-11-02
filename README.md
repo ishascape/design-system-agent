@@ -19,7 +19,7 @@ npm run studio
 
 Then open **http://localhost:4310** in your browser. For website sources, run `npx playwright install chromium` once as well: the Studio then also renders the site in a sandboxed browser, which captures a screenshot and any styles built by JavaScript. Stop it with Ctrl+C in the terminal. The app only listens on your own computer. Its data (projects, runs, imported copies and generated files) lives in `.studio/` in this folder, which git ignores; set `STUDIO_HOME` to keep it somewhere else.
 
-What works today (milestones 1 and 2): projects, sources, the 10-stage workflow with real execution, approvals, retries, reruns with changed inputs, cancel, run history, logs and versioned files. Importing a Figma file or a package, and the Figma, documentation and validation stages, say "Not available yet" until they are built.
+What works today: projects, repository and website sources (websites are also rendered in a sandboxed browser), the 10-stage workflow with real execution, approvals, retries, reruns with changed inputs, cancel, run history, logs and versioned files. After you approve tokens, a run builds them as CSS, writes a documentation site and a catalog for AI agents, and validates everything it generated. Importing a Figma file or a package, and the Figma stage, say "Not available yet" until they are built; the run carries on without Figma and reports it as not checked.
 
 ## Setup
 

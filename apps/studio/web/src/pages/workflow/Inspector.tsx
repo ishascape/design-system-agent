@@ -7,7 +7,7 @@ import {
   type TokenProposal,
   type WorkflowStepDef,
 } from '../../lib/api.ts';
-import { bytes, duration, sourceKindLabel } from '../../lib/format.ts';
+import { bytes, duration, sourceKindLabel, swatchColor } from '../../lib/format.ts';
 import { useLoad } from '../../lib/hooks.ts';
 import { COLLAPSE_OVER, groupTokens } from '../../lib/token-groups.ts';
 import { Button, ErrorNote, Facts, Icon, StatusBadge, sourceIcon } from '../../components/ui.tsx';
@@ -324,10 +324,6 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
     </div>
   );
 }
-
-/** Bare channels (`216 210 196`) are not a CSS colour by themselves; wrap them for the swatch. */
-const swatchColor = (v: string) =>
-  /^\d{1,3}(\s*,\s*|\s+)\d{1,3}(\s*,\s*|\s+)\d{1,3}$/.test(v.trim()) ? `rgb(${v})` : v;
 
 /** Short evidence line under each proposed token: value, responsive values, uses and where it came from. */
 function evidence(t: TokenProposal): string {

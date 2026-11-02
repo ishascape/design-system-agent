@@ -200,8 +200,32 @@ describe('design-system workflow on a real repo', () => {
       review: 'succeeded',
       'generate-code': 'succeeded',
       'generate-figma': 'blocked',
+      // Figma is optional: docs and checks still run, and the run says some stages are not built.
+      'generate-docs': 'succeeded',
+      validate: 'succeeded',
     });
     expect(run.status).toBe('blocked');
+    const v = run.steps.find((s) => s.key === 'validate')!;
+    expect(v.summary?.headline).toMatch(/checks passed, 1 not run/);
+    expect((v.output as { checks: { name: string; status: string }[] }).checks).toContainEqual(
+      expect.objectContaining({ name: 'Figma matches the tokens', status: 'not-run' }),
+    );
+
+    const arts = (await call('GET', `/api/projects/${pid}/artifacts`)).data as unknown as {
+      id: string;
+      kind: string;
+    }[];
+    const site = arts.find((a) => a.kind === 'docs-site')!;
+    const res2 = await app.request(`/api/projects/${pid}/docs/${site.id}`, { headers: { host: 'localhost' } });
+    expect(res2.headers.get('content-type')).toBe('text/html; charset=utf-8');
+    expect(res2.headers.get('content-security-policy')).toMatch(/sandbox$/);
+    expect(res2.headers.get('content-security-policy')).not.toMatch(/script-src|allow-scripts/);
+    expect(await res2.text()).toContain('design system</h1>');
+    // Only docs sites are served as HTML; any other artifact is refused on this route.
+    const other = arts.find((a) => a.kind === 'tokens-css')!;
+    expect(
+      (await app.request(`/api/projects/${pid}/docs/${other.id}`, { headers: { host: 'localhost' } })).status,
+    ).toBe(404);
     const map = JSON.parse(readFileSync(join(projectDir(pid), 'registry/token-map.json'), 'utf8'));
     expect(Object.keys(map.tokens)).toHaveLength(tokens.length - 1);
     const f = (await call('GET', `/api/projects/${pid}/foundations`)).data;

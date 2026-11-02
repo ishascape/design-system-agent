@@ -923,6 +923,20 @@ textarea.input {
 .doc-body {
   min-width: 0;
 }
+.doc-actions {
+  display: flex;
+  gap: var(--ds-space-2);
+  margin-bottom: var(--ds-space-3);
+}
+.doc-frame {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 220px);
+  min-height: 480px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+}
 .doc-text {
   margin: 0;
   padding: var(--ds-space-5);

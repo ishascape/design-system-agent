@@ -138,6 +138,9 @@ try {
     `Approved ${total - 1} of ${total} tokens (left out ${excludedLabel}, renamed ${renameTarget}); code generation ran`,
   );
   ok('Figma generation reports "Not available yet" instead of pretending');
+  await waitStage(page, 'validate', 'succeeded');
+  if ((await stageStatus(page, 'generate-docs')) !== 'succeeded') throw new Error('generate-docs did not succeed');
+  ok('Documentation and validation still ran without Figma');
   await page.getByTestId('stage-generate-code').click();
   await page.screenshot({ path: join(shots, '5-after-approval.png') });
 
@@ -168,6 +171,16 @@ try {
   if (!css.includes('--color-smoke-renamed')) throw new Error('Downloaded CSS lacks the renamed token');
   await page.screenshot({ path: join(shots, '7-exports.png') });
   ok('Exports downloads the generated CSS, which contains the renamed token');
+
+  // 7b. The generated documentation site, in a sandboxed frame
+  await page.getByRole('link', { name: 'Documentation' }).click();
+  await page.getByRole('button', { name: /Documentation site/ }).click();
+  const docs = page.frameLocator('iframe[title="Documentation site"]');
+  await docs.getByText('color.smoke-renamed', { exact: true }).waitFor();
+  if (await docs.getByText(excludedLabel, { exact: true }).count())
+    throw new Error('The excluded token appears in the docs site');
+  await page.screenshot({ path: join(shots, '7b-docs-site.png') });
+  ok('Documentation shows the generated docs site with the renamed token and without the excluded one');
 
   // 8. Persistence: restart the server and reload
   restarting = true;

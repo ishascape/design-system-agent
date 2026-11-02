@@ -8,9 +8,17 @@ import { join } from 'node:path';
 import { z } from 'zod';
 import type { AuditInventory, TokenCandidate } from '@dsa/registry';
 import { renderComponentsReport, renderDriftReport, runAudit, toDtcgCandidates } from '@dsa/discovery';
-import { TokenMap, buildTokens, promoteTokens, promotionBlocker, toDtcgToken } from '@dsa/tokens';
+import { TokenMap, buildTokens, promoteTokens, promotionBlocker, toDtcgToken, type ManifestToken } from '@dsa/tokens';
 import { allowLocalSites, fetchRepo, fetchWebsite, type FetchedSource } from '../sources.ts';
 import { renderWebsite } from '../render.ts';
+import {
+  renderAgentCatalog,
+  renderDocsSite,
+  sectionsOf,
+  type DocComponent,
+  type DocsInput,
+} from '../generate/docs-site.ts';
+import { validateOutputs } from '../generate/validate.ts';
 import { StepBlocked, type StepContext, type StepDefinition, type WorkflowDefinition } from './types.ts';
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T;
@@ -433,6 +441,128 @@ const notYet = (key: string, title: string, description: string, action: string)
   },
 });
 
+const manifestOf = (ctx: StepContext) => {
+  const dir = join(ctx.workspace, 'build', ctx.runId, 'tokens');
+  if (!ctx.outputs['generate-code'] || !existsSync(join(dir, 'tokens.manifest.json')))
+    throw new Error('No built tokens in this run. Generate code must finish first.');
+  return {
+    manifest: readJson(join(dir, 'tokens.manifest.json')) as ManifestToken[],
+    css: readFileSync(join(dir, 'tokens.css'), 'utf8'),
+  };
+};
+
+const generateFigma: StepDefinition = {
+  ...notYet(
+    'generate-figma',
+    'Generate Figma',
+    'Creates native, editable Figma variables and components.',
+    'Preparing the Figma sync',
+  ),
+  // Docs and checks do not need Figma, so they still run while this stage is not built.
+  optional: true,
+};
+
+const generateDocs: StepDefinition = {
+  key: 'generate-docs',
+  title: 'Generate documentation',
+  description: 'Builds the documentation site and the agent catalog from the built tokens.',
+  action: 'Building docs',
+  run(ctx) {
+    const { manifest, css } = manifestOf(ctx);
+    const components = ((ctx.outputs['identify-components'] as { candidates?: DocComponent[] } | undefined)
+      ?.candidates ?? []) as DocComponent[];
+    const input: DocsInput = {
+      projectName: ctx.project.name,
+      sourceUrl: ctx.source.url,
+      runNumber: ctx.runNumber,
+      generatedAt: new Date().toISOString(),
+      tokens: manifest,
+      tokensCss: css,
+      components,
+    };
+    const html = renderDocsSite(input);
+    const catalog = renderAgentCatalog(input);
+    const dir = join(ctx.workspace, 'build', ctx.runId, 'docs');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'index.html'), html);
+    writeFileSync(join(dir, 'catalog.md'), catalog);
+    const site = ctx.saveArtifact('docs-site', 'index.html', html, 'text/html');
+    ctx.saveArtifact('agent-catalog', 'catalog.md', catalog, 'text/markdown');
+    const sections = sectionsOf(manifest);
+    ctx.log(`Documented ${manifest.length} tokens in ${plural(sections.length, 'section')}`);
+    return {
+      summary: {
+        headline: `Docs for ${plural(manifest.length, 'token')} and an agent catalog`,
+        facts: [
+          ...sections.map((x) => ({ label: x.title, value: String(x.tokens.length) })),
+          { label: 'Components listed (not generated yet)', value: String(components.length) },
+        ],
+        warnings: [],
+      },
+      output: { siteArtifactId: site.id, sections: sections.length },
+    };
+  },
+};
+
+const validate: StepDefinition = {
+  key: 'validate',
+  title: 'Validate',
+  description: 'Runs quality checks on everything generated. Nothing is published.',
+  action: 'Running checks',
+  run(ctx) {
+    const { manifest, css } = manifestOf(ctx);
+    const approved = (ctx.outputs.review as { approved?: number } | undefined)?.approved ?? manifest.length;
+    const docsDir = join(ctx.workspace, 'build', ctx.runId, 'docs');
+    const docsRan = !!ctx.outputs['generate-docs'];
+    const checks = validateOutputs({
+      approvedCount: approved,
+      manifest,
+      tokensCss: css,
+      ...(docsRan ? { docsHtml: readFileSync(join(docsDir, 'index.html'), 'utf8') } : {}),
+      ...(docsRan ? { catalog: readFileSync(join(docsDir, 'catalog.md'), 'utf8') } : {}),
+      ...(ctx.outputs['generate-figma']
+        ? {}
+        : { figmaSkipped: 'The Figma stage is not built yet, so Figma was not checked' }),
+    });
+    const report = [
+      `# Validation, run ${ctx.runNumber}`,
+      '',
+      '| Check | Result | Detail |',
+      '| --- | --- | --- |',
+      ...checks.map(
+        (c) => `| ${c.name} | ${c.status === 'not-run' ? 'not run' : c.status} | ${c.detail.replace(/\|/g, '\\|')} |`,
+      ),
+      '',
+      'Nothing was published. Publishing is a separate step that needs your approval.',
+      '',
+    ].join('\n');
+    ctx.saveArtifact('validation-report', 'validation.md', report, 'text/markdown');
+    for (const c of checks)
+      ctx.log(
+        `${c.status === 'pass' ? 'Pass' : c.status === 'fail' ? 'FAIL' : 'Not run'}: ${c.name} (${c.detail})`,
+        c.status === 'fail' ? 'error' : c.status === 'not-run' ? 'warn' : 'info',
+      );
+    const failed = checks.filter((c) => c.status === 'fail');
+    if (failed.length)
+      throw new Error(
+        `${plural(failed.length, 'check')} failed: ${failed.map((c) => `${c.name} (${c.detail})`).join('; ')}`,
+      );
+    const passed = checks.filter((c) => c.status === 'pass').length;
+    const notRun = checks.filter((c) => c.status === 'not-run');
+    return {
+      summary: {
+        headline: `${passed} of ${checks.length} checks passed${notRun.length ? `, ${notRun.length} not run` : ''}`,
+        facts: checks.map((c) => ({
+          label: c.name,
+          value: c.status === 'not-run' ? 'Not run' : c.status === 'pass' ? 'Pass' : 'Fail',
+        })),
+        warnings: notRun.map((c) => `${c.name}: not run. ${c.detail}.`),
+      },
+      output: { checks },
+    };
+  },
+};
+
 export const designSystemWorkflow: WorkflowDefinition = {
   id: 'design-system-v1',
   title: 'Design system analysis',
@@ -444,23 +574,8 @@ export const designSystemWorkflow: WorkflowDefinition = {
     audit,
     review,
     generateCode,
-    notYet(
-      'generate-figma',
-      'Generate Figma',
-      'Creates native, editable Figma variables and components.',
-      'Preparing the Figma sync',
-    ),
-    notYet(
-      'generate-docs',
-      'Generate documentation',
-      'Builds the documentation site and the agent catalog.',
-      'Building docs',
-    ),
-    notYet(
-      'validate',
-      'Validate & publish',
-      'Runs every quality check and prepares approved outputs.',
-      'Running checks',
-    ),
+    generateFigma,
+    generateDocs,
+    validate,
   ],
 };
