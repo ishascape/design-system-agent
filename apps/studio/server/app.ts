@@ -11,6 +11,9 @@ import type { SourceKind, Store } from './db.ts';
 import { validateSourceUrl } from './sources.ts';
 import { Engine, WorkflowError, type EngineEvent } from './workflow/engine.ts';
 import type { WorkflowDefinition } from './workflow/types.ts';
+import { draftComponentSpec } from './generate/spec-draft.ts';
+import { AuditInventory } from '@dsa/registry';
+import { listFiles } from '@dsa/discovery';
 
 const SourceInput = z.object({
   kind: z.enum(['github', 'website', 'figma', 'package']),
@@ -292,6 +295,42 @@ export function createApp({ store, engine, workflows, projectDir, allowedHosts }
         });
     }
     return c.json({ status: 'none' });
+  });
+
+  /**
+   * A draft spec for one component, from the latest run's evidence: the candidate, its CSS and
+   * the approved token names (if tokens were approved). Read-only: nothing is saved.
+   */
+  app.get('/api/projects/:pid/components/:cid/draft', (c) => {
+    const p = project(c);
+    const cid = c.req.param('cid');
+    for (const r of store.listRuns(p.id)) {
+      const steps = store.listSteps(p.id, r.id);
+      const imp = steps.find((x) => x.key === 'import-source' && x.status === 'succeeded');
+      const disc = steps.find((x) => x.key === 'discover' && x.status === 'succeeded');
+      if (!imp || !disc) continue;
+      const base = resolve(projectDir(p.id));
+      const invFile = resolve(base, (disc.output as { inventoryPath: string }).inventoryPath);
+      const srcDir = resolve(base, (imp.output as { dir: string }).dir);
+      if (!invFile.startsWith(base + '/') || !srcDir.startsWith(base + '/') || !existsSync(invFile))
+        throw new WorkflowError(404, 'The evidence for this run is missing');
+      const inv = AuditInventory.parse(JSON.parse(readFileSync(invFile, 'utf8')));
+      const cand = inv.components.find((x) => x.id === cid);
+      if (!cand) throw new WorkflowError(404, 'No such component in the latest run');
+      const css = listFiles(srcDir, ['.css']).map((f) => ({ path: f, content: readFileSync(join(srcDir, f), 'utf8') }));
+      const mapFile = join(base, 'registry', 'token-map.json');
+      const names: Record<string, string> = {};
+      if (existsSync(mapFile)) {
+        const map = JSON.parse(readFileSync(mapFile, 'utf8')) as { tokens: Record<string, { from: string }> };
+        for (const [name, t] of Object.entries(map.tokens)) names[t.from] = name;
+      }
+      return c.json({
+        runId: r.id,
+        tokensApproved: Object.keys(names).length > 0,
+        draft: draftComponentSpec(cand, css, names, inv.source),
+      });
+    }
+    throw new WorkflowError(404, 'Run the workflow first');
   });
 
   // ---------- Live updates ----------
