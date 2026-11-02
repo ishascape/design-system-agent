@@ -98,7 +98,17 @@ try {
   if ((await page.locator('.stage').count()) !== 10) throw new Error('Expected 10 stages on the canvas');
 
   // 3. Start a run; it executes for real and pauses at review
+  // A slow CPU (as on CI runners) once left canvas nodes hidden after rapid live updates.
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: Number(process.env.SMOKE_CPU_SLOWDOWN ?? 4) });
   await page.getByRole('button', { name: 'Start run' }).click();
+  await page.getByTestId('stage-review').locator('[data-status="awaiting-approval"]').waitFor({ state: 'attached' });
+  await page.waitForTimeout(1500);
+  const hidden = await page
+    .locator('.react-flow__node')
+    .evaluateAll((els) => els.filter((e) => getComputedStyle(e).visibility === 'hidden').length);
+  if (hidden) throw new Error(`${hidden} canvas stages are hidden after the run updated`);
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
   await waitStage(page, 'review', 'awaiting-approval');
   for (const k of ['import-source', 'discover', 'extract-tokens', 'identify-components', 'audit']) {
     if ((await stageStatus(page, k)) !== 'succeeded') throw new Error(`${k} did not succeed`);
