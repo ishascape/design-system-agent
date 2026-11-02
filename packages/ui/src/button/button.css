@@ -1,0 +1,99 @@
+/*
+ * Button. Colours, type, spacing, radius, line weight and motion come from canonical tokens.
+ * The corner-mark geometry (10px, -6px), the focus ring (2px, offset 3px) and line height 1.65
+ * are fixed component values copied from the source and listed in registry/components/button.json.
+ * Source: October-Portfolio src/styles/global.css:148-202 (.button, .button--primary) and the
+ * global :focus-visible ring. Rendered evidence: audits/ashnidave/rendered/button.json.
+ */
+.ds-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--size-tap);
+  padding: 0 var(--space-4);
+  border: var(--line-building) solid var(--color-ink);
+  border-radius: var(--radius-default);
+  background: transparent;
+  color: var(--color-ink);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-body);
+  font-weight: 400;
+  line-height: 1.65;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-micro) var(--motion-easing-pen),
+    border-color var(--motion-duration-micro) var(--motion-easing-pen),
+    color var(--motion-duration-micro) var(--motion-easing-pen);
+}
+
+.ds-button--primary {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.ds-button:hover {
+  background: var(--color-marker);
+  border-color: var(--color-marker);
+  color: var(--color-paper);
+}
+
+.ds-button:focus-visible {
+  outline: 2px solid var(--color-marker);
+  outline-offset: 3px;
+}
+
+/* Registration corner marks, shown on hover and focus. 45% graphite, as in the source. */
+.ds-button::before,
+.ds-button::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-duration-micro) var(--motion-easing-pen);
+}
+.ds-button::before {
+  top: -6px;
+  left: -6px;
+  border-top: var(--line-building) solid color-mix(in srgb, var(--color-graphite) 45%, transparent);
+  border-left: var(--line-building) solid color-mix(in srgb, var(--color-graphite) 45%, transparent);
+}
+.ds-button::after {
+  right: -6px;
+  bottom: -6px;
+  border-right: var(--line-building) solid color-mix(in srgb, var(--color-graphite) 45%, transparent);
+  border-bottom: var(--line-building) solid color-mix(in srgb, var(--color-graphite) 45%, transparent);
+}
+.ds-button:hover::before,
+.ds-button:hover::after,
+.ds-button:focus-visible::before,
+.ds-button:focus-visible::after {
+  opacity: 1;
+}
+
+/* PROPOSED (not in the source): disabled state. Pending design approval. */
+.ds-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ds-button:disabled:hover {
+  background: transparent;
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+.ds-button--primary:disabled:hover {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.ds-button:disabled::before,
+.ds-button:disabled::after {
+  opacity: 0;
+}
+
+.ds-button__icon {
+  display: inline-flex;
+}

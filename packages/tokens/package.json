@@ -1,0 +1,20 @@
+{
+  "name": "@dsa/tokens",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Canonical tokens: promotes audited values into the registry and builds CSS, TypeScript and Figma outputs with Style Dictionary.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./css": "./dist/tokens.css",
+    "./figma": "./dist/figma-variables.json"
+  },
+  "dependencies": {
+    "@dsa/registry": "0.1.0",
+    "style-dictionary": "5.7.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@dsa/discovery": "0.1.0"
+  }
+}
