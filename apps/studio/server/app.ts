@@ -35,7 +35,7 @@ const SpecInput = z.object({
   donts: z.array(line).max(12),
   keyboard: line,
   /** For each gap the drafter listed: the decision, in the person's words. */
-  gapNotes: line.max(800),
+  gapNotes: z.string().trim().max(3000),
   approve: z.boolean(),
 });
 const COMPONENT_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;

@@ -274,6 +274,9 @@ describe('design-system workflow on a real repo', () => {
     const blank = await call('PUT', url, { ...fields, summary: '', approve: true });
     expect(blank.status).toBe(400);
     expect((await call('GET', url)).data.spec).toBeNull();
+    // Notes on many gaps can be long.
+    const long = await call('PUT', url, { ...fields, gapNotes: 'x'.repeat(2500), approve: false });
+    expect(long.status).toBe(200);
     // A draft save keeps the evidence it was written against.
     const draft = await call('PUT', url, { ...fields, approve: false });
     expect(draft.status).toBe(200);
