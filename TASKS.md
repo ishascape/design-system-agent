@@ -17,7 +17,8 @@
 - [x] Outline weight: 1px (decided 2026-11-02)
 - [x] Token names approved (2026-11-02)
 - [ ] Confirm `October-Portfolio` is the repo behind the live site
-- [ ] Choose the next four components (proposal below)
+- [x] Next four components: Label, Annotation, Paper sheet, Lightbox (decided 2026-11-02)
+- [x] Where the Studio app runs first: on Ashni's computer (decided 2026-11-02)
 
 ## Next (engineering)
 
@@ -31,6 +32,18 @@
 4. Docs portal pages: Overview, Foundations (colour, type, space), Accessibility, Usage, Changelog.
 5. Focus-ring token to replace the fixed 2px/3px constant.
 6. Update the Gate 0 doc with the tool's numbers (30 colours, 593 px uses) instead of the earlier grep counts.
+
+## Design System Studio (brief from Ashni, 2026-11-02)
+
+Local app in `apps/studio`. Milestones:
+
+- [x] **M1: workspace.** Projects dashboard, multi-project storage (SQLite, stable ids, isolated folders), navigation, settings, sources.
+- [x] **M2: workflow.** Canvas with the 10 stages, real execution, inspector (summary, output, logs, files), approvals, retries, reruns with changed inputs, cancel, run history, restart recovery.
+- [ ] **M3: extraction for real projects.** Run ashnidave.com end to end in the Studio; screenshots and evidence in the inspector; website import for sites that render with JavaScript.
+- [ ] **M4: generation.** Done: docs site and agent catalog from approved tokens, validation stage (pass, fail or not run per check). Figma variables through the Studio plugin, checked against a read-back. Open: components from approved specs, in code and Figma.
+- [ ] **M5: assistant and versioning.** Project-aware assistant that proposes typed actions and asks before destructive, costly or published changes; change proposals and diffs between versions. Needs a decision on which model API key to use and its cost.
+
+First end-to-end target: ashnidave.com → one reusable tested component, its Figma twin and a documented page.
 
 ## Later
 

@@ -11,3 +11,5 @@ coverage/
 playwright-report/
 test-results/
 .cache/
+.studio/
+apps/studio/dist-web/

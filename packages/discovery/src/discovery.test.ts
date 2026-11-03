@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { AuditInventory } from '@dsa/registry';
 import { inferTokenType, parseTokens, countVarUsage } from './tokens.ts';
 import { findColors, findPxLengths, normalizeColor, parseColor } from './drift.ts';
-import { blockKind, findClassUsages, parseBem } from './components.ts';
+import { blockKind, findClassUsages, findComponentCandidates, findHtmlClassUsages, parseBem } from './components.ts';
 import { runAudit } from './audit.ts';
 import { renderComponentsReport, renderDriftReport, toDtcgCandidates } from './report.ts';
 
@@ -13,11 +13,13 @@ const source = { id: 'mini-site', repo: 'https://example.com/mini-site', commit:
 describe('token parsing', () => {
   it('infers DTCG types and refuses to guess unknown shapes', () => {
     expect(inferTokenType('#f5f2ea')).toBe('color');
+    expect(inferTokenType('216 210 196')).toBe('color');
+    expect(inferTokenType('216, 210, 196')).toBe('color');
+    expect(inferTokenType('1 2 300')).toBe('other');
     expect(inferTokenType('clamp(16px, 1.4vw, 18px)')).toBe('dimension');
     expect(inferTokenType('150ms')).toBe('duration');
     expect(inferTokenType('cubic-bezier(0.2, 0, 0, 1)')).toBe('cubicBezier');
     expect(inferTokenType("'Poppins', system-ui")).toBe('fontFamily');
-    expect(inferTokenType('216 210 196')).toBe('other');
   });
 
   it('reads :root tokens with source lines, comments and media overrides', () => {
@@ -81,10 +83,11 @@ describe('component discovery', () => {
       path: 'X.tsx',
       content: 'const X = () => (\n  <a className={`button ${p ? "button--primary" : ""}`} />\n);',
     });
-    expect(usages).toEqual([
+    expect(usages.map((u) => ({ className: u.className, element: u.element, ref: u.ref }))).toEqual([
       { className: 'button', element: 'a', ref: { file: 'X.tsx', line: 2 } },
       { className: 'button--primary', element: 'a', ref: { file: 'X.tsx', line: 2 } },
     ]);
+    expect(usages[0]!.at).toBe(usages[1]!.at); // one element
   });
 });
 
@@ -130,5 +133,51 @@ describe('end-to-end audit of the fixture site', () => {
     await expect(JSON.stringify(toDtcgCandidates(inv), null, 2)).toMatchFileSnapshot(
       '../../../tests/golden/mini-site/tokens-candidates.tokens.json',
     );
+  });
+});
+
+describe('file listing', () => {
+  it('skips minified copies so values are not counted twice', async () => {
+    const { mkdtempSync, writeFileSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const { listFiles } = await import('./audit.ts');
+    const dir = mkdtempSync(join(tmpdir(), 'list-'));
+    writeFileSync(join(dir, 'pico.css'), ':root{--a:1px}');
+    writeFileSync(join(dir, 'pico.min.css'), ':root{--a:1px}');
+    expect(listFiles(dir, ['.css'])).toEqual(['pico.css']);
+  });
+});
+
+describe('components from page markup', () => {
+  it('reads class names from HTML with lines, skipping comments, scripts and styles', () => {
+    const html = `<html>\n<!-- <b class="ghost"> -->\n<a class="btn btn--primary" href="#">x</a>\n<script>const s = '<i class="nope">';</script>\n<button class='btn'>y</button>\n<div class=solo></div>`;
+    const u = findHtmlClassUsages({ path: 'page.html', content: html });
+    expect(u.map((x) => `${x.element}.${x.className}@${x.ref.line}`)).toEqual([
+      'a.btn@3',
+      'a.btn--primary@3',
+      'button.btn@5',
+      'div.solo@6',
+    ]);
+  });
+
+  it('marks a block repeated on the page with its own CSS rule as reusable', () => {
+    const page = {
+      path: 'page.html',
+      content:
+        '<a class="btn">1</a><a class="btn">2</a><p class="intro">x</p><p class="note">a</p><p class="note">b</p>' +
+        '<div class="flex">a</div><div class="flex">b</div>',
+    };
+    const css = [
+      {
+        path: 's.css',
+        content: '.btn { color: red } .btn:hover { color: blue } .intro { margin: 0 } .flex { display: flex }',
+      },
+    ];
+    const byId = Object.fromEntries(findComponentCandidates([page], css).map((c) => [c.id, c]));
+    expect(byId.btn).toMatchObject({ reusable: true, usageCount: 2, states: ['hover'] });
+    expect(byId.intro!.reusable).toBe(false); // used once
+    expect(byId.note!.reusable).toBe(false); // repeated but has no CSS rule of its own
+    expect(byId.flex!.reusable).toBe(false); // repeated, but a one-line utility class
   });
 });

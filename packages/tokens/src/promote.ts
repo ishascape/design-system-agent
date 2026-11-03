@@ -34,7 +34,84 @@ export const TokenMap = z.object({
 export type TokenMap = z.infer<typeof TokenMap>;
 
 const REDUCED_MOTION = /prefers-reduced-motion:\s*reduce/;
-const MIN_WIDTH = /^\(min-width:\s*(\d+)px\)$/;
+
+/**
+ * The breakpoint in px of a "from this width up" media query, or undefined for anything else.
+ * Accepts the classic form `(min-width: 600px)` and the range form `(width >= 600px)` or
+ * `(600px <= width)`, optionally after `screen and` / `only screen and`. em and rem count as 16px.
+ */
+export function minWidthOf(media: string): number | undefined {
+  const q = media
+    .trim()
+    .toLowerCase()
+    .replace(/^(only\s+)?(screen|all)\s+and\s+/, '');
+  const len = String.raw`(\d*\.?\d+)(px|em|rem)`;
+  const m =
+    new RegExp(String.raw`^\(\s*min-width\s*:\s*${len}\s*\)$`).exec(q) ??
+    new RegExp(String.raw`^\(\s*width\s*>=\s*${len}\s*\)$`).exec(q) ??
+    new RegExp(String.raw`^\(\s*${len}\s*<=\s*width\s*\)$`).exec(q);
+  if (!m) return undefined;
+  const px = Number(m[1]) * (m[2] === 'px' ? 1 : 16);
+  return Number.isFinite(px) ? Math.round(px * 100) / 100 : undefined;
+}
+
+const CHANNELS = /^(\d{1,3})(?:\s*,\s*|\s+)(\d{1,3})(?:\s*,\s*|\s+)(\d{1,3})$/;
+const RGB_FN =
+  /^rgba?\(\s*(\d{1,3})(?:\s*,\s*|\s+)(\d{1,3})(?:\s*,\s*|\s+)(\d{1,3})(?:\s*[,/]\s*(\d*\.?\d+)(%?))?\s*\)$/;
+const hex2 = (n: number) => n.toString(16).padStart(2, '0');
+
+/**
+ * A colour value as hex, plus the original channel text when the source stored bare channels
+ * (`216 210 196`, used as `rgb(var(--x) / 0.5)`), so generated CSS keeps working where it is used.
+ */
+export function parseColor(value: string): { hex: string; channels?: string } | undefined {
+  const v = value.trim().toLowerCase();
+  if (/^#[0-9a-f]{3,8}$/.test(v)) return { hex: normalizeHex(v) };
+  const ch = CHANNELS.exec(v);
+  const fn = ch ? undefined : RGB_FN.exec(v);
+  const m = ch ?? fn;
+  if (!m) return undefined;
+  const rgb = [m[1], m[2], m[3]].map(Number);
+  if (rgb.some((n) => n > 255)) return undefined;
+  let hex = `#${rgb.map(hex2).join('')}`;
+  if (fn?.[4] !== undefined) {
+    const a = Number(fn[4]) / (fn[5] === '%' ? 100 : 1);
+    if (!(a >= 0 && a <= 1)) return undefined;
+    if (a < 1) hex += hex2(Math.round(a * 255));
+  }
+  return ch ? { hex, channels: value.trim() } : { hex };
+}
+
+/**
+ * Why a candidate cannot become a token yet, in plain words, or undefined if it can.
+ * The Studio shows this next to every candidate that is left out of review.
+ */
+export function promotionBlocker(t: TokenCandidate): string | undefined {
+  switch (t.type) {
+    case 'color':
+      if (!parseColor(t.value)) return `Only hex and rgb() colours can be read so far; this one is ${t.value.trim()}.`;
+      break;
+    case 'dimension':
+    case 'fontFamily':
+    case 'duration':
+      break;
+    case 'cubicBezier':
+      try {
+        parseCubicBezier(t.value);
+      } catch {
+        return `The easing curve ${t.value.trim()} could not be read.`;
+      }
+      break;
+    default:
+      return /\bvar\(/.test(t.value)
+        ? `It points at another variable (${t.value.trim()}). References between tokens are not supported yet.`
+        : `The value ${t.value.trim()} doesn't match a known kind of token (colour, size, font, duration or easing).`;
+  }
+  const odd = t.overrides.filter((o) => minWidthOf(o.media) === undefined && !REDUCED_MOTION.test(o.media));
+  if (odd.length)
+    return `It changes inside a media query that isn't supported yet: ${odd.map((o) => `@media ${o.media}`).join(', ')}.`;
+  return undefined;
+}
 
 export interface DtcgToken {
   $type: string;
@@ -80,12 +157,14 @@ export function toDtcgToken(t: TokenCandidate, commit: string, description?: str
   let $type: string;
   let $value: unknown;
   switch (t.type) {
-    case 'color':
-      if (!/^#[0-9a-f]{3,8}$/i.test(t.value.trim()))
-        throw new Error(`--${t.id}: only hex colours are supported, got ${t.value}`);
+    case 'color': {
+      const c = parseColor(t.value);
+      if (!c) throw new Error(`--${t.id}: ${promotionBlocker(t)}`);
       $type = 'color';
-      $value = normalizeHex(t.value);
+      $value = c.hex;
+      if (c.channels) ext['dev.dsa.channels'] = c.channels;
       break;
+    }
     case 'dimension': {
       $type = 'dimension';
       const fluid = parseFluid(t.value);
@@ -108,17 +187,17 @@ export function toDtcgToken(t: TokenCandidate, commit: string, description?: str
       $value = parseCubicBezier(t.value);
       break;
     default:
-      throw new Error(`--${t.id} has type "${t.type}", which cannot be promoted yet. Remove it from the token map.`);
+      throw new Error(`--${t.id} cannot be promoted yet: ${promotionBlocker(t)} Remove it from the token map.`);
   }
   const responsive = t.overrides
-    .map((o) => ({ m: MIN_WIDTH.exec(o.media), o }))
-    .filter((x) => x.m)
-    .map(({ m, o }) => ({ minWidth: Number(m![1]), value: o.value, source: `${o.source.file}:${o.source.line}` }));
+    .map((o) => ({ w: minWidthOf(o.media), o }))
+    .filter((x): x is { w: number; o: (typeof t.overrides)[number] } => x.w !== undefined)
+    .map(({ w, o }) => ({ minWidth: w, value: o.value, source: `${o.source.file}:${o.source.line}` }));
   if (responsive.length) ext['dev.dsa.responsive'] = responsive;
   const reduced = t.overrides.find((o) => REDUCED_MOTION.test(o.media));
   if (reduced)
     ext['dev.dsa.reducedMotion'] = { value: reduced.value, source: `${reduced.source.file}:${reduced.source.line}` };
-  const unhandled = t.overrides.filter((o) => !MIN_WIDTH.test(o.media) && !REDUCED_MOTION.test(o.media));
+  const unhandled = t.overrides.filter((o) => minWidthOf(o.media) === undefined && !REDUCED_MOTION.test(o.media));
   if (unhandled.length)
     throw new Error(
       `--${t.id} has overrides in unsupported media queries: ${unhandled.map((o) => o.media).join(', ')}`,

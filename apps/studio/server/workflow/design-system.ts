@@ -1,0 +1,652 @@
+/**
+ * The design-system workflow (v1): a fixed sequence of ten stages. Each stage calls the same
+ * pipeline packages the command line uses, so the Studio and the CLI can never disagree.
+ */
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { z } from 'zod';
+import type { AuditInventory, TokenCandidate } from '@dsa/registry';
+import { renderComponentsReport, renderDriftReport, runAudit, toDtcgCandidates } from '@dsa/discovery';
+import { TokenMap, buildTokens, promoteTokens, promotionBlocker, toDtcgToken, type ManifestToken } from '@dsa/tokens';
+import { allowLocalSites, fetchRepo, fetchWebsite, type FetchedSource } from '../sources.ts';
+import { renderWebsite } from '../render.ts';
+import {
+  VariablesReadback,
+  buildVariablesPayload,
+  checkVariablesReadback,
+  type VariablesPayload,
+} from '@dsa/gen-figma';
+import {
+  renderAgentCatalog,
+  renderDocsSite,
+  sectionsOf,
+  type DocComponent,
+  type DocsInput,
+} from '../generate/docs-site.ts';
+import { validateOutputs, type FigmaCheck } from '../generate/validate.ts';
+import { StepBlocked, type StepContext, type StepDefinition, type WorkflowDefinition } from './types.ts';
+
+const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T;
+const inventoryOf = (ctx: StepContext): AuditInventory => {
+  const d = ctx.outputs.discover as { inventoryPath: string } | undefined;
+  if (!d) throw new Error('Discover has not produced an inventory in this run');
+  return readJson<AuditInventory>(join(ctx.workspace, d.inventoryPath));
+};
+
+/** Proposed canonical name for a source custom property, e.g. --text-body -> font.size.body. */
+export function proposeName(t: Pick<TokenCandidate, 'id' | 'type'>): string {
+  const id = t.id;
+  const rules: [RegExp, (m: RegExpExecArray) => string][] = [
+    [/^(?:space|spacing)-(.+)$/, (m) => `space.${m[1]}`],
+    [/^radius(?:-(.+))?$/, (m) => `radius.${m[1] ?? 'default'}`],
+    [/^line-(.+)$/, (m) => `line.${m[1]}`],
+    [/^(?:text|font-size)-(.+)$/, (m) => `font.size.${m[1]}`],
+    [/^font-(.+)$/, (m) => `font.family.${m[1]}`],
+    [/^(?:dur|duration)-(.+)$/, (m) => `motion.duration.${m[1]}`],
+    [/^ease-(.+)$/, (m) => `motion.easing.${m[1]}`],
+    [/^(?:color|colour)-(.+)$/, (m) => `color.${m[1]}`],
+  ];
+  for (const [re, f] of rules) {
+    const m = re.exec(id);
+    if (m) return f(m);
+  }
+  const group: Record<string, string> = {
+    color: 'color',
+    fontFamily: 'font.family',
+    duration: 'motion.duration',
+    cubicBezier: 'motion.easing',
+    dimension: 'size',
+    number: 'number',
+    other: 'other',
+  };
+  return `${group[t.type] ?? 'other'}.${id}`;
+}
+
+export interface TokenProposal {
+  cssVar: string;
+  type: string;
+  value: string;
+  usageCount: number;
+  source: string;
+  proposedName: string;
+  promotable: boolean;
+  reason?: string;
+  /** How sure discovery is of the type: observed in the CSS, or inferred (e.g. bare RGB channels). */
+  confidence?: string;
+  /** Values inside media queries, e.g. a larger space from 600px up. */
+  overrides?: { media: string; value: string; source: string }[];
+}
+
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+const importSource: StepDefinition = {
+  key: 'import-source',
+  title: 'Import source',
+  description: 'Connects to the source and makes a pinned, read-only copy.',
+  action: 'Fetching the source',
+  params: z.object({
+    /** Repositories: the branch, tag or commit to import. */
+    ref: z.string().min(1).default('HEAD'),
+    /** Websites: render in a sandboxed browser. auto uses rendered styles only if the HTML had none. */
+    render: z.enum(['auto', 'always', 'off']).default('auto'),
+  }),
+  async run(ctx) {
+    const dir = join(ctx.workspace, 'sources', ctx.source.id);
+    let got: FetchedSource;
+    const warnings: string[] = [];
+    if (ctx.source.kind === 'github') {
+      got = await fetchRepo(ctx.source.url, String(ctx.params.ref), join(dir, 'repo'), ctx.signal, ctx.log);
+    } else if (ctx.source.kind === 'website') {
+      got = await fetchWebsite(ctx.source.url, join(dir, 'site'), ctx.signal, ctx.log);
+      const mode = String(ctx.params.render);
+      if (mode !== 'off') {
+        const r = await renderWebsite(ctx.source.url, ctx.signal, ctx.log, { allowPrivateHosts: allowLocalSites() });
+        if ('unavailable' in r) {
+          warnings.push(r.unavailable);
+          ctx.log(r.unavailable, 'warn');
+        } else {
+          ctx.saveArtifact('screenshot', 'screenshot.png', r.screenshot, 'image/png');
+          // The rendered page is what people see, so components are looked for there.
+          writeFileSync(join(got.dir, 'page.rendered.html'), r.html);
+          got = { ...got, commit: createHash('sha1').update(got.commit).update(r.html).digest('hex') };
+          if (mode === 'always' || !got.styles) {
+            const styles = join(got.dir, 'styles');
+            if (mode === 'always') rmSync(styles, { recursive: true, force: true });
+            mkdirSync(styles, { recursive: true });
+            writeFileSync(join(styles, 'rendered.css'), r.css);
+            got = {
+              ...got,
+              commit: createHash('sha1').update(got.commit).update(r.css).digest('hex'),
+              styles: 1,
+            };
+            ctx.log('Using the styles captured from the rendered page');
+          }
+        }
+      }
+      if (!got.styles) throw new Error('The page has no same-origin styles to analyse, even after rendering');
+    } else {
+      throw new StepBlocked(
+        ctx.source.kind === 'figma'
+          ? 'Importing from a Figma file is not available yet. Add the GitHub repository or website for now.'
+          : 'Importing an existing design-system package is not available yet.',
+      );
+    }
+    const rel = got.dir.slice(ctx.workspace.length + 1);
+    return {
+      summary: {
+        headline: `${ctx.source.kind === 'github' ? 'Repository' : 'Website'} copied at ${got.commit.slice(0, 7)}`,
+        facts: [
+          { label: 'Source', value: ctx.source.url },
+          { label: ctx.source.kind === 'github' ? 'Commit' : 'Snapshot hash', value: got.commit },
+          { label: 'Files', value: String(got.files) },
+        ],
+        warnings,
+      },
+      output: {
+        dir: rel,
+        commit: got.commit,
+        ref: got.ref,
+        kind: ctx.source.kind,
+        ...(ctx.source.kind === 'website'
+          ? { markup: existsSync(join(got.dir, 'page.rendered.html')) ? 'page.rendered.html' : 'page.html' }
+          : {}),
+      },
+    };
+  },
+};
+
+const discover: StepDefinition = {
+  key: 'discover',
+  title: 'Discover',
+  description: 'Reads the styles and component code (without running it) and builds an inventory.',
+  action: 'Reading styles and components',
+  run(ctx) {
+    const src = ctx.outputs['import-source'] as { dir: string; commit: string; markup?: string };
+    const inv = runAudit(
+      join(ctx.workspace, src.dir),
+      { id: ctx.source.id, repo: ctx.source.url, commit: src.commit },
+      src.markup ? { markup: [src.markup] } : {},
+    );
+    const art = ctx.saveArtifact('inventory', 'inventory.json', JSON.stringify(inv, null, 2), 'application/json');
+    const code = inv.scanned.componentFiles - (src.markup ? 1 : 0);
+    const read = src.markup
+      ? `${plural(inv.scanned.cssFiles, 'stylesheet')} and the page's HTML read`
+      : `${plural(inv.scanned.cssFiles, 'stylesheet')} and ${plural(code, 'component file')} read`;
+    ctx.log(src.markup ? `Read ${src.markup} for repeated components` : `Scanned ${code} component files`);
+    const warnings: string[] = [];
+    if (inv.scanned.cssFiles === 0)
+      warnings.push('No CSS files found. Projects that style only with Tailwind or CSS-in-JS are not supported yet.');
+    return {
+      summary: {
+        headline: read,
+        facts: [
+          { label: 'Custom properties', value: String(inv.tokens.length) },
+          { label: 'Hard-coded values', value: String(inv.hardCoded.length) },
+          { label: 'CSS blocks', value: String(inv.components.length) },
+        ],
+        warnings,
+      },
+      output: { inventoryPath: art.path, artifactId: art.id },
+    };
+  },
+};
+
+const extractTokens: StepDefinition = {
+  key: 'extract-tokens',
+  title: 'Extract tokens',
+  description: 'Turns custom properties into token candidates with types, values and provenance.',
+  action: 'Classifying foundations',
+  run(ctx) {
+    const inv = inventoryOf(ctx);
+    ctx.saveArtifact(
+      'token-candidates',
+      'tokens-candidates.tokens.json',
+      JSON.stringify(toDtcgCandidates(inv), null, 2),
+      'application/json',
+    );
+    const proposals: TokenProposal[] = inv.tokens.map((t) => {
+      let reason = promotionBlocker(t);
+      if (!reason) {
+        try {
+          toDtcgToken(t, inv.source.commit);
+        } catch (e) {
+          reason = e instanceof Error ? e.message : String(e);
+        }
+      }
+      const promotable = !reason;
+      return {
+        cssVar: `--${t.id}`,
+        type: t.type,
+        value: t.value,
+        usageCount: t.usageCount,
+        source: `${t.source.file}:${t.source.line}`,
+        proposedName: proposeName(t),
+        promotable,
+        confidence: t.confidence,
+        ...(t.overrides.length
+          ? {
+              overrides: t.overrides.map((o) => ({
+                media: o.media,
+                value: o.value,
+                source: `${o.source.file}:${o.source.line}`,
+              })),
+            }
+          : {}),
+        ...(reason ? { reason } : {}),
+      };
+    });
+    const byType = new Map<string, number>();
+    for (const p of proposals) byType.set(p.type, (byType.get(p.type) ?? 0) + 1);
+    const skipped = proposals.filter((p) => !p.promotable);
+    return {
+      summary: {
+        headline: `${proposals.length - skipped.length} token candidates`,
+        facts: [...byType].map(([type, n]) => ({ label: type, value: String(n) })),
+        warnings: skipped.map((p) => `${p.cssVar} is left out of review: ${p.reason}`),
+      },
+      output: { proposals },
+    };
+  },
+};
+
+const identifyComponents: StepDefinition = {
+  key: 'identify-components',
+  title: 'Identify components',
+  description: 'Finds reusable components, their variants and the states they style.',
+  action: 'Grouping CSS blocks into components',
+  run(ctx) {
+    const inv = inventoryOf(ctx);
+    ctx.saveArtifact('components-report', 'components.md', renderComponentsReport(inv), 'text/markdown');
+    const reusable = inv.components.filter((c) => c.kind === 'component' && c.reusable);
+    const candidates = reusable.map((c) => ({
+      id: c.id,
+      usedIn: c.usedIn.length,
+      uses: c.usageCount,
+      elements: c.elements,
+      modifiers: c.modifiers,
+      states: c.states,
+      styles: c.styles.map((s) => `${s.file}:${s.line}`),
+      notes: c.notes,
+      ...(c.usedIn.every((f) => /\.html?$/.test(f)) ? { onPage: true } : {}),
+    }));
+    return {
+      summary: {
+        headline: `${reusable.length} reusable component candidates`,
+        facts: [
+          { label: 'With variants', value: String(reusable.filter((c) => c.modifiers.length).length) },
+          { label: 'With styled states', value: String(reusable.filter((c) => c.states.length).length) },
+          {
+            label: 'Single-use blocks',
+            value: String(inv.components.filter((c) => c.kind === 'component' && !c.reusable).length),
+          },
+        ],
+        warnings: reusable.flatMap((c) => c.notes.map((n) => `${c.id}: ${n}`)),
+      },
+      output: { candidates },
+    };
+  },
+};
+
+const audit: StepDefinition = {
+  key: 'audit',
+  title: 'Audit',
+  description: 'Finds values written directly in CSS that drift from the tokens.',
+  action: 'Checking for drift and duplication',
+  run(ctx) {
+    const inv = inventoryOf(ctx);
+    ctx.saveArtifact('drift-report', 'drift-report.md', renderDriftReport(inv), 'text/markdown');
+    const count = (kind: string, cls: string) =>
+      inv.hardCoded
+        .filter((h) => h.kind === kind && h.classification === cls)
+        .reduce((n, h) => n + h.occurrences.length, 0);
+    const near = count('color', 'near-token') + count('length', 'near-token');
+    return {
+      summary: {
+        headline: `${near} uses are close to a token but not using it`,
+        facts: [
+          { label: 'Colours matching a token', value: String(count('color', 'matches-token')) },
+          { label: 'Colours near a token', value: String(count('color', 'near-token')) },
+          { label: 'One-off colours', value: String(count('color', 'one-off')) },
+          { label: 'Lengths near a token', value: String(count('length', 'near-token')) },
+        ],
+        warnings: near ? [`${near} hard-coded values are probably drift; see the drift report.`] : [],
+      },
+      output: {
+        hardCoded: inv.hardCoded
+          .filter((h) => h.classification !== 'matches-token')
+          .slice(0, 50)
+          .map((h) => ({
+            kind: h.kind,
+            value: h.normalized,
+            uses: h.occurrences.length,
+            classification: h.classification,
+            nearest: h.nearestToken ? `--${h.nearestToken.id}` : null,
+            first: `${h.occurrences[0]!.file}:${h.occurrences[0]!.line}`,
+          })),
+      },
+    };
+  },
+};
+
+const ReviewDecision = z.object({
+  /** Custom properties (e.g. "--paper") to leave out of the design system. */
+  exclude: z.array(z.string()).default([]),
+  /** Canonical names to use instead of the proposed ones, keyed by custom property. */
+  rename: z.record(z.string(), z.string()).default({}),
+});
+
+const review: StepDefinition = {
+  key: 'review',
+  title: 'Review & approve',
+  description: 'You decide which tokens and names become the design system.',
+  action: 'Preparing proposals',
+  run(ctx) {
+    const all = (ctx.outputs['extract-tokens'] as { proposals: TokenProposal[] }).proposals;
+    const proposals = all.filter((p) => p.promotable);
+    // Shown in the review panel with their reason, so nothing disappears silently.
+    const skipped = all.filter((p) => !p.promotable);
+    const components = (ctx.outputs['identify-components'] as { candidates: unknown[] }).candidates;
+    return {
+      summary: {
+        headline: `${proposals.length} tokens and ${components.length} components to review`,
+        facts: [
+          { label: 'Tokens proposed', value: String(proposals.length) },
+          { label: 'Components found', value: String(components.length) },
+          ...(skipped.length ? [{ label: 'Left out, with a reason', value: String(skipped.length) }] : []),
+        ],
+        warnings: [],
+      },
+      output: { tokens: proposals, skipped, components },
+    };
+  },
+  approval: {
+    prompt: 'Approve the token names to create the project registry',
+    onApprove(ctx) {
+      const d = ReviewDecision.parse(ctx.decision ?? {});
+      const pending = ctx.pending as { tokens: TokenProposal[] };
+      const chosen = pending.tokens.filter((t) => !d.exclude.includes(t.cssVar));
+      if (!chosen.length) throw new Error('Keep at least one token');
+      const map = TokenMap.parse({
+        source: ctx.source.id,
+        status: 'approved',
+        tokens: Object.fromEntries(
+          chosen.map((t) => [d.rename[t.cssVar] ?? t.proposedName, { from: t.cssVar.slice(2) }]),
+        ),
+      });
+      if (Object.keys(map.tokens).length !== chosen.length)
+        throw new Error('Two tokens have the same name; rename one of them');
+      const dir = join(ctx.workspace, 'registry');
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, 'token-map.json'), JSON.stringify(map, null, 2) + '\n');
+      ctx.saveArtifact('token-map', 'token-map.json', JSON.stringify(map, null, 2) + '\n', 'application/json');
+      return {
+        summary: {
+          headline: `${chosen.length} tokens approved`,
+          facts: [
+            { label: 'Approved', value: String(chosen.length) },
+            { label: 'Left out', value: String(pending.tokens.length - chosen.length) },
+            { label: 'Renamed', value: String(Object.keys(d.rename).length) },
+          ],
+          warnings: [],
+        },
+        output: { tokenMapPath: 'registry/token-map.json', approved: chosen.length },
+      };
+    },
+  },
+};
+
+const generateCode: StepDefinition = {
+  key: 'generate-code',
+  title: 'Generate code',
+  description: 'Builds the canonical tokens and the CSS and manifest that components use.',
+  action: 'Building tokens',
+  async run(ctx) {
+    const inv = inventoryOf(ctx);
+    const mapPath = join(ctx.workspace, 'registry', 'token-map.json');
+    if (!existsSync(mapPath)) throw new Error('No approved token map. Approve the review step first.');
+    const map = TokenMap.parse(readJson(mapPath));
+    const tokens = promoteTokens(inv, map);
+    const tokensFile = join(ctx.workspace, 'registry', 'tokens.json');
+    writeFileSync(tokensFile, JSON.stringify(tokens, null, 2) + '\n');
+    const outDir = join(ctx.workspace, 'build', ctx.runId, 'tokens');
+    const manifest = await buildTokens(tokensFile, outDir);
+    ctx.saveArtifact('tokens-dtcg', 'tokens.json', JSON.stringify(tokens, null, 2) + '\n', 'application/json');
+    ctx.saveArtifact('tokens-css', 'tokens.css', readFileSync(join(outDir, 'tokens.css')), 'text/css');
+    const mf = ctx.saveArtifact(
+      'tokens-manifest',
+      'tokens.manifest.json',
+      readFileSync(join(outDir, 'tokens.manifest.json')),
+      'application/json',
+    );
+    ctx.log(`Built ${manifest.length} tokens with Style Dictionary`);
+    return {
+      summary: {
+        headline: `${manifest.length} tokens built as CSS and a manifest`,
+        facts: [
+          { label: 'Tokens', value: String(manifest.length) },
+          { label: 'Responsive', value: String(manifest.filter((t) => t.responsive?.length).length) },
+          { label: 'Fluid', value: String(manifest.filter((t) => t.fluid).length) },
+        ],
+        warnings: [
+          'Components are generated from approved component specs; this project has none yet, so only tokens were built.',
+        ],
+      },
+      output: { manifestArtifactId: mf.id, count: manifest.length },
+    };
+  },
+};
+
+const manifestOf = (ctx: StepContext) => {
+  const dir = join(ctx.workspace, 'build', ctx.runId, 'tokens');
+  if (!ctx.outputs['generate-code'] || !existsSync(join(dir, 'tokens.manifest.json')))
+    throw new Error('No built tokens in this run. Generate code must finish first.');
+  return {
+    manifest: readJson(join(dir, 'tokens.manifest.json')) as ManifestToken[],
+    css: readFileSync(join(dir, 'tokens.css'), 'utf8'),
+  };
+};
+
+const FigmaDecision = z.union([
+  z.object({ skip: z.literal(true) }),
+  /** What the Studio's Figma plugin returned after applying the tokens. */
+  z.object({ readback: z.unknown() }),
+]);
+
+const generateFigma: StepDefinition = {
+  key: 'generate-figma',
+  title: 'Generate Figma',
+  description: 'Turns the built tokens into native Figma variables, applied with the Studio plugin for Figma.',
+  action: 'Preparing tokens for Figma',
+  run(ctx) {
+    const { manifest } = manifestOf(ctx);
+    const payload = buildVariablesPayload(manifest, `${ctx.project.name} tokens`);
+    const art = ctx.saveArtifact('figma-payload', 'figma-variables.json', JSON.stringify(payload), 'application/json');
+    ctx.log(
+      `Prepared ${plural(payload.variables.length, 'variable')} for the "${payload.collectionName}" collection` +
+        (payload.skipped.length ? `; ${payload.skipped.length} stay in code only` : ''),
+    );
+    return {
+      summary: {
+        headline: `${plural(payload.variables.length, 'variable')} ready for Figma`,
+        facts: [
+          { label: 'Collection', value: payload.collectionName },
+          { label: 'Variables', value: String(payload.variables.length) },
+          { label: 'Code only', value: String(payload.skipped.length) },
+        ],
+        warnings: payload.skipped.map((t) => `${t.name} stays in code only: ${t.reason}.`),
+      },
+      output: { payloadArtifactId: art.id, payload },
+    };
+  },
+  approval: {
+    prompt: 'Apply the tokens in Figma with the Studio plugin, then paste its result here',
+    onApprove(ctx) {
+      const d = FigmaDecision.parse(ctx.decision ?? {});
+      const { payload } = ctx.pending as { payload: VariablesPayload };
+      if ('skip' in d) {
+        return {
+          summary: {
+            headline: 'Skipped: Figma was not updated in this run',
+            facts: [{ label: 'Variables prepared', value: String(payload.variables.length) }],
+            warnings: ['Figma was skipped, so Validate reports it as not checked.'],
+          },
+          output: { skipped: true },
+        };
+      }
+      const parsed = VariablesReadback.safeParse(d.readback);
+      if (!parsed.success)
+        throw new Error('That is not a result from the Studio plugin. In Figma, use "Copy result for the Studio".');
+      const problems = checkVariablesReadback(payload, parsed.data);
+      if (problems.length)
+        throw new Error(
+          `Figma does not match the tokens yet: ${problems.slice(0, 5).join('; ')}${problems.length > 5 ? ` and ${problems.length - 5} more` : ''}`,
+        );
+      const rb = parsed.data;
+      ctx.saveArtifact('figma-readback', 'figma-readback.json', JSON.stringify(rb, null, 2), 'application/json');
+      return {
+        summary: {
+          headline: `${plural(payload.variables.length, 'variable')} match in Figma`,
+          facts: [
+            { label: 'Figma file', value: rb.fileName },
+            { label: 'Collection', value: rb.collection.name },
+            { label: 'Created', value: String(rb.created) },
+            { label: 'Updated', value: String(rb.updated) },
+          ],
+          warnings: [],
+        },
+        output: {
+          verified: true,
+          fileName: rb.fileName,
+          collectionId: rb.collection.id,
+          count: payload.variables.length,
+        },
+      };
+    },
+  },
+  optional: true,
+};
+
+const generateDocs: StepDefinition = {
+  key: 'generate-docs',
+  title: 'Generate documentation',
+  description: 'Builds the documentation site and the agent catalog from the built tokens.',
+  action: 'Building docs',
+  run(ctx) {
+    const { manifest, css } = manifestOf(ctx);
+    const components = ((ctx.outputs['identify-components'] as { candidates?: DocComponent[] } | undefined)
+      ?.candidates ?? []) as DocComponent[];
+    const input: DocsInput = {
+      projectName: ctx.project.name,
+      sourceUrl: ctx.source.url,
+      runNumber: ctx.runNumber,
+      generatedAt: new Date().toISOString(),
+      tokens: manifest,
+      tokensCss: css,
+      components,
+    };
+    const html = renderDocsSite(input);
+    const catalog = renderAgentCatalog(input);
+    const dir = join(ctx.workspace, 'build', ctx.runId, 'docs');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'index.html'), html);
+    writeFileSync(join(dir, 'catalog.md'), catalog);
+    const site = ctx.saveArtifact('docs-site', 'index.html', html, 'text/html');
+    ctx.saveArtifact('agent-catalog', 'catalog.md', catalog, 'text/markdown');
+    const sections = sectionsOf(manifest);
+    ctx.log(`Documented ${manifest.length} tokens in ${plural(sections.length, 'section')}`);
+    return {
+      summary: {
+        headline: `Docs for ${plural(manifest.length, 'token')} and an agent catalog`,
+        facts: [
+          ...sections.map((x) => ({ label: x.title, value: String(x.tokens.length) })),
+          { label: 'Components listed (not generated yet)', value: String(components.length) },
+        ],
+        warnings: [],
+      },
+      output: { siteArtifactId: site.id, sections: sections.length },
+    };
+  },
+};
+
+/** What Validate should say about Figma, from the Figma stage's output (if it ran). */
+function figmaStatus(out: unknown): FigmaCheck {
+  const o = out as { verified?: boolean; skipped?: boolean; fileName?: string; count?: number } | undefined;
+  if (o?.verified) return { verified: `${o.count ?? 0} variables match in "${o.fileName ?? 'Figma'}"` };
+  if (o?.skipped) return { notRun: 'You skipped Figma for this run' };
+  return { notRun: 'The Figma stage did not finish in this run' };
+}
+
+const validate: StepDefinition = {
+  key: 'validate',
+  title: 'Validate',
+  description: 'Runs quality checks on everything generated. Nothing is published.',
+  action: 'Running checks',
+  run(ctx) {
+    const { manifest, css } = manifestOf(ctx);
+    const approved = (ctx.outputs.review as { approved?: number } | undefined)?.approved ?? manifest.length;
+    const docsDir = join(ctx.workspace, 'build', ctx.runId, 'docs');
+    const docsRan = !!ctx.outputs['generate-docs'];
+    const checks = validateOutputs({
+      approvedCount: approved,
+      manifest,
+      tokensCss: css,
+      ...(docsRan ? { docsHtml: readFileSync(join(docsDir, 'index.html'), 'utf8') } : {}),
+      ...(docsRan ? { catalog: readFileSync(join(docsDir, 'catalog.md'), 'utf8') } : {}),
+      figma: figmaStatus(ctx.outputs['generate-figma']),
+    });
+    const report = [
+      `# Validation, run ${ctx.runNumber}`,
+      '',
+      '| Check | Result | Detail |',
+      '| --- | --- | --- |',
+      ...checks.map(
+        (c) => `| ${c.name} | ${c.status === 'not-run' ? 'not run' : c.status} | ${c.detail.replace(/\|/g, '\\|')} |`,
+      ),
+      '',
+      'Nothing was published. Publishing is a separate step that needs your approval.',
+      '',
+    ].join('\n');
+    ctx.saveArtifact('validation-report', 'validation.md', report, 'text/markdown');
+    for (const c of checks)
+      ctx.log(
+        `${c.status === 'pass' ? 'Pass' : c.status === 'fail' ? 'FAIL' : 'Not run'}: ${c.name} (${c.detail})`,
+        c.status === 'fail' ? 'error' : c.status === 'not-run' ? 'warn' : 'info',
+      );
+    const failed = checks.filter((c) => c.status === 'fail');
+    if (failed.length)
+      throw new Error(
+        `${plural(failed.length, 'check')} failed: ${failed.map((c) => `${c.name} (${c.detail})`).join('; ')}`,
+      );
+    const passed = checks.filter((c) => c.status === 'pass').length;
+    const notRun = checks.filter((c) => c.status === 'not-run');
+    return {
+      summary: {
+        headline: `${passed} of ${checks.length} checks passed${notRun.length ? `, ${notRun.length} not run` : ''}`,
+        facts: checks.map((c) => ({
+          label: c.name,
+          value: c.status === 'not-run' ? 'Not run' : c.status === 'pass' ? 'Pass' : 'Fail',
+        })),
+        warnings: notRun.map((c) => `${c.name}: not run. ${c.detail}.`),
+      },
+      output: { checks },
+    };
+  },
+};
+
+export const designSystemWorkflow: WorkflowDefinition = {
+  id: 'design-system-v1',
+  title: 'Design system analysis',
+  steps: [
+    importSource,
+    discover,
+    extractTokens,
+    identifyComponents,
+    audit,
+    review,
+    generateCode,
+    generateDocs,
+    generateFigma,
+    validate,
+  ],
+};

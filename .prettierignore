@@ -8,3 +8,4 @@ llms.txt
 packages/tokens/dist/
 registry/tokens/*.tokens.json
 storybook-static/
+apps/studio/figma-plugin/code.js

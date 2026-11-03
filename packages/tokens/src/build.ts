@@ -37,6 +37,9 @@ const ext = <T>(t: TransformedToken, key: string): T | undefined =>
 export function cssValue(t: TransformedToken): string {
   const fluid = ext<{ css: string }>(t, 'dev.dsa.fluid');
   if (fluid) return fluid.css;
+  // The source stored bare channels for rgb(var(--x) / a); keep that shape so its uses still work.
+  const channels = ext<string>(t, 'dev.dsa.channels');
+  if (channels) return channels;
   const v = t.$value as unknown;
   if (t.$type === 'fontFamily' && Array.isArray(v))
     return v.map((f) => (/\s/.test(String(f)) ? `'${f}'` : String(f))).join(', ');

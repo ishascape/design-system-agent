@@ -1,0 +1,257 @@
+{
+  "kind": "dsa-figma-variables-readback",
+  "fileName": "Document",
+  "collection": { "id": "VariableCollectionId:19:2", "name": "Studio plugin test", "modes": 1 },
+  "variables": [
+    {
+      "id": "VariableID:19:3",
+      "name": "color/graphite",
+      "type": "COLOR",
+      "value": "#615e58",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "TEXT_FILL", "STROKE_COLOR"],
+      "web": "var(--color-graphite)"
+    },
+    {
+      "id": "VariableID:19:4",
+      "name": "color/ink",
+      "type": "COLOR",
+      "value": "#1c1b19",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "TEXT_FILL", "STROKE_COLOR"],
+      "web": "var(--color-ink)"
+    },
+    {
+      "id": "VariableID:19:5",
+      "name": "color/marker",
+      "type": "COLOR",
+      "value": "#2f5fb3",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "TEXT_FILL", "STROKE_COLOR"],
+      "web": "var(--color-marker)"
+    },
+    {
+      "id": "VariableID:19:6",
+      "name": "color/paper",
+      "type": "COLOR",
+      "value": "#f5f2ea",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "TEXT_FILL", "STROKE_COLOR"],
+      "web": "var(--color-paper)"
+    },
+    {
+      "id": "VariableID:19:7",
+      "name": "color/paper-deep",
+      "type": "COLOR",
+      "value": "#dcd9d2",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "TEXT_FILL", "STROKE_COLOR"],
+      "web": "var(--color-paper-deep)"
+    },
+    {
+      "id": "VariableID:19:8",
+      "name": "color/paper-shade",
+      "type": "COLOR",
+      "value": "#ece7da",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "TEXT_FILL", "STROKE_COLOR"],
+      "web": "var(--color-paper-shade)"
+    },
+    {
+      "id": "VariableID:19:9",
+      "name": "color/rule",
+      "type": "COLOR",
+      "value": "#d8d2c4",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "TEXT_FILL", "STROKE_COLOR"],
+      "web": "var(--color-rule)"
+    },
+    {
+      "id": "VariableID:19:10",
+      "name": "color/sheet-lift",
+      "type": "COLOR",
+      "value": "#ffffff",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "TEXT_FILL", "STROKE_COLOR"],
+      "web": "var(--color-sheet-lift)"
+    },
+    {
+      "id": "VariableID:19:11",
+      "name": "font/family/hand",
+      "type": "STRING",
+      "value": "Caveat",
+      "scopes": ["FONT_FAMILY"],
+      "web": "var(--font-family-hand)"
+    },
+    {
+      "id": "VariableID:19:12",
+      "name": "font/family/sans",
+      "type": "STRING",
+      "value": "Poppins",
+      "scopes": ["FONT_FAMILY"],
+      "web": "var(--font-family-sans)"
+    },
+    {
+      "id": "VariableID:19:13",
+      "name": "font/size/body",
+      "type": "FLOAT",
+      "value": 16,
+      "scopes": ["FONT_SIZE"],
+      "web": "var(--font-size-body)"
+    },
+    {
+      "id": "VariableID:19:14",
+      "name": "font/size/display",
+      "type": "FLOAT",
+      "value": 32,
+      "scopes": ["FONT_SIZE"],
+      "web": "var(--font-size-display)"
+    },
+    {
+      "id": "VariableID:19:15",
+      "name": "font/size/heading",
+      "type": "FLOAT",
+      "value": 22,
+      "scopes": ["FONT_SIZE"],
+      "web": "var(--font-size-heading)"
+    },
+    {
+      "id": "VariableID:19:16",
+      "name": "font/size/label",
+      "type": "FLOAT",
+      "value": 14,
+      "scopes": ["FONT_SIZE"],
+      "web": "var(--font-size-label)"
+    },
+    {
+      "id": "VariableID:19:17",
+      "name": "font/size/metric",
+      "type": "FLOAT",
+      "value": 40,
+      "scopes": ["FONT_SIZE"],
+      "web": "var(--font-size-metric)"
+    },
+    {
+      "id": "VariableID:19:18",
+      "name": "layout/content-max",
+      "type": "FLOAT",
+      "value": 1280,
+      "scopes": ["WIDTH_HEIGHT", "GAP"],
+      "web": "var(--layout-content-max)"
+    },
+    {
+      "id": "VariableID:19:19",
+      "name": "layout/gutter",
+      "type": "FLOAT",
+      "value": 24,
+      "scopes": ["WIDTH_HEIGHT", "GAP"],
+      "web": "var(--layout-gutter)"
+    },
+    {
+      "id": "VariableID:19:20",
+      "name": "layout/margin",
+      "type": "FLOAT",
+      "value": 16,
+      "scopes": ["WIDTH_HEIGHT", "GAP"],
+      "web": "var(--layout-margin)"
+    },
+    {
+      "id": "VariableID:19:21",
+      "name": "line/building",
+      "type": "FLOAT",
+      "value": 1,
+      "scopes": ["STROKE_FLOAT"],
+      "web": "var(--line-building)"
+    },
+    {
+      "id": "VariableID:19:22",
+      "name": "line/cut",
+      "type": "FLOAT",
+      "value": 3,
+      "scopes": ["STROKE_FLOAT"],
+      "web": "var(--line-cut)"
+    },
+    {
+      "id": "VariableID:19:23",
+      "name": "line/hair",
+      "type": "FLOAT",
+      "value": 0.5,
+      "scopes": ["STROKE_FLOAT"],
+      "web": "var(--line-hair)"
+    },
+    {
+      "id": "VariableID:19:24",
+      "name": "line/thin",
+      "type": "FLOAT",
+      "value": 1,
+      "scopes": ["STROKE_FLOAT"],
+      "web": "var(--line-thin)"
+    },
+    {
+      "id": "VariableID:19:25",
+      "name": "radius/default",
+      "type": "FLOAT",
+      "value": 16,
+      "scopes": ["CORNER_RADIUS"],
+      "web": "var(--radius-default)"
+    },
+    {
+      "id": "VariableID:19:26",
+      "name": "size/tap",
+      "type": "FLOAT",
+      "value": 44,
+      "scopes": ["WIDTH_HEIGHT", "GAP"],
+      "web": "var(--size-tap)"
+    },
+    {
+      "id": "VariableID:19:27",
+      "name": "space/1",
+      "type": "FLOAT",
+      "value": 4,
+      "scopes": ["GAP"],
+      "web": "var(--space-1)"
+    },
+    {
+      "id": "VariableID:19:28",
+      "name": "space/2",
+      "type": "FLOAT",
+      "value": 8,
+      "scopes": ["GAP"],
+      "web": "var(--space-2)"
+    },
+    {
+      "id": "VariableID:19:29",
+      "name": "space/3",
+      "type": "FLOAT",
+      "value": 16,
+      "scopes": ["GAP"],
+      "web": "var(--space-3)"
+    },
+    {
+      "id": "VariableID:19:30",
+      "name": "space/4",
+      "type": "FLOAT",
+      "value": 28,
+      "scopes": ["GAP"],
+      "web": "var(--space-4)"
+    },
+    {
+      "id": "VariableID:19:31",
+      "name": "space/5",
+      "type": "FLOAT",
+      "value": 48,
+      "scopes": ["GAP"],
+      "web": "var(--space-5)"
+    },
+    {
+      "id": "VariableID:19:32",
+      "name": "space/6",
+      "type": "FLOAT",
+      "value": 80,
+      "scopes": ["GAP"],
+      "web": "var(--space-6)"
+    },
+    {
+      "id": "VariableID:19:33",
+      "name": "space/7",
+      "type": "FLOAT",
+      "value": 128,
+      "scopes": ["GAP"],
+      "web": "var(--space-7)"
+    }
+  ],
+  "created": 31,
+  "updated": 0
+}
