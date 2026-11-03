@@ -1,0 +1,304 @@
+{
+  "kind": "dsa-figma-variables",
+  "version": 1,
+  "collectionName": "Studio plugin test",
+  "variables": [
+    {
+      "name": "color.graphite",
+      "figmaName": "color/graphite",
+      "figmaType": "COLOR",
+      "value": "#615e58",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "STROKE_COLOR", "TEXT_FILL"],
+      "cssVar": "--color-graphite",
+      "description": "Source: src/styles/tokens.css:8"
+    },
+    {
+      "name": "color.ink",
+      "figmaName": "color/ink",
+      "figmaType": "COLOR",
+      "value": "#1c1b19",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "STROKE_COLOR", "TEXT_FILL"],
+      "cssVar": "--color-ink",
+      "description": "Primary text and strokes. Source: src/styles/tokens.css:7"
+    },
+    {
+      "name": "color.marker",
+      "figmaName": "color/marker",
+      "figmaType": "COLOR",
+      "value": "#2f5fb3",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "STROKE_COLOR", "TEXT_FILL"],
+      "cssVar": "--color-marker",
+      "description": "The one accent: hover, focus and highlights. Source: src/styles/tokens.css:10"
+    },
+    {
+      "name": "color.paper",
+      "figmaName": "color/paper",
+      "figmaType": "COLOR",
+      "value": "#f5f2ea",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "STROKE_COLOR", "TEXT_FILL"],
+      "cssVar": "--color-paper",
+      "description": "Page background: warm paper. Source: src/styles/tokens.css:5"
+    },
+    {
+      "name": "color.paper-deep",
+      "figmaName": "color/paper-deep",
+      "figmaType": "COLOR",
+      "value": "#dcd9d2",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "STROKE_COLOR", "TEXT_FILL"],
+      "cssVar": "--color-paper-deep",
+      "description": "Source: src/styles/tokens.css:11"
+    },
+    {
+      "name": "color.paper-shade",
+      "figmaName": "color/paper-shade",
+      "figmaType": "COLOR",
+      "value": "#ece7da",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "STROKE_COLOR", "TEXT_FILL"],
+      "cssVar": "--color-paper-shade",
+      "description": "Slightly darker paper for alternate surfaces. Source: src/styles/tokens.css:6"
+    },
+    {
+      "name": "color.rule",
+      "figmaName": "color/rule",
+      "figmaType": "COLOR",
+      "value": "#d8d2c4",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "STROKE_COLOR", "TEXT_FILL"],
+      "cssVar": "--color-rule",
+      "description": "Hairlines and dividers. Source: src/styles/tokens.css:9"
+    },
+    {
+      "name": "color.sheet-lift",
+      "figmaName": "color/sheet-lift",
+      "figmaType": "COLOR",
+      "value": "#ffffff",
+      "scopes": ["FRAME_FILL", "SHAPE_FILL", "STROKE_COLOR", "TEXT_FILL"],
+      "cssVar": "--color-sheet-lift",
+      "description": "Source: src/styles/tokens.css:15"
+    },
+    {
+      "name": "font.family.hand",
+      "figmaName": "font/family/hand",
+      "figmaType": "STRING",
+      "value": "Caveat",
+      "scopes": ["FONT_FAMILY"],
+      "cssVar": "--font-family-hand",
+      "description": "Fallbacks in code: Bradley Hand, Segoe Print, cursive. Source: src/styles/tokens.css:19"
+    },
+    {
+      "name": "font.family.sans",
+      "figmaName": "font/family/sans",
+      "figmaType": "STRING",
+      "value": "Poppins",
+      "scopes": ["FONT_FAMILY"],
+      "cssVar": "--font-family-sans",
+      "description": "All functional text. Fallbacks in code: system-ui, -apple-system, Segoe UI, sans-serif. Source: src/styles/tokens.css:18"
+    },
+    {
+      "name": "font.size.body",
+      "figmaName": "font/size/body",
+      "figmaType": "FLOAT",
+      "value": 16,
+      "scopes": ["FONT_SIZE"],
+      "cssVar": "--font-size-body",
+      "description": "Body text and buttons. Fluid in code: clamp(16px, 1.4vw, 18px). Figma holds the minimum. Source: src/styles/tokens.css:22"
+    },
+    {
+      "name": "font.size.display",
+      "figmaName": "font/size/display",
+      "figmaType": "FLOAT",
+      "value": 32,
+      "scopes": ["FONT_SIZE"],
+      "cssVar": "--font-size-display",
+      "description": "Fluid in code: clamp(32px, 4vw, 48px). Figma holds the minimum. Source: src/styles/tokens.css:20"
+    },
+    {
+      "name": "font.size.heading",
+      "figmaName": "font/size/heading",
+      "figmaType": "FLOAT",
+      "value": 22,
+      "scopes": ["FONT_SIZE"],
+      "cssVar": "--font-size-heading",
+      "description": "Fluid in code: clamp(22px, 2.4vw, 28px). Figma holds the minimum. Source: src/styles/tokens.css:21"
+    },
+    {
+      "name": "font.size.label",
+      "figmaName": "font/size/label",
+      "figmaType": "FLOAT",
+      "value": 14,
+      "scopes": ["FONT_SIZE"],
+      "cssVar": "--font-size-label",
+      "description": "Source: src/styles/tokens.css:24"
+    },
+    {
+      "name": "font.size.metric",
+      "figmaName": "font/size/metric",
+      "figmaType": "FLOAT",
+      "value": 40,
+      "scopes": ["FONT_SIZE"],
+      "cssVar": "--font-size-metric",
+      "description": "Fluid in code: clamp(40px, 4.4vw, 56px). Figma holds the minimum. Source: src/styles/tokens.css:23"
+    },
+    {
+      "name": "layout.content-max",
+      "figmaName": "layout/content-max",
+      "figmaType": "FLOAT",
+      "value": 1280,
+      "scopes": ["WIDTH_HEIGHT", "GAP"],
+      "cssVar": "--layout-content-max",
+      "description": "Source: src/styles/tokens.css:37"
+    },
+    {
+      "name": "layout.gutter",
+      "figmaName": "layout/gutter",
+      "figmaType": "FLOAT",
+      "value": 24,
+      "scopes": ["WIDTH_HEIGHT", "GAP"],
+      "cssVar": "--layout-gutter",
+      "description": "Source: src/styles/tokens.css:38"
+    },
+    {
+      "name": "layout.margin",
+      "figmaName": "layout/margin",
+      "figmaType": "FLOAT",
+      "value": 16,
+      "scopes": ["WIDTH_HEIGHT", "GAP"],
+      "cssVar": "--layout-margin",
+      "description": "In code: 32px from 600px, 48px from 1024px. Source: src/styles/tokens.css:39"
+    },
+    {
+      "name": "line.building",
+      "figmaName": "line/building",
+      "figmaType": "FLOAT",
+      "value": 1,
+      "scopes": ["STROKE_FLOAT"],
+      "cssVar": "--line-building",
+      "description": "Button and card outlines. Design decision (Ashni, 2026-11-02): The site sets 1.5px, but browsers draw it as 1px on standard screens. 1px matches what people see. Source had 1.5px. Source: src/styles/tokens.css:44"
+    },
+    {
+      "name": "line.cut",
+      "figmaName": "line/cut",
+      "figmaType": "FLOAT",
+      "value": 3,
+      "scopes": ["STROKE_FLOAT"],
+      "cssVar": "--line-cut",
+      "description": "Source: src/styles/tokens.css:45"
+    },
+    {
+      "name": "line.hair",
+      "figmaName": "line/hair",
+      "figmaType": "FLOAT",
+      "value": 0.5,
+      "scopes": ["STROKE_FLOAT"],
+      "cssVar": "--line-hair",
+      "description": "Source: src/styles/tokens.css:42"
+    },
+    {
+      "name": "line.thin",
+      "figmaName": "line/thin",
+      "figmaType": "FLOAT",
+      "value": 1,
+      "scopes": ["STROKE_FLOAT"],
+      "cssVar": "--line-thin",
+      "description": "Source: src/styles/tokens.css:43"
+    },
+    {
+      "name": "radius.default",
+      "figmaName": "radius/default",
+      "figmaType": "FLOAT",
+      "value": 16,
+      "scopes": ["CORNER_RADIUS"],
+      "cssVar": "--radius-default",
+      "description": "Source: src/styles/tokens.css:4"
+    },
+    {
+      "name": "size.tap",
+      "figmaName": "size/tap",
+      "figmaType": "FLOAT",
+      "value": 44,
+      "scopes": ["WIDTH_HEIGHT", "GAP"],
+      "cssVar": "--size-tap",
+      "description": "Minimum touch target. Source: src/styles/tokens.css:53"
+    },
+    {
+      "name": "space.1",
+      "figmaName": "space/1",
+      "figmaType": "FLOAT",
+      "value": 4,
+      "scopes": ["GAP"],
+      "cssVar": "--space-1",
+      "description": "Source: src/styles/tokens.css:28"
+    },
+    {
+      "name": "space.2",
+      "figmaName": "space/2",
+      "figmaType": "FLOAT",
+      "value": 8,
+      "scopes": ["GAP"],
+      "cssVar": "--space-2",
+      "description": "Source: src/styles/tokens.css:29"
+    },
+    {
+      "name": "space.3",
+      "figmaName": "space/3",
+      "figmaType": "FLOAT",
+      "value": 16,
+      "scopes": ["GAP"],
+      "cssVar": "--space-3",
+      "description": "Source: src/styles/tokens.css:30"
+    },
+    {
+      "name": "space.4",
+      "figmaName": "space/4",
+      "figmaType": "FLOAT",
+      "value": 28,
+      "scopes": ["GAP"],
+      "cssVar": "--space-4",
+      "description": "In code: 32px from 600px. Source: src/styles/tokens.css:31"
+    },
+    {
+      "name": "space.5",
+      "figmaName": "space/5",
+      "figmaType": "FLOAT",
+      "value": 48,
+      "scopes": ["GAP"],
+      "cssVar": "--space-5",
+      "description": "In code: 56px from 600px. Source: src/styles/tokens.css:32"
+    },
+    {
+      "name": "space.6",
+      "figmaName": "space/6",
+      "figmaType": "FLOAT",
+      "value": 80,
+      "scopes": ["GAP"],
+      "cssVar": "--space-6",
+      "description": "In code: 96px from 600px. Source: src/styles/tokens.css:33"
+    },
+    {
+      "name": "space.7",
+      "figmaName": "space/7",
+      "figmaType": "FLOAT",
+      "value": 128,
+      "scopes": ["GAP"],
+      "cssVar": "--space-7",
+      "description": "In code: 160px from 600px. Source: src/styles/tokens.css:34"
+    }
+  ],
+  "skipped": [
+    {
+      "name": "motion.duration.micro",
+      "reason": "Figma variables have no duration type; it stays in code only"
+    },
+    {
+      "name": "motion.duration.signature",
+      "reason": "Figma variables have no duration type; it stays in code only"
+    },
+    {
+      "name": "motion.duration.state",
+      "reason": "Figma variables have no duration type; it stays in code only"
+    },
+    {
+      "name": "motion.easing.pen",
+      "reason": "Figma variables have no cubicBezier type; it stays in code only"
+    }
+  ]
+}

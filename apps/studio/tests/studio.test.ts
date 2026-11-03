@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import type { VariablesPayload, VariablesReadback } from '@dsa/gen-figma';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { Store, type Step } from '../server/db.ts';
@@ -182,7 +183,7 @@ describe('design-system workflow on a real repo', () => {
     expect(run.steps.find((s) => s.key === 'review')!.attempt).toBe(2);
   });
 
-  it('applies the approval with exclusions and renames, builds tokens, then blocks at Figma', async () => {
+  it('applies the approval, builds tokens and docs, then checks the Figma result before validating', async () => {
     const review = run.steps.find((s) => s.key === 'review')!;
     const tokens = (review.output as { tokens: { cssVar: string }[] }).tokens;
     const dupe = await call('POST', `/api/projects/${pid}/steps/${review.id}/approve`, {
@@ -199,13 +200,97 @@ describe('design-system workflow on a real repo', () => {
     expect(statuses(run)).toMatchObject({
       review: 'succeeded',
       'generate-code': 'succeeded',
-      'generate-figma': 'blocked',
+      'generate-docs': 'succeeded',
+      // Figma needs a person: the run waits for the plugin's result.
+      'generate-figma': 'awaiting-approval',
+      validate: 'pending',
     });
-    expect(run.status).toBe('blocked');
+    expect(run.status).toBe('awaiting-approval');
+    const figma = run.steps.find((s) => s.key === 'generate-figma')!;
+    const payload = (figma.output as { payload: VariablesPayload }).payload;
+    expect(payload.collectionName).toBe('Mini tokens');
+
+    // Not a plugin result, then a result where Figma has the wrong value: both refused.
+    expect(
+      (await call('POST', `/api/projects/${pid}/steps/${figma.id}/approve`, { decision: { readback: { hi: 1 } } }))
+        .status,
+    ).toBe(400);
+    const wrong = readbackFor(payload);
+    wrong.variables[0]!.value = wrong.variables[0]!.type === 'FLOAT' ? 999 : '#000001';
+    const refused = await call('POST', `/api/projects/${pid}/steps/${figma.id}/approve`, {
+      decision: { readback: wrong },
+    });
+    expect(refused.status).toBe(400);
+    expect(String(refused.data.error)).toMatch(/Figma does not match the tokens yet/);
+
+    // What the plugin returns when Figma matches.
+    const ok = await call('POST', `/api/projects/${pid}/steps/${figma.id}/approve`, {
+      decision: { readback: readbackFor(payload) },
+    });
+    expect(ok.status).toBe(200);
+    await engine.idle(run.id);
+    run = (await call('GET', `/api/projects/${pid}/runs/${run.id}`)).data as unknown as RunView;
+    expect(statuses(run)).toMatchObject({ 'generate-figma': 'succeeded', validate: 'succeeded' });
+    expect(run.status).toBe('succeeded');
+    const v = run.steps.find((s) => s.key === 'validate')!;
+    expect(v.summary?.headline).toMatch(/^(\d+) of \1 checks passed$/);
+    expect((v.output as { checks: { name: string; status: string }[] }).checks).toContainEqual(
+      expect.objectContaining({ name: 'Figma matches the tokens', status: 'pass' }),
+    );
+
+    const arts = (await call('GET', `/api/projects/${pid}/artifacts`)).data as unknown as {
+      id: string;
+      kind: string;
+    }[];
+    const site = arts.find((a) => a.kind === 'docs-site')!;
+    const res2 = await app.request(`/api/projects/${pid}/docs/${site.id}`, { headers: { host: 'localhost' } });
+    expect(res2.headers.get('content-type')).toBe('text/html; charset=utf-8');
+    expect(res2.headers.get('content-security-policy')).toMatch(/sandbox$/);
+    expect(res2.headers.get('content-security-policy')).not.toMatch(/script-src|allow-scripts/);
+    expect(await res2.text()).toContain('design system</h1>');
+    // Only docs sites are served as HTML; any other artifact is refused on this route.
+    const other = arts.find((a) => a.kind === 'tokens-css')!;
+    expect(
+      (await app.request(`/api/projects/${pid}/docs/${other.id}`, { headers: { host: 'localhost' } })).status,
+    ).toBe(404);
     const map = JSON.parse(readFileSync(join(projectDir(pid), 'registry/token-map.json'), 'utf8'));
     expect(Object.keys(map.tokens)).toHaveLength(tokens.length - 1);
     const f = (await call('GET', `/api/projects/${pid}/foundations`)).data;
     expect(f.status).toBe('built');
+  });
+
+  it('saves a component spec as a draft, then approves it only when a person wrote the judgement parts', async () => {
+    const url = `/api/projects/${pid}/components/button/spec`;
+    expect((await call('GET', url)).data.spec).toBeNull();
+    const fields = {
+      summary: 'The main call to action.',
+      whenToUse: 'One per view, for the next step.',
+      dos: ['Use a short verb'],
+      donts: ['Do not stack two primary buttons'],
+      keyboard: 'Enter and Space activate it.',
+      gapNotes: '--radius should become a token.',
+    };
+    // Approving without the summary and when-to-use is refused; nothing is written.
+    const blank = await call('PUT', url, { ...fields, summary: '', approve: true });
+    expect(blank.status).toBe(400);
+    expect((await call('GET', url)).data.spec).toBeNull();
+    // A draft save keeps the evidence it was written against.
+    const draft = await call('PUT', url, { ...fields, approve: false });
+    expect(draft.status).toBe(200);
+    expect(draft.data.spec).toMatchObject({ status: 'draft', human: { summary: fields.summary } });
+    expect((draft.data.spec as unknown as { evidence: unknown }).evidence).toMatchObject({
+      id: 'button',
+      name: 'Button',
+    });
+    const ok = await call('PUT', url, { ...fields, approve: true });
+    expect((ok.data.spec as unknown as { status: string }).status).toBe('approved');
+    const onDisk = JSON.parse(readFileSync(join(projectDir(pid), 'registry/components/button.spec.json'), 'utf8'));
+    expect(onDisk.status).toBe('approved');
+    // Ids are checked, so nothing can be written outside the registry folder.
+    expect((await call('GET', `/api/projects/${pid}/components/..%2Fx/spec`)).status).toBe(400);
+    expect((await call('PUT', `/api/projects/${pid}/components/nope/spec`, { ...fields, approve: false })).status).toBe(
+      404,
+    );
   });
 
   it('keeps projects isolated: ids from one project do not resolve in another', async () => {
@@ -299,4 +384,157 @@ describe('proposeName', () => {
     expect(proposeName({ id: 'paper', type: 'color' })).toBe('color.paper');
     expect(proposeName({ id: 'tap', type: 'dimension' })).toBe('size.tap');
   });
+});
+
+/** What the Studio's Figma plugin returns when Figma holds exactly the payload. */
+function readbackFor(p: VariablesPayload): VariablesReadback {
+  return {
+    kind: 'dsa-figma-variables-readback',
+    fileName: 'Test file',
+    collection: { id: 'VariableCollectionId:1:1', name: p.collectionName, modes: 1 },
+    variables: p.variables.map((v, i) => ({
+      id: `VariableID:1:${i + 2}`,
+      name: v.figmaName,
+      type: v.figmaType,
+      value: v.value,
+      scopes: [...v.scopes].reverse(),
+      web: `var(${v.cssVar})`,
+    })),
+    created: p.variables.length,
+    updated: 0,
+  };
+}
+
+describe('website import with a sandboxed browser render', () => {
+  let server: import('node:http').Server;
+  let base = '';
+  let secretHits = 0;
+  beforeAll(async () => {
+    const { createServer } = await import('node:http');
+    server = createServer((req, res) => {
+      if (req.url === '/secret') {
+        secretHits++;
+        res.end('secret');
+        return;
+      }
+      if (req.url === '/portfolio/') {
+        // The shapes found on ashnidave.com: range media queries and bare RGB channels.
+        res.setHeader('content-type', 'text/html');
+        res.end(`<!doctype html><title>Portfolio</title><style>
+          :root { --grid-line: 216 210 196; --space-4: 24px; --alias: var(--space-4); --narrow: 8px; }
+          @media (width >= 600px) { :root { --space-4: 28px; } }
+          @media (max-width: 400px) { :root { --narrow: 4px; } }
+          .g { border: 1px solid rgb(var(--grid-line) / 0.5); padding: var(--space-4); margin: var(--narrow); }
+          .card { padding: var(--space-4); } .card--wide { grid-column: span 2; } .card:hover { outline: 1px solid; }
+          .hero { margin: 0; }
+        </style><p class="g">Hi</p><section class="hero">Hello</section>
+        <!-- <div class="card">commented out</div> -->
+        <a class="card card--wide" href="#a"><span class="card__title">A</span></a>
+        <a class="card" href="#b"><span class="card__title">B</span></a>
+        <div id="later"></div>
+        <script>document.getElementById('later').innerHTML = '<a class="card" href="#c">C</a>';</script>`);
+        return;
+      }
+      res.setHeader('content-type', 'text/html');
+      // No stylesheet in the HTML: the styles only exist once the script runs.
+      res.end(`<!doctype html><title>JS site</title><p class="x">Hello</p><script>
+        const s = document.createElement('style');
+        s.textContent = ':root{--brand:#ff0055;--gap:16px} .x{color:var(--brand);margin:var(--gap)}';
+        document.head.append(s);
+        fetch('http://localhost:${(server.address() as import('node:net').AddressInfo).port}/secret').catch(() => {});
+      </script>`);
+    });
+    await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+    base = `http://127.0.0.1:${(server.address() as import('node:net').AddressInfo).port}/`;
+  });
+  afterAll(() => server.close());
+
+  it('captures styles built by JavaScript, saves a screenshot, and blocks calls to this computer', async () => {
+    const p = (await call('POST', '/api/projects', { name: 'JS site', source: { kind: 'website', url: base } })).data;
+    const sourceId = (p.sources as unknown as { id: string }[])[0]!.id;
+    const r = (await call('POST', `/api/projects/${p.id}/runs`, { sourceId })).data;
+    await engine.idle(r.id as string);
+    const view = (await call('GET', `/api/projects/${p.id}/runs/${r.id}`)).data as unknown as RunView;
+    expect(statuses(view)).toMatchObject({ 'import-source': 'succeeded', 'extract-tokens': 'succeeded' });
+    const tokens = (view.steps.find((s) => s.key === 'extract-tokens')!.output as { proposals: { cssVar: string }[] })
+      .proposals;
+    expect(tokens.map((t) => t.cssVar).sort()).toEqual(['--brand', '--gap']);
+    expect(secretHits).toBe(0);
+
+    const arts = (await call('GET', `/api/projects/${p.id}/artifacts`)).data as unknown as {
+      id: string;
+      kind: string;
+    }[];
+    const shot = arts.find((a) => a.kind === 'screenshot')!;
+    const res = await app.request(`/api/projects/${p.id}/artifacts/${shot.id}/raw`, { headers: { host: 'localhost' } });
+    expect(res.headers.get('content-type')).toBe('image/png');
+    expect(res.headers.get('content-disposition')).toBeNull();
+    expect([...new Uint8Array(await res.arrayBuffer()).slice(1, 4)]).toEqual([0x50, 0x4e, 0x47]); // "PNG"
+  }, 60_000);
+
+  it('reads range media queries and RGB channels, and shows what it left out with the reason', async () => {
+    const p = (
+      await call('POST', '/api/projects', { name: 'Portfolio', source: { kind: 'website', url: `${base}portfolio/` } })
+    ).data;
+    const sourceId = (p.sources as unknown as { id: string }[])[0]!.id;
+    const r = (await call('POST', `/api/projects/${p.id}/runs`, { sourceId, params: {} })).data;
+    await engine.idle(r.id as string);
+    let view = (await call('GET', `/api/projects/${p.id}/runs/${r.id}`)).data as unknown as RunView;
+    expect(statuses(view).review).toBe('awaiting-approval');
+    const review = view.steps.find((s) => s.key === 'review')!;
+    const out = review.output as {
+      tokens: { cssVar: string; type: string }[];
+      skipped: { cssVar: string; reason: string }[];
+    };
+    expect(out.tokens.map((t) => `${t.cssVar}:${t.type}`).sort()).toEqual(['--grid-line:color', '--space-4:dimension']);
+    // Counted once from the stylesheet, not again from the copy inside the page's HTML.
+    expect(out.tokens.find((t) => t.cssVar === '--grid-line')).toMatchObject({ usageCount: 1, confidence: 'inferred' });
+    expect(out.tokens.find((t) => t.cssVar === '--space-4')).toMatchObject({
+      overrides: [{ media: '(width >= 600px)', value: '28px' }],
+    });
+    const reasons = Object.fromEntries(out.skipped.map((t) => [t.cssVar, t.reason]));
+    expect(reasons['--alias']).toMatch(/points at another variable/);
+    expect(reasons['--narrow']).toMatch(/max-width: 400px/);
+
+    // Components come from the rendered page: the third card only exists after the script ran.
+    const comps = (
+      view.steps.find((s) => s.key === 'identify-components')!.output as {
+        candidates: { id: string; uses: number; modifiers: string[]; states: string[]; elements: string[] }[];
+      }
+    ).candidates;
+    expect(comps.map((c) => c.id)).toEqual(['card']);
+    expect(comps[0]).toMatchObject({ uses: 3, modifiers: ['wide'], states: ['hover'], elements: ['a'] });
+
+    expect((await call('POST', `/api/projects/${p.id}/steps/${review.id}/approve`, { decision: {} })).status).toBe(200);
+    await engine.idle(r.id as string);
+    view = (await call('GET', `/api/projects/${p.id}/runs/${r.id}`)).data as unknown as RunView;
+    expect(statuses(view)['generate-code']).toBe('succeeded');
+    // Skipping Figma lets the run finish; Validate says Figma was not checked.
+    const fig = view.steps.find((s) => s.key === 'generate-figma')!;
+    expect(fig.status).toBe('awaiting-approval');
+    expect((fig.output as { payload: VariablesPayload }).payload.variables.map((x) => x.figmaName).sort()).toEqual([
+      'color/grid-line',
+      'space/4',
+    ]);
+    expect(
+      (await call('POST', `/api/projects/${p.id}/steps/${fig.id}/approve`, { decision: { skip: true } })).status,
+    ).toBe(200);
+    await engine.idle(r.id as string);
+    view = (await call('GET', `/api/projects/${p.id}/runs/${r.id}`)).data as unknown as RunView;
+    expect(statuses(view)).toMatchObject({ 'generate-figma': 'succeeded', validate: 'succeeded' });
+    expect(view.steps.find((s) => s.key === 'validate')!.summary?.warnings).toEqual([
+      'Figma matches the tokens: not run. You skipped Figma for this run.',
+    ]);
+    const arts = (await call('GET', `/api/projects/${p.id}/artifacts`)).data as unknown as {
+      id: string;
+      kind: string;
+    }[];
+    const css = await (
+      await app.request(`/api/projects/${p.id}/artifacts/${arts.find((a) => a.kind === 'tokens-css')!.id}/raw`, {
+        headers: { host: 'localhost' },
+      })
+    ).text();
+    expect(css).toMatch(/--color-grid-line: 216 210 196;/);
+    expect(css).toMatch(/@media \(min-width: 600px\) \{\s*:root \{\s*--space-4: 28px;/);
+  }, 60_000);
 });

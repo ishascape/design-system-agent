@@ -9,7 +9,7 @@ row is *inferred*; the final component list needs human approval.
 
 | Block | Files | Uses | Elements | Modifiers | Styled states | Base style |
 | --- | --- | --- | --- | --- | --- | --- |
-| `button` | 2 | 4 | a, button, span | primary | focus-visible, hover | src/styles/global.css:1 |
+| `button` | 2 | 3 | a, button, span | primary | focus-visible, hover | src/styles/global.css:1 |
 
 ## Notes
 

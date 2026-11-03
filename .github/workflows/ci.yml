@@ -27,6 +27,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium # the Studio's website-render test uses it
       - run: npm run check
       - name: Generated files are up to date
         run: |

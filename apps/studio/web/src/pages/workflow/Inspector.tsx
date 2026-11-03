@@ -7,8 +7,9 @@ import {
   type TokenProposal,
   type WorkflowStepDef,
 } from '../../lib/api.ts';
-import { bytes, duration, sourceKindLabel } from '../../lib/format.ts';
+import { bytes, duration, sourceKindLabel, swatchColor } from '../../lib/format.ts';
 import { useLoad } from '../../lib/hooks.ts';
+import { COLLAPSE_OVER, groupTokens } from '../../lib/token-groups.ts';
 import { Button, ErrorNote, Facts, Icon, StatusBadge, sourceIcon } from '../../components/ui.tsx';
 
 type Tab = 'overview' | 'output' | 'logs' | 'artifacts';
@@ -95,7 +96,10 @@ export function Inspector({
       </div>
       {error && <ErrorNote>{error}</ErrorNote>}
 
-      {step?.status === 'awaiting-approval' && (
+      {step?.status === 'awaiting-approval' && step.key === 'generate-figma' && (
+        <FigmaPanel key={step.id} project={project} step={step} onAct={act} busy={busy} />
+      )}
+      {step?.status === 'awaiting-approval' && step.key !== 'generate-figma' && (
         <ApprovalPanel
           key={step.id}
           project={project}
@@ -272,7 +276,7 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
     () => (step ? api.artifacts(project.id, { stepId: step.id }) : Promise.resolve([])),
     [project.id, step?.id, version],
   );
-  const [open, setOpen] = useState<{ id: string; text: string } | null>(null);
+  const [open, setOpen] = useState<{ id: string; text: string; image: boolean } | null>(null);
   if (!step) return <p className="muted">No artifacts yet.</p>;
   if (list.error) return <ErrorNote>{list.error}</ErrorNote>;
   if (!list.data?.length) return <p className="muted">This stage saved no files.</p>;
@@ -285,7 +289,13 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
               type="button"
               className={`artifact${open?.id === a.id ? ' is-on' : ''}`}
               onClick={async () =>
-                setOpen(open?.id === a.id ? null : { id: a.id, text: await api.artifactText(project.id, a.id) })
+                setOpen(
+                  open?.id === a.id
+                    ? null
+                    : a.mediaType === 'image/png'
+                      ? { id: a.id, text: '', image: true }
+                      : { id: a.id, text: await api.artifactText(project.id, a.id), image: false },
+                )
               }
             >
               <Icon name="file" size={14} />
@@ -304,7 +314,10 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
           </li>
         ))}
       </ul>
-      {open && (
+      {open?.image && (
+        <img className="shot" src={api.artifactUrl(project.id, open.id)} alt="Screenshot of the rendered page" />
+      )}
+      {open && !open.image && (
         <pre className="json json--file">
           {open.text.length > 200_000
             ? open.text.slice(0, 200_000) + '\n… (truncated; download for the full file)'
@@ -314,6 +327,128 @@ function ArtifactsTab({ project, step, version }: { project: ProjectDetail; step
     </div>
   );
 }
+
+/**
+ * The Figma hand-off: copy the tokens, apply them with the Studio plugin in Figma, paste the
+ * plugin's result back. The server checks the result against the tokens before the step passes.
+ */
+function FigmaPanel({
+  project,
+  step,
+  onAct,
+  busy,
+}: {
+  project: ProjectDetail;
+  step: Step;
+  onAct: (fn: () => Promise<unknown>) => void;
+  busy: boolean;
+}) {
+  const out = step.output as { payload?: { collectionName: string; variables: unknown[] } } | null;
+  const payload = out?.payload;
+  const [result, setResult] = useState('');
+  const [copied, setCopied] = useState<'yes' | 'failed' | null>(null);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(payload));
+      setCopied('yes');
+    } catch {
+      setCopied('failed');
+    }
+  };
+  const confirm = () => {
+    let readback: unknown;
+    try {
+      readback = JSON.parse(result);
+    } catch {
+      setParseError('That is not the result from the plugin. In Figma, use "Copy result for the Studio".');
+      return;
+    }
+    setParseError(null);
+    onAct(() => api.approve(project.id, step.id, { readback }, null));
+  };
+  return (
+    <section className="approval" aria-label="Figma hand-off">
+      <div className="approval__head">
+        <Icon name="pause" size={14} />
+        <div>
+          <strong>Apply the tokens in Figma</strong>
+          <div className="muted">
+            {payload ? `${payload.variables.length} variables for the "${payload.collectionName}" collection.` : ''}{' '}
+            Variables are created or updated in the file you choose; nothing is deleted.
+          </div>
+        </div>
+      </div>
+      <ol className="steps-list">
+        <li>
+          <Button variant="secondary" icon="copy" onClick={() => void copy()} disabled={!payload}>
+            Copy tokens for Figma
+          </Button>
+          {copied === 'yes' && <span className="muted small"> Copied.</span>}
+          {copied === 'failed' && (
+            <span className="muted small">
+              {' '}
+              Copy failed; download <code>figma-variables.json</code> from the Artifacts tab instead.
+            </span>
+          )}
+        </li>
+        <li>
+          In Figma, run <strong>Plugins → Development → Design System Studio</strong>, paste, and apply. First time:
+          import the plugin from <code>apps/studio/figma-plugin/manifest.json</code> in this project.
+        </li>
+        <li>
+          <textarea
+            className="input input--mono"
+            rows={3}
+            placeholder="Paste the plugin's result here"
+            value={result}
+            onChange={(e) => setResult(e.target.value)}
+            aria-label="Result from the Figma plugin"
+          />
+        </li>
+      </ol>
+      {parseError && <ErrorNote>{parseError}</ErrorNote>}
+      <div className="approval__actions">
+        <Button
+          variant="ghost"
+          icon="x"
+          disabled={busy}
+          onClick={() => onAct(() => api.approve(project.id, step.id, { skip: true }, 'Skipped Figma'))}
+        >
+          Skip Figma this time
+        </Button>
+        <Button variant="primary" icon="check" disabled={busy || !result.trim()} onClick={confirm}>
+          Check Figma result
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+/** Short evidence line under each proposed token: value, responsive values, uses and where it came from. */
+function evidence(t: TokenProposal): string {
+  const steps = (t.overrides ?? []).map((o) => `${o.value} ${mediaLabel(o.media)}`);
+  const file = t.source.split('/').pop();
+  return [[t.value, ...steps].join(' → '), `${t.usageCount} ${t.usageCount === 1 ? 'use' : 'uses'}`, file]
+    .filter(Boolean)
+    .join(' · ');
+}
+function evidenceTitle(t: TokenProposal): string {
+  return [
+    `${t.cssVar}: ${t.value}`,
+    `Declared at ${t.source}`,
+    ...(t.overrides ?? []).map((o) => `@media ${o.media}: ${o.value} (${o.source})`),
+    `Used ${t.usageCount}× through var(${t.cssVar})`,
+    t.confidence === 'inferred' ? 'Type inferred: the CSS does not state it' : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+/** "(width >= 600px)" or "(min-width: 600px)" → "≥600px"; anything else stays as written. */
+const mediaLabel = (m: string) => {
+  const w = /(?:min-width\s*:\s*|width\s*>=\s*)([\d.]+(?:px|em|rem))/.exec(m);
+  return w ? `≥${w[1]}` : `@media ${m}`;
+};
 
 /** The review gate: choose which tokens enter the design system and what they are called. */
 function ApprovalPanel({
@@ -329,7 +464,9 @@ function ApprovalPanel({
   onAct: (fn: () => Promise<unknown>) => void;
   busy: boolean;
 }) {
-  const tokens = useMemo(() => (step.output as { tokens?: TokenProposal[] } | null)?.tokens ?? [], [step.output]);
+  const out = step.output as { tokens?: TokenProposal[]; skipped?: TokenProposal[] } | null;
+  const tokens = useMemo(() => out?.tokens ?? [], [out]);
+  const skipped = out?.skipped ?? [];
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [names, setNames] = useState<Record<string, string>>({});
   const [note, setNote] = useState('');
@@ -339,7 +476,17 @@ function ApprovalPanel({
   const kept = tokens.filter((t) => !excluded.has(t.cssVar));
   const dupes = new Set(kept.map(finalName).filter((n, i, all) => all.indexOf(n) !== i));
   const invalid = kept.some((t) => !/^[a-z]+(\.[a-z0-9-]+)+$/.test(finalName(t)));
-  const shown = tokens.filter((t) => !filter || t.cssVar.includes(filter) || finalName(t).includes(filter));
+  const matches = (t: TokenProposal) => !filter || t.cssVar.includes(filter) || finalName(t).includes(filter);
+  const groups = useMemo(() => groupTokens(tokens), [tokens]);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const setGroup = (items: TokenProposal[], keep: boolean) => {
+    const next = new Set(excluded);
+    for (const t of items) {
+      if (keep) next.delete(t.cssVar);
+      else next.add(t.cssVar);
+    }
+    setExcluded(next);
+  };
 
   const approve = () => {
     const rename: Record<string, string> = {};
@@ -373,44 +520,100 @@ function ApprovalPanel({
               <span role="columnheader">From</span>
               <span role="columnheader">Name in the design system</span>
             </div>
-            {shown.map((t) => {
-              const on = !excluded.has(t.cssVar);
-              const name = finalName(t);
+            {groups.map((g) => {
+              const items = g.items.filter(matches);
+              if (!items.length) return null;
+              const keptCount = g.items.filter((t) => !excluded.has(t.cssVar)).length;
+              const open = !!filter || (expanded[g.key] ?? g.items.length <= COLLAPSE_OVER);
               return (
-                <div key={t.cssVar} className={`token-table__row${on ? '' : ' is-off'}`} role="row">
-                  <span role="cell">
-                    <input
-                      type="checkbox"
-                      checked={on}
-                      aria-label={`Keep ${t.cssVar}`}
-                      onChange={() => {
-                        const next = new Set(excluded);
-                        if (on) next.add(t.cssVar);
-                        else next.delete(t.cssVar);
-                        setExcluded(next);
-                      }}
-                    />
-                  </span>
-                  <span role="cell" className="token-from">
-                    {t.type === 'color' && (
-                      <span className="swatch" style={{ background: t.value }} aria-hidden="true" />
-                    )}
-                    <code title={`${t.value} · used ${t.usageCount}×`}>{t.cssVar}</code>
-                  </span>
-                  <span role="cell">
-                    <input
-                      className={`input input--sm input--mono${on && dupes.has(name) ? ' is-invalid' : ''}`}
-                      value={names[t.cssVar] ?? t.proposedName}
-                      disabled={!on}
-                      aria-label={`Name for ${t.cssVar}`}
-                      onChange={(e) => setNames({ ...names, [t.cssVar]: e.target.value })}
-                    />
-                  </span>
+                <div key={g.key} role="rowgroup" className="token-group">
+                  <div className="token-table__row token-group__head" role="row">
+                    <span role="cell">
+                      <input
+                        type="checkbox"
+                        checked={keptCount === g.items.length}
+                        ref={(el) => {
+                          if (el) el.indeterminate = keptCount > 0 && keptCount < g.items.length;
+                        }}
+                        aria-label={`Keep all ${g.label}`}
+                        onChange={() => setGroup(g.items, keptCount < g.items.length)}
+                      />
+                    </span>
+                    <button
+                      type="button"
+                      className="token-group__toggle"
+                      aria-expanded={open}
+                      onClick={() => setExpanded({ ...expanded, [g.key]: !open })}
+                    >
+                      <Icon name="chevron" size={12} className={open ? 'is-open' : ''} />
+                      <span>{g.label}</span>
+                      <span className="muted">
+                        {keptCount} of {g.items.length} kept
+                      </span>
+                    </button>
+                  </div>
+                  {open &&
+                    items.map((t) => {
+                      const on = !excluded.has(t.cssVar);
+                      const name = finalName(t);
+                      return (
+                        <div key={t.cssVar} className={`token-table__row${on ? '' : ' is-off'}`} role="row">
+                          <span role="cell">
+                            <input
+                              type="checkbox"
+                              checked={on}
+                              aria-label={`Keep ${t.cssVar}`}
+                              onChange={() => setGroup([t], !on)}
+                            />
+                          </span>
+                          <span role="cell" className="token-from">
+                            {t.type === 'color' && (
+                              <span
+                                className="swatch"
+                                style={{ background: swatchColor(t.value) }}
+                                aria-hidden="true"
+                              />
+                            )}
+                            <span className="token-from__text">
+                              <code>{t.cssVar}</code>
+                              <span className="token-evidence" title={evidenceTitle(t)}>
+                                {evidence(t)}
+                              </span>
+                            </span>
+                          </span>
+                          <span role="cell">
+                            <input
+                              className={`input input--sm input--mono${on && dupes.has(name) ? ' is-invalid' : ''}`}
+                              value={names[t.cssVar] ?? t.proposedName}
+                              disabled={!on}
+                              aria-label={`Name for ${t.cssVar}`}
+                              onChange={(e) => setNames({ ...names, [t.cssVar]: e.target.value })}
+                            />
+                          </span>
+                        </div>
+                      );
+                    })}
                 </div>
               );
             })}
           </div>
         </>
+      )}
+      {skipped.length > 0 && (
+        <details className="skipped">
+          <summary>
+            {skipped.length} {skipped.length === 1 ? 'custom property is' : 'custom properties are'} left out of review,
+            with the reason
+          </summary>
+          <ul className="skipped__list" aria-label="Left out of review">
+            {skipped.map((t) => (
+              <li key={t.cssVar}>
+                <code title={`${t.source} · used ${t.usageCount}×`}>{t.cssVar}</code>
+                <span className="muted">{t.reason}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
       {dupes.size > 0 && <ErrorNote>Two kept tokens share a name: {[...dupes].join(', ')}</ErrorNote>}
       {invalid && (

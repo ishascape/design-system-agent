@@ -56,9 +56,45 @@ export interface ComponentCandidateView {
   states: string[];
   styles: string[];
   notes: string[];
+  /** Websites: the evidence is repetition on the page, not component files. */
+  onPage?: boolean;
 }
 export type ComponentsResult =
   { status: 'none' } | { status: 'candidates'; runId: string; candidates: ComponentCandidateView[] };
+
+export interface SpecDraftView {
+  id: string;
+  name: string;
+  source: { styles: string[]; usages: string[] };
+  variants: { name: string; description: string; confidence: string }[];
+  states: { name: string; trigger: string; visual: string; confidence: string }[];
+  anatomy: { part: string; description: string; optional: boolean }[];
+  tokens: { name: string; usedFor: string }[];
+  hardCoded: { property: string; value: string; at: string }[];
+  unapprovedVars: string[];
+  accessibility: { elements: string[]; notes: string[] };
+  needsYou: string[];
+}
+export interface SpecDraftResult {
+  runId: string;
+  tokensApproved: boolean;
+  draft: SpecDraftView;
+}
+
+export interface SpecFields {
+  summary: string;
+  whenToUse: string;
+  dos: string[];
+  donts: string[];
+  keyboard: string;
+  gapNotes: string;
+}
+export interface SavedSpec {
+  status: 'draft' | 'approved';
+  savedAt: string;
+  runId: string;
+  human: SpecFields;
+}
 
 export class ApiError extends Error {
   readonly status: number;
@@ -105,6 +141,7 @@ export const api = {
     req<Artifact[]>('GET', `/projects/${pid}/artifacts?${new URLSearchParams(filter as Record<string, string>)}`),
   artifactUrl: (pid: string, aid: string, download = false) =>
     `/api/projects/${pid}/artifacts/${aid}/raw${download ? '?download=1' : ''}`,
+  docsUrl: (pid: string, aid: string) => `/api/projects/${pid}/docs/${aid}`,
   artifactText: async (pid: string, aid: string) => {
     const res = await fetch(`/api/projects/${pid}/artifacts/${aid}/raw`);
     if (!res.ok) throw new ApiError(res.status, 'Could not open the artifact');
@@ -112,4 +149,13 @@ export const api = {
   },
   foundations: (pid: string) => req<Foundations>('GET', `/projects/${pid}/foundations`),
   components: (pid: string) => req<ComponentsResult>('GET', `/projects/${pid}/components`),
+  savedSpec: (pid: string, cid: string) =>
+    req<{ spec: SavedSpec | null }>('GET', `/projects/${pid}/components/${encodeURIComponent(cid)}/spec`),
+  saveSpec: (pid: string, cid: string, fields: SpecFields, approve: boolean) =>
+    req<{ spec: SavedSpec }>('PUT', `/projects/${pid}/components/${encodeURIComponent(cid)}/spec`, {
+      ...fields,
+      approve,
+    }),
+  specDraft: (pid: string, cid: string) =>
+    req<SpecDraftResult>('GET', `/projects/${pid}/components/${encodeURIComponent(cid)}/draft`),
 };

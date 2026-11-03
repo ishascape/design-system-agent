@@ -56,4 +56,8 @@ export const sourceKindLabel = {
 } as const;
 
 /** Run-level wording where it differs from a step's. */
-export const runLabel = (s: Status) => (s === 'blocked' ? 'Stopped: next stage not built' : STATUS_LABEL[s]);
+export const runLabel = (s: Status) => (s === 'blocked' ? 'Some stages not built yet' : STATUS_LABEL[s]);
+
+/** Bare channels (`216 210 196`) are not a CSS colour by themselves; wrap them for a swatch. */
+export const swatchColor = (v: string) =>
+  /^\d{1,3}(\s*,\s*|\s+)\d{1,3}(\s*,\s*|\s+)\d{1,3}$/.test(v.trim()) ? `rgb(${v})` : v;

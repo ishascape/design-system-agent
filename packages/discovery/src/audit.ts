@@ -12,6 +12,9 @@ import { findComponentCandidates } from './components.ts';
 const SKIP_DIRS = new Set(['node_modules', 'dist', 'dist-ssr', 'build', '.git', 'coverage', 'public']);
 const MAX_FILE_BYTES = 1_000_000;
 
+/** `x.min.css` is a minified copy of another file; reading both would double-count every value. */
+const isMinified = (name: string) => /\.min\.[a-z]+$/.test(name);
+
 export function listFiles(root: string, extensions: string[]): string[] {
   const out: string[] = [];
   const walk = (dir: string) => {
@@ -20,7 +23,7 @@ export function listFiles(root: string, extensions: string[]): string[] {
       const st = statSync(full);
       if (st.isDirectory()) {
         if (!SKIP_DIRS.has(name) && !name.startsWith('.')) walk(full);
-      } else if (extensions.some((e) => name.endsWith(e)) && st.size <= MAX_FILE_BYTES) {
+      } else if (extensions.some((e) => name.endsWith(e)) && !isMinified(name) && st.size <= MAX_FILE_BYTES) {
         out.push(relative(root, full).split(sep).join('/'));
       }
     }
@@ -35,12 +38,20 @@ export interface AuditSource {
   commit: string;
 }
 
-export function runAudit(repoDir: string, source: AuditSource): AuditInventory {
+export interface AuditOptions {
+  /** Page markup to read class names from (websites), relative to the source folder. */
+  markup?: string[];
+}
+
+export function runAudit(repoDir: string, source: AuditSource, opts: AuditOptions = {}): AuditInventory {
   const read = (p: string): CssFile => ({ path: p, content: readFileSync(join(repoDir, p), 'utf8') });
   const cssFiles = listFiles(repoDir, ['.css']).map(read);
-  const componentFiles = listFiles(repoDir, ['.tsx', '.jsx']).map(read);
+  const codeFiles = listFiles(repoDir, ['.tsx', '.jsx']).map(read);
+  const componentFiles = [...codeFiles, ...(opts.markup ?? []).map(read)];
 
-  const varUsage = countVarUsage([...cssFiles, ...componentFiles].map((f) => f.content));
+  // Page markup repeats its <style> blocks, which are already read as CSS files, so it is left
+  // out of usage counts.
+  const varUsage = countVarUsage([...cssFiles, ...codeFiles].map((f) => f.content));
   const tokens = parseTokens(cssFiles).map((t) => ({ ...t, usageCount: varUsage.get(t.id) ?? 0 }));
 
   const inventory = {

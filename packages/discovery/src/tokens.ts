@@ -17,12 +17,22 @@ export interface CssFile {
 export function inferTokenType(value: string): TokenType {
   const v = value.trim().toLowerCase();
   if (/^#[0-9a-f]{3,8}$/.test(v) || /^(rgb|rgba|hsl|hsla)\(/.test(v)) return 'color';
+  if (isChannelTriplet(v)) return 'color';
   if (/^cubic-bezier\(/.test(v)) return 'cubicBezier';
   if (/^-?\d*\.?\d+m?s$/.test(v)) return 'duration';
   if (/^-?\d*\.?\d+(px|rem|em|ch|vw|vh|%)$/.test(v) || /^(clamp|min|max|calc)\(/.test(v)) return 'dimension';
   if (/^-?\d*\.?\d+$/.test(v)) return 'number';
   if (/['"]/.test(v) || /(sans-serif|serif|monospace|cursive|system-ui)\b/.test(v)) return 'fontFamily';
   return 'other';
+}
+
+/**
+ * Bare RGB channels like `216 210 196` or `216, 210, 196`, stored so CSS can add alpha with
+ * `rgb(var(--x) / 0.5)`. Three unitless integers up to 255 are not valid as anything else in CSS.
+ */
+export function isChannelTriplet(value: string): boolean {
+  const m = /^(\d{1,3})(?:\s*,\s*|\s+)(\d{1,3})(?:\s*,\s*|\s+)(\d{1,3})$/.exec(value.trim());
+  return !!m && [m[1], m[2], m[3]].every((n) => Number(n) <= 255);
 }
 
 function isRootRule(rule: Rule): boolean {
@@ -72,7 +82,8 @@ export function parseTokens(files: CssFile[]): Omit<TokenCandidate, 'usageCount'
           type: inferTokenType(value),
           value,
           overrides: [],
-          confidence: 'observed',
+          // The type of bare channels is a judgement, not something the CSS states.
+          confidence: isChannelTriplet(value) ? 'inferred' : 'observed',
           source,
           ...(comment ? { comment } : {}),
         });

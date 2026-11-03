@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Background,
   BackgroundVariant,
@@ -8,6 +8,8 @@ import {
   ReactFlowProvider,
   useReactFlow,
   type Edge,
+  type NodeChange,
+  type NodeDimensionChange,
 } from '@xyflow/react';
 import { api } from '../lib/api.ts';
 import { ago, duration, runLabel, sourceKindLabel } from '../lib/format.ts';
@@ -106,10 +108,37 @@ function Workflow({ project, version, workflow, runId }: PageProps & { runId: st
   useEffect(() => {
     if (focusKey && !pinned) setSelectedStep(focusKey);
   }, [focusKey, pinned]);
+  // A new stage asking for you always takes the inspector, even if you had picked another stage.
+  const waitingKey = r?.steps.find((s) => s.status === 'awaiting-approval')?.key;
+  useEffect(() => {
+    if (!waitingKey) return;
+    setSelectedStep(waitingKey);
+    setPinned(false);
+  }, [waitingKey]);
   const resetFocus = () => {
     setSelectedStep(null);
     setPinned(false);
   };
+
+  // React Flow forgets a node's measured size whenever it gets a new node object, and hides the
+  // node until it is measured again. Run updates replace the nodes often, so keep the sizes here.
+  const [sizes, setSizes] = useState<Record<string, { width: number; height: number }>>({});
+  const onNodesChange = useCallback((changes: NodeChange<StageNodeType>[]) => {
+    const measured = changes.filter((c): c is NodeDimensionChange => c.type === 'dimensions' && !!c.dimensions);
+    if (!measured.length) return;
+    setSizes((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const c of measured) {
+        const d = c.dimensions!;
+        if (prev[c.id]?.width !== d.width || prev[c.id]?.height !== d.height) {
+          next[c.id] = { width: d.width, height: d.height };
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, []);
 
   const nodes: StageNodeType[] = useMemo(
     () =>
@@ -122,9 +151,10 @@ function Workflow({ project, version, workflow, runId }: PageProps & { runId: st
           data: { index: i, def, step: r?.steps.find((s) => s.key === def.key), selected: selectedStep === def.key },
           draggable: false,
           connectable: false,
+          ...(sizes[def.key] ? { measured: sizes[def.key] } : {}),
         };
       }),
-    [workflow.steps, r, selectedStep],
+    [workflow.steps, r, selectedStep, sizes],
   );
   const edges: Edge[] = useMemo(
     () =>
@@ -249,6 +279,7 @@ function Workflow({ project, version, workflow, runId }: PageProps & { runId: st
       <div className="canvas" aria-label="Workflow canvas" ref={canvasRef}>
         <ReactFlow
           nodes={nodes}
+          onNodesChange={onNodesChange}
           edges={edges}
           nodeTypes={nodeTypes}
           fitView

@@ -1,3 +1,4 @@
+import { swatchColor } from '../lib/format.ts';
 import { useState } from 'react';
 import { api } from '../lib/api.ts';
 import { href, useLoad } from '../lib/hooks.ts';
@@ -104,7 +105,9 @@ export function FoundationsPage({ project, version }: PageProps) {
               </td>
               <td>
                 <span className="token-value">
-                  {r.type === 'color' && <span className="swatch" style={{ background: r.value }} aria-hidden="true" />}
+                  {r.type === 'color' && (
+                    <span className="swatch" style={{ background: swatchColor(r.value) }} aria-hidden="true" />
+                  )}
                   <code>{r.value}</code>
                 </span>
               </td>

@@ -40,7 +40,7 @@ Local app in `apps/studio`. Milestones:
 - [x] **M1: workspace.** Projects dashboard, multi-project storage (SQLite, stable ids, isolated folders), navigation, settings, sources.
 - [x] **M2: workflow.** Canvas with the 10 stages, real execution, inspector (summary, output, logs, files), approvals, retries, reruns with changed inputs, cancel, run history, restart recovery.
 - [ ] **M3: extraction for real projects.** Run ashnidave.com end to end in the Studio; screenshots and evidence in the inspector; website import for sites that render with JavaScript.
-- [ ] **M4: generation.** Code (components from approved specs), Figma (spec-driven `gen-figma`, then our own plugin or Claude applies it; the free plan has no variables REST API), docs site, validation.
+- [ ] **M4: generation.** Done: docs site and agent catalog from approved tokens, validation stage (pass, fail or not run per check). Figma variables through the Studio plugin, checked against a read-back. Open: components from approved specs, in code and Figma.
 - [ ] **M5: assistant and versioning.** Project-aware assistant that proposes typed actions and asks before destructive, costly or published changes; change proposals and diffs between versions. Needs a decision on which model API key to use and its cost.
 
 First end-to-end target: ashnidave.com → one reusable tested component, its Figma twin and a documented page.

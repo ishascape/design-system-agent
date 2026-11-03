@@ -17,9 +17,18 @@ npm ci --ignore-scripts
 npm run studio
 ```
 
-Then open **http://localhost:4310** in your browser. Stop it with Ctrl+C in the terminal. The app only listens on your own computer. Its data (projects, runs, imported copies and generated files) lives in `.studio/` in this folder, which git ignores; set `STUDIO_HOME` to keep it somewhere else.
+Then open **http://localhost:4310** in your browser. For website sources, run `npx playwright install chromium` once as well: the Studio then also renders the site in a sandboxed browser, which captures a screenshot and any styles built by JavaScript. Stop it with Ctrl+C in the terminal. The app only listens on your own computer. Its data (projects, runs, imported copies and generated files) lives in `.studio/` in this folder, which git ignores; set `STUDIO_HOME` to keep it somewhere else.
 
-What works today (milestones 1 and 2): projects, sources, the 10-stage workflow with real execution, approvals, retries, reruns with changed inputs, cancel, run history, logs and versioned files. Importing a Figma file or a package, and the Figma, documentation and validation stages, say "Not available yet" until they are built.
+What works today: projects, repository and website sources (websites are also rendered in a sandboxed browser), the 10-stage workflow with real execution, approvals, retries, reruns with changed inputs, cancel, run history, logs and versioned files. After you approve tokens, a run builds them as CSS, writes a documentation site and a catalog for AI agents, hands the tokens to Figma as variables (see below), and validates everything it generated. Importing a Figma file or a package says "Not available yet". Figma components are not generated yet; variables are.
+
+### Tokens into Figma (the Studio plugin)
+
+The Generate Figma stage pauses so you can put the tokens into a Figma file of your choice. The plugin never goes online and never deletes anything: it creates or updates one variable collection.
+
+1. First time only, in the Figma desktop app: **Plugins → Development → Import plugin from manifest…** and pick `apps/studio/figma-plugin/manifest.json` from this folder.
+2. In the Studio, click **Copy tokens for Figma**.
+3. In Figma, run **Plugins → Development → Design System Studio**, paste, and click **Apply to this file**.
+4. Click **Copy result for the Studio**, paste it into the Studio and click **Check Figma result**. The Studio checks every variable (value, type, scopes and the CSS variable) before the stage passes. Or click **Skip Figma this time**; Validate then reports Figma as not checked.
 
 ## Setup
 

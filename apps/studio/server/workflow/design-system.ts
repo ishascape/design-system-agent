@@ -2,13 +2,29 @@
  * The design-system workflow (v1): a fixed sequence of ten stages. Each stage calls the same
  * pipeline packages the command line uses, so the Studio and the CLI can never disagree.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
 import type { AuditInventory, TokenCandidate } from '@dsa/registry';
 import { renderComponentsReport, renderDriftReport, runAudit, toDtcgCandidates } from '@dsa/discovery';
-import { TokenMap, buildTokens, promoteTokens, toDtcgToken } from '@dsa/tokens';
-import { fetchRepo, fetchWebsite, type FetchedSource } from '../sources.ts';
+import { TokenMap, buildTokens, promoteTokens, promotionBlocker, toDtcgToken, type ManifestToken } from '@dsa/tokens';
+import { allowLocalSites, fetchRepo, fetchWebsite, type FetchedSource } from '../sources.ts';
+import { renderWebsite } from '../render.ts';
+import {
+  VariablesReadback,
+  buildVariablesPayload,
+  checkVariablesReadback,
+  type VariablesPayload,
+} from '@dsa/gen-figma';
+import {
+  renderAgentCatalog,
+  renderDocsSite,
+  sectionsOf,
+  type DocComponent,
+  type DocsInput,
+} from '../generate/docs-site.ts';
+import { validateOutputs, type FigmaCheck } from '../generate/validate.ts';
 import { StepBlocked, type StepContext, type StepDefinition, type WorkflowDefinition } from './types.ts';
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T;
@@ -56,21 +72,59 @@ export interface TokenProposal {
   proposedName: string;
   promotable: boolean;
   reason?: string;
+  /** How sure discovery is of the type: observed in the CSS, or inferred (e.g. bare RGB channels). */
+  confidence?: string;
+  /** Values inside media queries, e.g. a larger space from 600px up. */
+  overrides?: { media: string; value: string; source: string }[];
 }
+
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 const importSource: StepDefinition = {
   key: 'import-source',
   title: 'Import source',
   description: 'Connects to the source and makes a pinned, read-only copy.',
   action: 'Fetching the source',
-  params: z.object({ ref: z.string().min(1).default('HEAD') }),
+  params: z.object({
+    /** Repositories: the branch, tag or commit to import. */
+    ref: z.string().min(1).default('HEAD'),
+    /** Websites: render in a sandboxed browser. auto uses rendered styles only if the HTML had none. */
+    render: z.enum(['auto', 'always', 'off']).default('auto'),
+  }),
   async run(ctx) {
     const dir = join(ctx.workspace, 'sources', ctx.source.id);
     let got: FetchedSource;
+    const warnings: string[] = [];
     if (ctx.source.kind === 'github') {
       got = await fetchRepo(ctx.source.url, String(ctx.params.ref), join(dir, 'repo'), ctx.signal, ctx.log);
     } else if (ctx.source.kind === 'website') {
       got = await fetchWebsite(ctx.source.url, join(dir, 'site'), ctx.signal, ctx.log);
+      const mode = String(ctx.params.render);
+      if (mode !== 'off') {
+        const r = await renderWebsite(ctx.source.url, ctx.signal, ctx.log, { allowPrivateHosts: allowLocalSites() });
+        if ('unavailable' in r) {
+          warnings.push(r.unavailable);
+          ctx.log(r.unavailable, 'warn');
+        } else {
+          ctx.saveArtifact('screenshot', 'screenshot.png', r.screenshot, 'image/png');
+          // The rendered page is what people see, so components are looked for there.
+          writeFileSync(join(got.dir, 'page.rendered.html'), r.html);
+          got = { ...got, commit: createHash('sha1').update(got.commit).update(r.html).digest('hex') };
+          if (mode === 'always' || !got.styles) {
+            const styles = join(got.dir, 'styles');
+            if (mode === 'always') rmSync(styles, { recursive: true, force: true });
+            mkdirSync(styles, { recursive: true });
+            writeFileSync(join(styles, 'rendered.css'), r.css);
+            got = {
+              ...got,
+              commit: createHash('sha1').update(got.commit).update(r.css).digest('hex'),
+              styles: 1,
+            };
+            ctx.log('Using the styles captured from the rendered page');
+          }
+        }
+      }
+      if (!got.styles) throw new Error('The page has no same-origin styles to analyse, even after rendering');
     } else {
       throw new StepBlocked(
         ctx.source.kind === 'figma'
@@ -87,9 +141,17 @@ const importSource: StepDefinition = {
           { label: ctx.source.kind === 'github' ? 'Commit' : 'Snapshot hash', value: got.commit },
           { label: 'Files', value: String(got.files) },
         ],
-        warnings: [],
+        warnings,
       },
-      output: { dir: rel, commit: got.commit, ref: got.ref, kind: ctx.source.kind },
+      output: {
+        dir: rel,
+        commit: got.commit,
+        ref: got.ref,
+        kind: ctx.source.kind,
+        ...(ctx.source.kind === 'website'
+          ? { markup: existsSync(join(got.dir, 'page.rendered.html')) ? 'page.rendered.html' : 'page.html' }
+          : {}),
+      },
     };
   },
 };
@@ -100,16 +162,24 @@ const discover: StepDefinition = {
   description: 'Reads the styles and component code (without running it) and builds an inventory.',
   action: 'Reading styles and components',
   run(ctx) {
-    const src = ctx.outputs['import-source'] as { dir: string; commit: string };
-    const inv = runAudit(join(ctx.workspace, src.dir), { id: ctx.source.id, repo: ctx.source.url, commit: src.commit });
+    const src = ctx.outputs['import-source'] as { dir: string; commit: string; markup?: string };
+    const inv = runAudit(
+      join(ctx.workspace, src.dir),
+      { id: ctx.source.id, repo: ctx.source.url, commit: src.commit },
+      src.markup ? { markup: [src.markup] } : {},
+    );
     const art = ctx.saveArtifact('inventory', 'inventory.json', JSON.stringify(inv, null, 2), 'application/json');
-    ctx.log(`Scanned ${inv.scanned.cssFiles} CSS files and ${inv.scanned.componentFiles} component files`);
+    const code = inv.scanned.componentFiles - (src.markup ? 1 : 0);
+    const read = src.markup
+      ? `${plural(inv.scanned.cssFiles, 'stylesheet')} and the page's HTML read`
+      : `${plural(inv.scanned.cssFiles, 'stylesheet')} and ${plural(code, 'component file')} read`;
+    ctx.log(src.markup ? `Read ${src.markup} for repeated components` : `Scanned ${code} component files`);
     const warnings: string[] = [];
     if (inv.scanned.cssFiles === 0)
       warnings.push('No CSS files found. Projects that style only with Tailwind or CSS-in-JS are not supported yet.');
     return {
       summary: {
-        headline: `${inv.scanned.cssFiles} stylesheets and ${inv.scanned.componentFiles} component files read`,
+        headline: read,
         facts: [
           { label: 'Custom properties', value: String(inv.tokens.length) },
           { label: 'Hard-coded values', value: String(inv.hardCoded.length) },
@@ -136,14 +206,15 @@ const extractTokens: StepDefinition = {
       'application/json',
     );
     const proposals: TokenProposal[] = inv.tokens.map((t) => {
-      let promotable = true;
-      let reason: string | undefined;
-      try {
-        toDtcgToken(t, inv.source.commit);
-      } catch (e) {
-        promotable = false;
-        reason = e instanceof Error ? e.message : String(e);
+      let reason = promotionBlocker(t);
+      if (!reason) {
+        try {
+          toDtcgToken(t, inv.source.commit);
+        } catch (e) {
+          reason = e instanceof Error ? e.message : String(e);
+        }
       }
+      const promotable = !reason;
       return {
         cssVar: `--${t.id}`,
         type: t.type,
@@ -152,6 +223,16 @@ const extractTokens: StepDefinition = {
         source: `${t.source.file}:${t.source.line}`,
         proposedName: proposeName(t),
         promotable,
+        confidence: t.confidence,
+        ...(t.overrides.length
+          ? {
+              overrides: t.overrides.map((o) => ({
+                media: o.media,
+                value: o.value,
+                source: `${o.source.file}:${o.source.line}`,
+              })),
+            }
+          : {}),
         ...(reason ? { reason } : {}),
       };
     });
@@ -162,7 +243,7 @@ const extractTokens: StepDefinition = {
       summary: {
         headline: `${proposals.length - skipped.length} token candidates`,
         facts: [...byType].map(([type, n]) => ({ label: type, value: String(n) })),
-        warnings: skipped.map((p) => `${p.cssVar} can't become a token yet: ${p.reason}`),
+        warnings: skipped.map((p) => `${p.cssVar} is left out of review: ${p.reason}`),
       },
       output: { proposals },
     };
@@ -187,6 +268,7 @@ const identifyComponents: StepDefinition = {
       states: c.states,
       styles: c.styles.map((s) => `${s.file}:${s.line}`),
       notes: c.notes,
+      ...(c.usedIn.every((f) => /\.html?$/.test(f)) ? { onPage: true } : {}),
     }));
     return {
       summary: {
@@ -260,9 +342,10 @@ const review: StepDefinition = {
   description: 'You decide which tokens and names become the design system.',
   action: 'Preparing proposals',
   run(ctx) {
-    const proposals = (ctx.outputs['extract-tokens'] as { proposals: TokenProposal[] }).proposals.filter(
-      (p) => p.promotable,
-    );
+    const all = (ctx.outputs['extract-tokens'] as { proposals: TokenProposal[] }).proposals;
+    const proposals = all.filter((p) => p.promotable);
+    // Shown in the review panel with their reason, so nothing disappears silently.
+    const skipped = all.filter((p) => !p.promotable);
     const components = (ctx.outputs['identify-components'] as { candidates: unknown[] }).candidates;
     return {
       summary: {
@@ -270,10 +353,11 @@ const review: StepDefinition = {
         facts: [
           { label: 'Tokens proposed', value: String(proposals.length) },
           { label: 'Components found', value: String(components.length) },
+          ...(skipped.length ? [{ label: 'Left out, with a reason', value: String(skipped.length) }] : []),
         ],
         warnings: [],
       },
-      output: { tokens: proposals, components },
+      output: { tokens: proposals, skipped, components },
     };
   },
   approval: {
@@ -353,15 +437,202 @@ const generateCode: StepDefinition = {
   },
 };
 
-const notYet = (key: string, title: string, description: string, action: string): StepDefinition => ({
-  key,
-  title,
-  description,
-  action,
-  run() {
-    throw new StepBlocked(`${title} is not connected to the Studio yet. It is the next milestone.`);
+const manifestOf = (ctx: StepContext) => {
+  const dir = join(ctx.workspace, 'build', ctx.runId, 'tokens');
+  if (!ctx.outputs['generate-code'] || !existsSync(join(dir, 'tokens.manifest.json')))
+    throw new Error('No built tokens in this run. Generate code must finish first.');
+  return {
+    manifest: readJson(join(dir, 'tokens.manifest.json')) as ManifestToken[],
+    css: readFileSync(join(dir, 'tokens.css'), 'utf8'),
+  };
+};
+
+const FigmaDecision = z.union([
+  z.object({ skip: z.literal(true) }),
+  /** What the Studio's Figma plugin returned after applying the tokens. */
+  z.object({ readback: z.unknown() }),
+]);
+
+const generateFigma: StepDefinition = {
+  key: 'generate-figma',
+  title: 'Generate Figma',
+  description: 'Turns the built tokens into native Figma variables, applied with the Studio plugin for Figma.',
+  action: 'Preparing tokens for Figma',
+  run(ctx) {
+    const { manifest } = manifestOf(ctx);
+    const payload = buildVariablesPayload(manifest, `${ctx.project.name} tokens`);
+    const art = ctx.saveArtifact('figma-payload', 'figma-variables.json', JSON.stringify(payload), 'application/json');
+    ctx.log(
+      `Prepared ${plural(payload.variables.length, 'variable')} for the "${payload.collectionName}" collection` +
+        (payload.skipped.length ? `; ${payload.skipped.length} stay in code only` : ''),
+    );
+    return {
+      summary: {
+        headline: `${plural(payload.variables.length, 'variable')} ready for Figma`,
+        facts: [
+          { label: 'Collection', value: payload.collectionName },
+          { label: 'Variables', value: String(payload.variables.length) },
+          { label: 'Code only', value: String(payload.skipped.length) },
+        ],
+        warnings: payload.skipped.map((t) => `${t.name} stays in code only: ${t.reason}.`),
+      },
+      output: { payloadArtifactId: art.id, payload },
+    };
   },
-});
+  approval: {
+    prompt: 'Apply the tokens in Figma with the Studio plugin, then paste its result here',
+    onApprove(ctx) {
+      const d = FigmaDecision.parse(ctx.decision ?? {});
+      const { payload } = ctx.pending as { payload: VariablesPayload };
+      if ('skip' in d) {
+        return {
+          summary: {
+            headline: 'Skipped: Figma was not updated in this run',
+            facts: [{ label: 'Variables prepared', value: String(payload.variables.length) }],
+            warnings: ['Figma was skipped, so Validate reports it as not checked.'],
+          },
+          output: { skipped: true },
+        };
+      }
+      const parsed = VariablesReadback.safeParse(d.readback);
+      if (!parsed.success)
+        throw new Error('That is not a result from the Studio plugin. In Figma, use "Copy result for the Studio".');
+      const problems = checkVariablesReadback(payload, parsed.data);
+      if (problems.length)
+        throw new Error(
+          `Figma does not match the tokens yet: ${problems.slice(0, 5).join('; ')}${problems.length > 5 ? ` and ${problems.length - 5} more` : ''}`,
+        );
+      const rb = parsed.data;
+      ctx.saveArtifact('figma-readback', 'figma-readback.json', JSON.stringify(rb, null, 2), 'application/json');
+      return {
+        summary: {
+          headline: `${plural(payload.variables.length, 'variable')} match in Figma`,
+          facts: [
+            { label: 'Figma file', value: rb.fileName },
+            { label: 'Collection', value: rb.collection.name },
+            { label: 'Created', value: String(rb.created) },
+            { label: 'Updated', value: String(rb.updated) },
+          ],
+          warnings: [],
+        },
+        output: {
+          verified: true,
+          fileName: rb.fileName,
+          collectionId: rb.collection.id,
+          count: payload.variables.length,
+        },
+      };
+    },
+  },
+  optional: true,
+};
+
+const generateDocs: StepDefinition = {
+  key: 'generate-docs',
+  title: 'Generate documentation',
+  description: 'Builds the documentation site and the agent catalog from the built tokens.',
+  action: 'Building docs',
+  run(ctx) {
+    const { manifest, css } = manifestOf(ctx);
+    const components = ((ctx.outputs['identify-components'] as { candidates?: DocComponent[] } | undefined)
+      ?.candidates ?? []) as DocComponent[];
+    const input: DocsInput = {
+      projectName: ctx.project.name,
+      sourceUrl: ctx.source.url,
+      runNumber: ctx.runNumber,
+      generatedAt: new Date().toISOString(),
+      tokens: manifest,
+      tokensCss: css,
+      components,
+    };
+    const html = renderDocsSite(input);
+    const catalog = renderAgentCatalog(input);
+    const dir = join(ctx.workspace, 'build', ctx.runId, 'docs');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'index.html'), html);
+    writeFileSync(join(dir, 'catalog.md'), catalog);
+    const site = ctx.saveArtifact('docs-site', 'index.html', html, 'text/html');
+    ctx.saveArtifact('agent-catalog', 'catalog.md', catalog, 'text/markdown');
+    const sections = sectionsOf(manifest);
+    ctx.log(`Documented ${manifest.length} tokens in ${plural(sections.length, 'section')}`);
+    return {
+      summary: {
+        headline: `Docs for ${plural(manifest.length, 'token')} and an agent catalog`,
+        facts: [
+          ...sections.map((x) => ({ label: x.title, value: String(x.tokens.length) })),
+          { label: 'Components listed (not generated yet)', value: String(components.length) },
+        ],
+        warnings: [],
+      },
+      output: { siteArtifactId: site.id, sections: sections.length },
+    };
+  },
+};
+
+/** What Validate should say about Figma, from the Figma stage's output (if it ran). */
+function figmaStatus(out: unknown): FigmaCheck {
+  const o = out as { verified?: boolean; skipped?: boolean; fileName?: string; count?: number } | undefined;
+  if (o?.verified) return { verified: `${o.count ?? 0} variables match in "${o.fileName ?? 'Figma'}"` };
+  if (o?.skipped) return { notRun: 'You skipped Figma for this run' };
+  return { notRun: 'The Figma stage did not finish in this run' };
+}
+
+const validate: StepDefinition = {
+  key: 'validate',
+  title: 'Validate',
+  description: 'Runs quality checks on everything generated. Nothing is published.',
+  action: 'Running checks',
+  run(ctx) {
+    const { manifest, css } = manifestOf(ctx);
+    const approved = (ctx.outputs.review as { approved?: number } | undefined)?.approved ?? manifest.length;
+    const docsDir = join(ctx.workspace, 'build', ctx.runId, 'docs');
+    const docsRan = !!ctx.outputs['generate-docs'];
+    const checks = validateOutputs({
+      approvedCount: approved,
+      manifest,
+      tokensCss: css,
+      ...(docsRan ? { docsHtml: readFileSync(join(docsDir, 'index.html'), 'utf8') } : {}),
+      ...(docsRan ? { catalog: readFileSync(join(docsDir, 'catalog.md'), 'utf8') } : {}),
+      figma: figmaStatus(ctx.outputs['generate-figma']),
+    });
+    const report = [
+      `# Validation, run ${ctx.runNumber}`,
+      '',
+      '| Check | Result | Detail |',
+      '| --- | --- | --- |',
+      ...checks.map(
+        (c) => `| ${c.name} | ${c.status === 'not-run' ? 'not run' : c.status} | ${c.detail.replace(/\|/g, '\\|')} |`,
+      ),
+      '',
+      'Nothing was published. Publishing is a separate step that needs your approval.',
+      '',
+    ].join('\n');
+    ctx.saveArtifact('validation-report', 'validation.md', report, 'text/markdown');
+    for (const c of checks)
+      ctx.log(
+        `${c.status === 'pass' ? 'Pass' : c.status === 'fail' ? 'FAIL' : 'Not run'}: ${c.name} (${c.detail})`,
+        c.status === 'fail' ? 'error' : c.status === 'not-run' ? 'warn' : 'info',
+      );
+    const failed = checks.filter((c) => c.status === 'fail');
+    if (failed.length)
+      throw new Error(
+        `${plural(failed.length, 'check')} failed: ${failed.map((c) => `${c.name} (${c.detail})`).join('; ')}`,
+      );
+    const passed = checks.filter((c) => c.status === 'pass').length;
+    const notRun = checks.filter((c) => c.status === 'not-run');
+    return {
+      summary: {
+        headline: `${passed} of ${checks.length} checks passed${notRun.length ? `, ${notRun.length} not run` : ''}`,
+        facts: checks.map((c) => ({
+          label: c.name,
+          value: c.status === 'not-run' ? 'Not run' : c.status === 'pass' ? 'Pass' : 'Fail',
+        })),
+        warnings: notRun.map((c) => `${c.name}: not run. ${c.detail}.`),
+      },
+      output: { checks },
+    };
+  },
+};
 
 export const designSystemWorkflow: WorkflowDefinition = {
   id: 'design-system-v1',
@@ -374,23 +645,8 @@ export const designSystemWorkflow: WorkflowDefinition = {
     audit,
     review,
     generateCode,
-    notYet(
-      'generate-figma',
-      'Generate Figma',
-      'Creates native, editable Figma variables and components.',
-      'Preparing the Figma sync',
-    ),
-    notYet(
-      'generate-docs',
-      'Generate documentation',
-      'Builds the documentation site and the agent catalog.',
-      'Building docs',
-    ),
-    notYet(
-      'validate',
-      'Validate & publish',
-      'Runs every quality check and prepares approved outputs.',
-      'Running checks',
-    ),
+    generateDocs,
+    generateFigma,
+    validate,
   ],
 };

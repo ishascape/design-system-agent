@@ -11,6 +11,8 @@ export interface StepContext {
   project: Project;
   source: Source;
   runId: string;
+  /** The run's number within the project (1, 2, 3…), as shown to the person. */
+  runNumber: number;
   stepId: string;
   attempt: number;
   params: Record<string, unknown>;
@@ -50,6 +52,11 @@ export interface StepDefinition {
     onApprove: (ctx: ApprovalContext) => Promise<StepResult> | StepResult;
   };
   run: (ctx: StepContext) => Promise<StepResult> | StepResult;
+  /**
+   * If this step is blocked (not available yet), later steps still run instead of the run
+   * stopping there. Later steps must cope with its output being absent.
+   */
+  optional?: boolean;
 }
 
 /** Thrown by a step that cannot run yet for a known reason (not a failure of the run itself). */

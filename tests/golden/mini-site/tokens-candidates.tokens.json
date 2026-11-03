@@ -24,6 +24,18 @@
           "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         }
       }
+    },
+    "grid-line": {
+      "$type": "color",
+      "$value": "216 210 196",
+      "$extensions": {
+        "dev.dsa.provenance": {
+          "source": "src/styles/tokens.css:10",
+          "confidence": "inferred",
+          "usageCount": 0,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
     }
   },
   "dimension": {
@@ -106,19 +118,6 @@
       "$extensions": {
         "dev.dsa.provenance": {
           "source": "src/styles/tokens.css:9",
-          "confidence": "observed",
-          "usageCount": 0,
-          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        }
-      }
-    }
-  },
-  "other": {
-    "grid-line": {
-      "$value": "216 210 196",
-      "$extensions": {
-        "dev.dsa.provenance": {
-          "source": "src/styles/tokens.css:10",
           "confidence": "observed",
           "usageCount": 0,
           "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"

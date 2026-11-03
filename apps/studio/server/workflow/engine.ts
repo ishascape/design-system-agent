@@ -92,9 +92,12 @@ export class Engine {
     const w = this.def(run.workflow);
     for (;;) {
       const steps = this.store.listSteps(projectId, runId);
-      const next = steps.find((s) => s.status !== 'succeeded');
+      const optional = new Set(w.steps.filter((d) => d.optional).map((d) => d.key));
+      const skippable = (s: Step) => s.status === 'blocked' && optional.has(s.key);
+      const next = steps.find((s) => s.status !== 'succeeded' && !skippable(s));
       if (!next) {
-        this.store.setRunStatus(runId, 'succeeded');
+        // Finished; if an optional stage was not available, the run says so rather than "succeeded".
+        this.store.setRunStatus(runId, steps.some(skippable) ? 'blocked' : 'succeeded');
         this.emit({ projectId, runId, type: 'run' });
         return;
       }
@@ -130,6 +133,7 @@ export class Engine {
       project,
       source,
       runId,
+      runNumber: run.number,
       stepId: step.id,
       attempt: fresh.attempt,
       params: fresh.params,

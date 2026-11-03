@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 16px;
+        font:
+          12px/1.5 Inter,
+          system-ui,
+          sans-serif;
+        color: var(--figma-color-text, #1d1d1f);
+        background: var(--figma-color-bg, #fff);
+        display: grid;
+        gap: 10px;
+      }
+      h1 {
+        font-size: 13px;
+        margin: 0;
+      }
+      p {
+        margin: 0;
+        color: var(--figma-color-text-secondary, #6e6b66);
+      }
+      textarea {
+        width: 100%;
+        height: 150px;
+        font:
+          11px ui-monospace,
+          Menlo,
+          monospace;
+        padding: 8px;
+        border: 1px solid var(--figma-color-border, #e6e3dd);
+        border-radius: 6px;
+        background: var(--figma-color-bg-secondary, #fafafa);
+        color: inherit;
+        resize: vertical;
+      }
+      button {
+        font: inherit;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 0;
+        background: var(--figma-color-bg-brand, #0d99ff);
+        color: var(--figma-color-text-onbrand, #fff);
+        cursor: pointer;
+      }
+      button.secondary {
+        background: var(--figma-color-bg-secondary, #f0f0f0);
+        color: inherit;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+      }
+      .note {
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: var(--figma-color-bg-secondary, #f5f5f5);
+      }
+      .error {
+        background: var(--figma-color-bg-danger-tertiary, #fde8e8);
+      }
+      .ok {
+        background: var(--figma-color-bg-success-tertiary, #e6f6ea);
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Design System Studio</h1>
+    <p>
+      1. In the Studio, open the Generate Figma stage and copy the tokens.<br />
+      2. Paste them here and apply. Variables are created or updated in this file; nothing is deleted.<br />
+      3. Copy the result back into the Studio so it can check Figma matches.
+    </p>
+    <textarea
+      id="payload"
+      placeholder="Paste the tokens copied from the Studio"
+      aria-label="Tokens from the Studio"
+    ></textarea>
+    <div class="row">
+      <button id="apply" disabled>Apply to this file</button>
+      <button id="close" class="secondary">Close</button>
+    </div>
+    <div id="status" class="note" hidden></div>
+    <div id="out" hidden>
+      <textarea id="result" readonly aria-label="Result for the Studio"></textarea>
+      <div class="row"><button id="copy">Copy result for the Studio</button></div>
+    </div>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const status = (text, kind) => {
+        const el = $('status');
+        el.hidden = false;
+        el.className = `note ${kind || ''}`;
+        el.textContent = text; // never innerHTML: pasted text is not trusted
+      };
+      $('payload').addEventListener('input', () => {
+        $('apply').disabled = !$('payload').value.trim();
+      });
+      $('apply').addEventListener('click', () => {
+        let payload;
+        try {
+          payload = JSON.parse($('payload').value);
+        } catch {
+          status('That is not the text copied from the Studio. Copy it again.', 'error');
+          return;
+        }
+        $('apply').disabled = true;
+        status('Applying…');
+        parent.postMessage({ pluginMessage: { type: 'apply', payload } }, '*');
+      });
+      $('close').addEventListener('click', () => parent.postMessage({ pluginMessage: { type: 'close' } }, '*'));
+      $('copy').addEventListener('click', () => {
+        const box = $('result');
+        box.select();
+        const ok = document.execCommand('copy');
+        status(ok ? 'Copied. Paste it into the Studio.' : 'Select the text above and copy it.', ok ? 'ok' : '');
+      });
+      window.onmessage = (e) => {
+        const msg = e.data && e.data.pluginMessage;
+        if (!msg) return;
+        $('apply').disabled = false;
+        if (msg.type === 'error') {
+          status(msg.message, 'error');
+          return;
+        }
+        if (msg.type === 'done') {
+          const r = msg.result;
+          status(
+            `Done in "${r.fileName}": ${r.created} created, ${r.updated} updated in the "${r.collection.name}" collection.`,
+            'ok',
+          );
+          $('result').value = JSON.stringify(r);
+          $('out').hidden = false;
+        }
+      };
+    </script>
+  </body>
+</html>

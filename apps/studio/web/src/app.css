@@ -923,6 +923,20 @@ textarea.input {
 .doc-body {
   min-width: 0;
 }
+.doc-actions {
+  display: flex;
+  gap: var(--ds-space-2);
+  margin-bottom: var(--ds-space-3);
+}
+.doc-frame {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 220px);
+  min-height: 480px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+}
 .doc-text {
   margin: 0;
   padding: var(--ds-space-5);
@@ -1389,7 +1403,7 @@ textarea.input {
 }
 .token-table__row {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1.2fr);
+  grid-template-columns: 40px minmax(0, 1.3fr) minmax(0, 1fr);
   gap: 8px;
   align-items: center;
   padding: 5px 8px;
@@ -1424,4 +1438,129 @@ textarea.input {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.token-from__text {
+  display: grid;
+  min-width: 0;
+}
+.token-evidence {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--ds-font-size-xs);
+  color: var(--ds-color-text-tertiary);
+}
+
+.token-group__head {
+  background: var(--ds-color-surface-sunken);
+}
+.token-group__toggle {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ds-color-text);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.token-group__toggle .muted {
+  margin-left: auto;
+  font-weight: 400;
+}
+.token-group__toggle svg {
+  transition: transform var(--ds-motion-fast) var(--ds-ease);
+}
+.token-group__toggle svg.is-open {
+  transform: rotate(90deg);
+}
+
+.shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-md);
+  background: var(--ds-color-surface-sunken);
+}
+
+/* Custom properties left out of review, each with its reason */
+.skipped {
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-md);
+  padding: var(--ds-space-2) var(--ds-space-3);
+  font-size: var(--ds-font-size-sm);
+}
+.skipped summary {
+  cursor: pointer;
+  color: var(--ds-color-text-secondary);
+}
+.skipped__list {
+  list-style: none;
+  margin: var(--ds-space-2) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--ds-space-2);
+}
+.skipped__list li {
+  display: grid;
+  gap: var(--ds-space-1);
+}
+
+/* Numbered hand-off steps (Figma) */
+.steps-list {
+  margin: 0;
+  padding-left: var(--ds-space-5);
+  display: grid;
+  gap: var(--ds-space-3);
+  font-size: var(--ds-font-size-sm);
+}
+.steps-list textarea {
+  width: 100%;
+}
+
+.spec-draft {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+.spec-draft h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.plain {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.spec-form {
+  display: grid;
+  gap: 10px;
+}
+.spec-form h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.spec-form label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.spec-form input,
+.spec-form textarea {
+  font: inherit;
+  font-weight: 400;
+  padding: 8px 10px;
+  border: 1px solid var(--line, #d8d2c4);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
 }
